@@ -76,7 +76,7 @@
                 <td>
                     <span id="title">
                           LAPORAN REALISASI PENERIMAAN SAMSAT KELILING<br>
-                          UPPD PELAIHARI<br>
+                          BPKUK PROV. KALSEL<br>
                           TAHUN {{ $tahun }}
                     </span>
                 </td>
@@ -158,7 +158,7 @@
                 <td style="text-align: center"></td>
             </tr>
             <tr>
-                <td style="text-align: center"><b>KEPALA UPPD PELAIHARI</b></td>
+                <td style="text-align: center"><b>KEPALA BPKUK PROV. KALSEL</b></td>
 
                 <td style="text-align: center"><b>KEPALA SEKSI PELAYANAN <br> PKB & BBNKB</b></td>
             </tr>

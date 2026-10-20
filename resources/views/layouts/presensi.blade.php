@@ -12,9 +12,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>SAKTI UPPD PLH</title>
-    <meta name="description" content="SAKTI UPPD PLH">
-    <meta name="keywords" content="ABSEN PRESENSI GPS SAMKEL PELAIHARI" />
+    <title>PRESIS BPKUK Prov. Kalsel</title>
+    <meta name="description" content="PRESIS BPKUK Prov. Kalsel">
+    <meta name="keywords" content="ABSEN PRESENSI BPKUK PROV. KALSEL" />
     <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">

@@ -6,7 +6,7 @@
         </button>
         <h1 class="navbar-brand navbar-brand-autodark">
             <a href=".">
-                SAKTI UPPD PELAIHARI
+                PRESIS BPKUK PROV. KALSEL
             </a>
         </h1>
         <div class="navbar-nav flex-row d-lg-none">

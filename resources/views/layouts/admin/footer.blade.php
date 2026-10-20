@@ -10,8 +10,8 @@
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item">
                         Copyright &copy; 2024
-                        <a href="." class="link-secondary">UPPD Pelaihari</a>.
-                        Aplikasi Sakti
+                        <a href="." class="link-secondary">BPKUK Prov. Kalsel</a>.
+                        Aplikasi Presis
                     </li>
                     <li class="list-inline-item">
                         <a href="./changelog.html" class="link-secondary" rel="noopener">
