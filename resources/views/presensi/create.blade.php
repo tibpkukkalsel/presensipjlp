@@ -221,13 +221,6 @@
                         Senyum: <span id="badgeSmile">Belum</span>
                     </span>
                 </div>
-
-                <!-- Fallback Button for Manual Shutter if Environment is Dark -->
-                <div class="text-center mt-2 mb-2">
-                    <button type="button" class="btn btn-link text-muted btn-sm p-0" id="btnManualShutter" style="font-size: 11.5px; text-decoration: none;">
-                        Kendala sensor? Ambil foto manual
-                    </button>
-                </div>
                 @else
                 <!-- Tombol Shutter Foto Manual (Mode Scan OFF) -->
                 <div class="mt-3 mb-2">
@@ -701,46 +694,6 @@
                 }
             });
         }
-
-        // Manual Shutter Button Fallback
-        $("#btnManualShutter").click(function(e) {
-            e.preventDefault();
-
-            if (!selectedStatus) {
-                Swal.fire({
-                    title: 'Pilih Jenis Presensi',
-                    text: 'Silakan pilih jenis presensi terlebih dahulu sebelum mengambil foto:',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#16a34a',
-                    cancelButtonColor: '#dc2626',
-                    confirmButtonText: 'Masuk Kerja',
-                    cancelButtonText: 'Pulang Kerja'
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        updateModeUI('in');
-                    } else if (res.dismiss === Swal.DismissReason.cancel) {
-                        updateModeUI('out');
-                    }
-                });
-                return;
-            }
-
-            Swal.fire({
-                title: 'Konfirmasi Presensi Manual',
-                text: 'Ambil foto sekarang untuk Presensi ' + (selectedStatus === 'in' ? 'Masuk' : 'Pulang') + '?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: selectedStatus === 'in' ? '#16a34a' : '#dc2626',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, Foto & Simpan',
-                cancelButtonText: 'Batal'
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    executeAttendance(selectedStatus);
-                }
-            });
-        });
 
         // Tombol Shutter Foto Manual saat Scan Nonaktif
         $("#btnShutterPresensi").click(function() {
