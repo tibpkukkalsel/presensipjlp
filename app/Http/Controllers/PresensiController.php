@@ -317,6 +317,10 @@ class PresensiController extends Controller
         $formatName = $nik . "-" . $tgl_presensi . "-" . $ket;
         $image_parts = explode(";base64", $image);
         $image_base64 = base64_decode($image_parts[1]);
+        if (empty($image_base64) || !@imagecreatefromstring($image_base64)) {
+            echo "error|Format foto selfie tidak valid atau rusak.|" . $ket;
+            return;
+        }
         $fileName = $formatName . ".png";
         $file = $folderPath . $fileName;
 
@@ -602,27 +606,30 @@ class PresensiController extends Controller
     public function updatelokasi(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
-        $kode_cabang = $request->kode_cabang;
         $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+
         $request->validate([
-            'foto' => 'image|mimes:png,jpg|max:1024'
+            'kode_cabang' => 'nullable|exists:cabang,kode_cabang',
+            'foto' => 'nullable|image|mimes:png,jpg|max:1024'
         ]);
+
+        $kode_cabang = $request->kode_cabang ?? $karyawan->kode_cabang;
+
+        // Jika status_location karyawan dikunci (1), karyawan tidak boleh memindahkan kantor cabangnya sendiri
+        if ($karyawan->status_location == 1 && !empty($request->kode_cabang) && $request->kode_cabang != $karyawan->kode_cabang) {
+            return Redirect::back()->with(['error' => 'Lokasi cabang Anda dikunci oleh Administrator dan tidak dapat diubah secara mandiri']);
+        }
+
         if ($request->hasFile('foto')) {
             $foto = $nik . "." . $request->file('foto')->getClientOriginalExtension();
         } else {
             $foto = $karyawan->foto;
         }
-        if (empty($request->kode_cabang)) {
-            $data = [
-                'kode_cabang' => $kode_cabang,
-                'foto' => $foto
-            ];
-        } else {
-            $data = [
-                 'kode_cabang' => $kode_cabang,
-                'foto' => $foto
-            ];
-        }
+
+        $data = [
+            'kode_cabang' => $kode_cabang,
+            'foto' => $foto
+        ];
 
         $update = DB::table('karyawan')->where('nik', $nik)->update($data);
         if ($update) {
@@ -631,7 +638,6 @@ class PresensiController extends Controller
                 $request->file('foto')->storeAs($folderPath, $foto);
             }
             return Redirect('dashboard')->with(['success' => 'Data Berhasil Di Update']);
-
         } else {
             return Redirect::back()->with(['error' => 'Data gagal Di Update']);
         }
@@ -1818,7 +1824,11 @@ class PresensiController extends Controller
 
     public function showact($kode_izin)
     {
-        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->first();
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        if (!$dataizin) {
+            return '<div class="alert alert-danger p-2 m-2">Data tidak ditemukan atau bukan milik Anda.</div>';
+        }
         return view('presensi.showact', compact('dataizin'));
     }
 
@@ -1831,20 +1841,24 @@ class PresensiController extends Controller
 
     public function deleteizin($kode_izin)
     {
-        $cekdataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->first();
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $cekdataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        if (!$cekdataizin) {
+            return redirect('/presensi/izin')->with(['error' => 'Data izin tidak ditemukan atau bukan milik Anda']);
+        }
+        if (isset($cekdataizin->status_approved) && $cekdataizin->status_approved == 1) {
+            return redirect('/presensi/izin')->with(['error' => 'Izin yang sudah disetujui tidak dapat dihapus']);
+        }
         $doc_sid = $cekdataizin->doc_sid;
 
         try {
-            DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->delete();
-            // dd($doc_sid);
+            DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->delete();
             if ($doc_sid != null) {
-
                 Storage::delete('/public/uploads/sid/' . $doc_sid);
             }
             return redirect('/presensi/izin')->with(['success' => 'Data Berhasil Dihapus']);
         } catch (\Exception $e) {
             return redirect('/presensi/izin')->with(['error' => 'Data Gagal Dihapus']);
-            //throw $th;
         }
     }
 

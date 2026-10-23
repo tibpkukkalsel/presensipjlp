@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Blokir akses langsung ke file-file sensitif
+    <FilesMatch "(^\.env|^\.git|\.sql$|\.log$|composer\.(json|lock)$|package(-lock)?\.json$|^artisan$)">
+        <IfModule mod_authz_core.c>
+            Require all denied
+        </IfModule>
+        <IfModule !mod_authz_core.c>
+            Order allow,deny
+            Deny from all
+        </IfModule>
+    </FilesMatch>
+
+    # 2. Arahkan traffic ke folder public jika document root hosting menunjuk ke root direktori
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Cegah browsing isi folder (directory listing)
+Options -Indexes

@@ -40,7 +40,8 @@ Route::middleware(['guest:karyawan'])->group(function () {
         return view('auth.login');
     })->name('login');
 
-    Route::post('/proseslogin', [AuthController::class, 'proseslogin']);
+    // Rate limiting: maks 10 percobaan per menit untuk mencegah brute-force tebak password
+    Route::post('/proseslogin', [AuthController::class, 'proseslogin'])->middleware('throttle:10,1');
 });
 
 
@@ -49,8 +50,9 @@ Route::middleware(['guest:user'])->group(function () {
         return view('auth.loginadmin');
     })->name('loginadmin');
 
-    Route::post('/panel-adm14/prosesloginadmin', [AuthController::class, 'prosesloginadmin']);
-    Route::post('/prosesloginadmin', [AuthController::class, 'prosesloginadmin']);
+    // Rate limiting login admin: maks 5 percobaan per menit
+    Route::post('/panel-adm14/prosesloginadmin', [AuthController::class, 'prosesloginadmin'])->middleware('throttle:5,1');
+    Route::post('/prosesloginadmin', [AuthController::class, 'prosesloginadmin'])->middleware('throttle:5,1');
 
     Route::get('/panel', function () {
         return redirect('/');
@@ -333,18 +335,16 @@ Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen
 });
 
 
+// Route uji coba & dev seeder dinonaktifkan demi keamanan produksi
+/*
 Route::get('/createrolepermission', function () {
-
     try {
         Role::create(['name' => 'admin departemen']);
-        // Permission::create(['name' => 'view-karyawan']);
-        // Permission::create(['name' => 'view-departemen']);
         echo "Sukses";
     } catch (\Exception $e) {
         echo "Error";
     }
 });
-
 
 Route::get('/give-user-role', function () {
     try {
@@ -352,11 +352,9 @@ Route::get('/give-user-role', function () {
         $user->assignRole('administrator');
         echo "Sukses";
     } catch (\Exception $e) {
-        //throw $th;
         echo "Error";
     }
 });
-
 
 Route::get('/give-role-permission', function () {
     try {
@@ -364,7 +362,7 @@ Route::get('/give-role-permission', function () {
         $role->givePermissionTo('view-departemen');
         echo "Sukses";
     } catch (\Exception $e) {
-        //throw $th;
         echo "Error";
     }
 });
+*/

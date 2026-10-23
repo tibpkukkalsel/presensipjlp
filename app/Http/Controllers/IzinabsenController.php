@@ -86,25 +86,40 @@ class IzinabsenController extends Controller
 
     public function edit($kode_izin)
     {
-        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->first();
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        if (!$dataizin) {
+            return redirect('/presensi/izin')->with(['error' => 'Data izin tidak ditemukan atau bukan milik Anda']);
+        }
+        if (isset($dataizin->status_approved) && $dataizin->status_approved == 1) {
+            return redirect('/presensi/izin')->with(['error' => 'Izin yang sudah disetujui tidak dapat diedit']);
+        }
         return view('izin.edit', compact('dataizin'));
     }
 
     public function update($kode_izin, Request $request)
     {
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $cekdataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        if (!$cekdataizin) {
+            return redirect('/presensi/izin')->with(['error' => 'Data izin tidak ditemukan atau bukan milik Anda']);
+        }
+        if (isset($cekdataizin->status_approved) && $cekdataizin->status_approved == 1) {
+            return redirect('/presensi/izin')->with(['error' => 'Izin yang sudah disetujui tidak dapat diedit']);
+        }
+
         $tgl_izin_dari = $request->tgl_izin_dari;
         $tgl_izin_sampai = $request->tgl_izin_sampai;
         $keterangan = $request->keterangan;
 
         try {
-            //code...
             $data = [
                 'tgl_izin_dari' => $tgl_izin_dari,
                 'tgl_izin_sampai' => $tgl_izin_sampai,
                 'keterangan' => $keterangan
             ];
 
-            DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->update($data);
+            DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->update($data);
             return redirect('/presensi/izin')->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
             return redirect('/presensi/izin')->with(['error' => 'Data Gagal Disimpan']);

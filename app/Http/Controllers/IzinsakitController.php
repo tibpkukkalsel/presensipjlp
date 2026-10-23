@@ -93,24 +93,36 @@ class IzinsakitController extends Controller
 
     public function edit($kode_izin)
     {
-        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->first();
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        if (!$dataizin) {
+            return redirect('/presensi/izin')->with(['error' => 'Data izin tidak ditemukan atau bukan milik Anda']);
+        }
+        if (isset($dataizin->status_approved) && $dataizin->status_approved == 1) {
+            return redirect('/presensi/izin')->with(['error' => 'Izin yang sudah disetujui tidak dapat diedit']);
+        }
         return view('sakit.edit', compact('dataizin'));
     }
 
-
-
     public function update($kode_izin, Request $request)
     {
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $cekdataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        if (!$cekdataizin) {
+            return redirect('/presensi/izin')->with(['error' => 'Data izin tidak ditemukan atau bukan milik Anda']);
+        }
+        if (isset($cekdataizin->status_approved) && $cekdataizin->status_approved == 1) {
+            return redirect('/presensi/izin')->with(['error' => 'Izin yang sudah disetujui tidak dapat diedit']);
+        }
+
         $tgl_izin_dari = $request->tgl_izin_dari;
         $tgl_izin_sampai = $request->tgl_izin_sampai;
         $keterangan = $request->keterangan;
 
-
-
         if ($request->hasFile('sid')) {
             $sid = $kode_izin . "." . $request->file('sid')->getClientOriginalExtension();
         } else {
-            $sid = null;
+            $sid = $cekdataizin->doc_sid ?? null;
         }
         $data = [
             'tgl_izin_dari' => $tgl_izin_dari,
@@ -119,10 +131,10 @@ class IzinsakitController extends Controller
             'doc_sid' => $sid
         ];
 
-
         try {
             DB::table('pengajuan_izin')
                 ->where('kode_izin', $kode_izin)
+                ->where('nik', $nik)
                 ->update($data);
             if ($request->hasFile('sid')) {
                 $sid = $kode_izin . "." . $request->file('sid')->getClientOriginalExtension();
