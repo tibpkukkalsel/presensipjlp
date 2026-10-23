@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,17 +14,36 @@ class AuthController extends Controller
     {
         // Otomatis aktifkan "Remember Me" agar pada device & browser yang sama otomatis login
         $remember = true;
-        $loginInput = $request->nik;
+        $loginInput = trim($request->nik ?? '');
         $password = $request->password;
 
-        if (Auth::guard('karyawan')->attempt(['nik' => $loginInput, 'password' => $password], $remember) ||
-            Auth::guard('karyawan')->attempt(['username' => $loginInput, 'password' => $password], $remember)) {
+        if (empty($loginInput) || empty($password)) {
+            return redirect('/')->with(['warning' => 'ID / No. HP dan Password wajib diisi']);
+        }
+
+        // Variasi format no HP (misal: 0853..., +62853..., 62853..., 0853-4823-6515)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $loginInput);
+        $phoneCandidates = array_values(array_unique(array_filter([
+            $loginInput,
+            $cleanPhone,
+            (!empty($cleanPhone) && str_starts_with($cleanPhone, '62')) ? ('0' . substr($cleanPhone, 2)) : null,
+            (!empty($cleanPhone) && str_starts_with($cleanPhone, '0')) ? ('62' . substr($cleanPhone, 1)) : null,
+        ])));
+
+        // Cari pegawai berdasarkan NIK (ID), Username, atau No HP
+        $karyawan = Karyawan::where('nik', $loginInput)
+            ->orWhere('username', $loginInput)
+            ->orWhereIn('no_hp', $phoneCandidates)
+            ->first();
+
+        if ($karyawan && Hash::check($password, $karyawan->password)) {
+            Auth::guard('karyawan')->login($karyawan, $remember);
             if ($request->hasSession()) {
                 $request->session()->regenerate();
             }
             return redirect('/dashboard');
         } else {
-            return redirect('/')->with(['warning' => 'ID / Password Salah']);
+            return redirect('/')->with(['warning' => 'ID / No. HP atau Password Salah']);
         }
     }
 

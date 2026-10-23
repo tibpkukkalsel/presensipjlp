@@ -32,7 +32,7 @@
                 <input type="text" id="tgl_izin" name="tgl_izin" class="form-control datepicker" placeholder="Tanggal">
             </div>
             <div class="form-group">
-                <select name="status" id="status" class="form-control">
+                <select name="status" id="status" class="form-control selectmaterialize">
                     <option value="">Izin / Sakit</option>
                     <option value="i">Izin</option>
                     <option value="s">Sakit</option>

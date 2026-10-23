@@ -164,6 +164,7 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
     Route::post('/karyawan/{nik}/delete', [KaryawanController::class, 'delete']);
     Route::get('/karyawan/{nik}/lockandunlocklocation', [KaryawanController::class, 'lockandunlocklocation']);
     Route::get('/karyawan/{nik}/lockandunlockjamkerja', [KaryawanController::class, 'lockandunlockjamkerja']);
+    Route::get('/karyawan/{nik}/lockandunlockscan', [KaryawanController::class, 'lockandunlockscan']);
 
     Route::post('/pegawai/store', [KaryawanController::class, 'store']);
     Route::post('/pegawai/edit', [KaryawanController::class, 'edit']);
@@ -171,6 +172,7 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
     Route::post('/pegawai/{nik}/delete', [KaryawanController::class, 'delete']);
     Route::get('/pegawai/{nik}/lockandunlocklocation', [KaryawanController::class, 'lockandunlocklocation']);
     Route::get('/pegawai/{nik}/lockandunlockjamkerja', [KaryawanController::class, 'lockandunlockjamkerja']);
+    Route::get('/pegawai/{nik}/lockandunlockscan', [KaryawanController::class, 'lockandunlockscan']);
     //Seksi
     Route::get('/seksi', [DepartemenController::class, 'index'])->middleware('permission:view-departemen,user');
     Route::post('/seksi/store', [DepartemenController::class, 'store']);
@@ -256,6 +258,10 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
     // Konfigurasi Penandatangan Laporan
     Route::get('/konfigurasi/penandatangan', [KonfigurasiController::class, 'penandatangan']);
     Route::post('/konfigurasi/updatepenandatangan', [KonfigurasiController::class, 'updatepenandatangan']);
+
+    // Konfigurasi Scan Wajah
+    Route::get('/konfigurasi/scan', [KonfigurasiController::class, 'scanconfig']);
+    Route::get('/konfigurasi/togglescan', [KonfigurasiController::class, 'togglescan']);
 });
 
 // Redirect URL admin lama & alias ke prefix panel-adm14
@@ -280,6 +286,8 @@ Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen
     Route::get('/konfigurasi/lokasikantor', fn() => redirect('/panel-adm14/konfigurasi/lokasikantor'));
     Route::get('/konfigurasi/penandatangan', fn() => redirect('/panel-adm14/konfigurasi/penandatangan'));
     Route::post('/konfigurasi/updatepenandatangan', [KonfigurasiController::class, 'updatepenandatangan']);
+    Route::get('/konfigurasi/scan', fn() => redirect('/panel-adm14/konfigurasi/scan'));
+    Route::get('/konfigurasi/togglescan', fn() => redirect('/panel-adm14/konfigurasi/togglescan'));
 
     // Alias AJAX POST lama agar request tetap berjalan normal jika dipanggil tanpa prefix
     Route::post('/getpresensi', [PresensiController::class, 'getpresensi']);

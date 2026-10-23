@@ -430,4 +430,48 @@ class KonfigurasiController extends Controller
 
         return Redirect::back()->with(['success' => 'Data Pejabat Penandatangan Laporan Berhasil Diperbarui']);
     }
+
+    public function scanconfig()
+    {
+        $config = DB::table('konfigurasi_scan')->where('id', 1)->first();
+        if (!$config) {
+            DB::table('konfigurasi_scan')->insert([
+                'id' => 1,
+                'status_scan' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $config = DB::table('konfigurasi_scan')->where('id', 1)->first();
+        }
+
+        $pegawai = DB::table('pegawai')
+            ->leftJoin('seksi', 'pegawai.kode_dept', '=', 'seksi.kode_dept')
+            ->select('pegawai.*', 'seksi.nama_dept')
+            ->orderBy('pegawai.nama_lengkap', 'asc')
+            ->get();
+
+        return view('konfigurasi.scan', compact('config', 'pegawai'));
+    }
+
+    public function togglescan()
+    {
+        try {
+            $config = DB::table('konfigurasi_scan')->where('id', 1)->first();
+            $status_scan = $config ? $config->status_scan : 1;
+            $new_status = ($status_scan == 1) ? 0 : 1;
+
+            DB::table('konfigurasi_scan')->where('id', 1)->update([
+                'status_scan' => $new_status,
+                'updated_at' => now()
+            ]);
+
+            $msg = ($new_status == 1)
+                ? 'Fitur Scan Wajah Otomatis (Kedip & Senyum) Berhasil Diaktifkan Secara Global'
+                : 'Fitur Scan Wajah Dinonaktifkan (Mode Tombol Foto Manual Aktif untuk Pegawai)';
+
+            return Redirect::back()->with(['success' => $msg]);
+        } catch (\Exception $e) {
+            return Redirect::back()->with(['warning' => 'Gagal mengubah status scan wajah: ' . $e->getMessage()]);
+        }
+    }
 }

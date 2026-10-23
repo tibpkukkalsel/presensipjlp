@@ -39,16 +39,16 @@
                         </span>
                         <br>
                         @php
-                            //Jam Ketika dia Absen
-                            $jam_in = date('H:i', strtotime($d->jam_in));
+                            $has_jam_in = !empty($d->jam_in);
+                            $jam_masuk_jadwal = !empty($d->jam_masuk) ? date('H:i', strtotime($d->jam_masuk)) : '08:00';
+                            $jam_in_formatted = $has_jam_in ? date('H:i', strtotime($d->jam_in)) : null;
 
-                            //Jam Jadwal Masuk
-                            $jam_masuk = date('H:i', strtotime($d->jam_masuk));
-
-                            $jadwal_jam_masuk = $d->tgl_presensi . ' ' . $jam_masuk;
-                            $jam_presensi = $d->tgl_presensi . ' ' . $jam_in;
+                            $jadwal_jam_masuk = $d->tgl_presensi . ' ' . $jam_masuk_jadwal;
+                            $jam_presensi = $d->tgl_presensi . ' ' . ($jam_in_formatted ?? '00:00');
                         @endphp
-                        @if ($jam_in > $jam_masuk)
+                        @if (!$has_jam_in)
+                            <span class="danger text-danger font-weight-bold" style="color:#ef4444;">Terlambat (Tidak Absen Pagi)</span>
+                        @elseif ($jam_in_formatted > $jam_masuk_jadwal)
                             @php
                                 $jmlterlambat = hitungjamterlambat($jadwal_jam_masuk, $jam_presensi);
                                 $jmlterlambatdesimal = hitungjamterlambatdesimal($jadwal_jam_masuk, $jam_presensi);

@@ -22,7 +22,7 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <style>
         .selectmaterialize {
-            display: block;
+            display: block !important;
             background-color: transparent !important;
             border: 0px !important;
             border-bottom: 1px solid #9e9e9e !important;
@@ -31,9 +31,45 @@
             height: 3rem !important;
             width: 100% !important;
             font-size: 16px !important;
+            font-family: inherit !important;
             margin: 0 0 8px 0 !important;
-            padding: 0 !important;
-            color: #495057;
+            padding: 0 28px 0 0 !important;
+            color: #495057 !important;
+            box-shadow: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 4px center !important;
+            background-size: 20px 20px !important;
+            cursor: pointer;
+            box-sizing: content-box !important;
+            transition: border-bottom 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .selectmaterialize:focus {
+            border-bottom: 1px solid #2A8BF2 !important;
+            box-shadow: 0 1px 0 0 #2A8BF2 !important;
+            outline: none !important;
+        }
+
+        .selectmaterialize option {
+            background-color: #ffffff;
+            color: #1e293b;
+            padding: 10px 14px;
+            font-size: 15px;
+        }
+
+        /* Harmonize Materialize input focus with signature blue #2A8BF2 */
+        input:not([type]):focus:not([readonly]),
+        input[type=text]:not(.browser-default):focus:not([readonly]),
+        input[type=password]:not(.browser-default):focus:not([readonly]),
+        input[type=email]:not(.browser-default):focus:not([readonly]),
+        textarea.materialize-textarea:focus:not([readonly]),
+        .form-control.datepicker:focus {
+            border-bottom: 1px solid #2A8BF2 !important;
+            box-shadow: 0 1px 0 0 #2A8BF2 !important;
         }
     </style>
 

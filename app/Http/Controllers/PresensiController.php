@@ -138,6 +138,20 @@ class PresensiController extends Controller
                         ->where('kode_dept', $kode_dept)
                         ->where('kode_cabang', $kode_cabang)
                         ->where('hari', $namahari)->first();
+
+                    // Fallback 1: Jika seksi belum ada jadwal khusus, cari jadwal dari seksi lain di kantor/cabang yang sama
+                    if ($jamkerja == null) {
+                        $jamkerja = DB::table('konfigurasi_jk_dept_detail')
+                            ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
+                            ->join('jam_kerja', 'konfigurasi_jk_dept_detail.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+                            ->where('kode_cabang', $kode_cabang)
+                            ->where('hari', $namahari)->first();
+                    }
+
+                    // Fallback 2: Jika masih kosong di hari kerja (Senin - Jumat), gunakan jam kerja kantor default
+                    if ($jamkerja == null && !in_array($namahari, ['Sabtu', 'Minggu'])) {
+                        $jamkerja = DB::table('jam_kerja')->where('kode_jam_kerja', 'JK01')->first() ?? DB::table('jam_kerja')->first();
+                    }
                 }
             }
         } else {
@@ -154,7 +168,11 @@ class PresensiController extends Controller
         } else if ($jamkerja == null) {
             return view('presensi.notifjadwal');
         } else {
-            return view('presensi.create', compact('cek', 'datapresensi', 'lok_kantor', 'jamkerja', 'hariini', 'kode_jam_kerja'));
+            $status_scan_global = DB::table('konfigurasi_scan')->where('id', 1)->value('status_scan') ?? 1;
+            $status_scan_user = Auth::guard('karyawan')->user()->status_scan ?? '1';
+            $scan_aktif = ($status_scan_global == 1 && $status_scan_user == '1') ? 1 : 0;
+
+            return view('presensi.create', compact('cek', 'datapresensi', 'lok_kantor', 'jamkerja', 'hariini', 'kode_jam_kerja', 'scan_aktif'));
         }
     }
 
@@ -256,6 +274,20 @@ class PresensiController extends Controller
                         ->where('kode_dept', $kode_dept)
                         ->where('kode_cabang', $kode_cabang)
                         ->where('hari', $namahari)->first();
+
+                    // Fallback 1: Jika seksi belum ada jadwal khusus, cari jadwal dari seksi lain di kantor/cabang yang sama
+                    if ($jamkerja == null) {
+                        $jamkerja = DB::table('konfigurasi_jk_dept_detail')
+                            ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
+                            ->join('jam_kerja', 'konfigurasi_jk_dept_detail.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+                            ->where('kode_cabang', $kode_cabang)
+                            ->where('hari', $namahari)->first();
+                    }
+
+                    // Fallback 2: Jika masih kosong di hari kerja (Senin - Jumat), gunakan jam kerja kantor default
+                    if ($jamkerja == null && !in_array($namahari, ['Sabtu', 'Minggu'])) {
+                        $jamkerja = DB::table('jam_kerja')->where('kode_jam_kerja', 'JK01')->first() ?? DB::table('jam_kerja')->first();
+                    }
                 }
             }
         } else {
@@ -606,19 +638,27 @@ class PresensiController extends Controller
     }
 
 
-    public function histori()
+    public function histori(Request $request)
     {
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('presensi.histori', compact('namabulan'));
+        $bulan = $request->bulan ?? (int)date('m');
+        $tahun = $request->tahun ?? (int)date('Y');
+        $user = Auth::guard('karyawan')->user();
+        $nik = $user ? $user->nik : null;
+        $kode_cabang = $user ? $user->kode_cabang : null;
+
+        $histori = $this->queryHistoriData($nik, $kode_cabang, $bulan, $tahun);
+        $historiJson = json_encode($histori);
+        $defaultJamKerja = DB::table('jam_kerja')->first();
+
+        return view('presensi.histori', compact('namabulan', 'bulan', 'tahun', 'histori', 'historiJson', 'defaultJamKerja'));
     }
 
-    public function gethistori(Request $request)
+    private function queryHistoriData($nik, $kode_cabang, $bulan, $tahun)
     {
-        $bulan = $request->bulan;
-        $tahun = $request->tahun;
-        $user = Auth::guard('karyawan')->user();
-        $nik = $user->nik;
-        $kode_cabang = $user->kode_cabang;
+        if (empty($nik)) {
+            return collect([]);
+        }
 
         $histori = DB::table('presensi')
             ->select('presensi.*', 'keterangan', 'jam_kerja.*', 'doc_sid', 'nama_cuti')
@@ -626,16 +666,16 @@ class PresensiController extends Controller
             ->leftJoin('pengajuan_izin', 'presensi.kode_izin', '=', 'pengajuan_izin.kode_izin')
             ->leftJoin('master_cuti', 'pengajuan_izin.kode_cuti', '=', 'master_cuti.kode_cuti')
             ->where('presensi.nik', $nik)
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
+            ->whereRaw('MONTH(tgl_presensi)="' . (int)$bulan . '"')
+            ->whereRaw('YEAR(tgl_presensi)="' . (int)$tahun . '"')
             ->orderBy('tgl_presensi', 'desc')
             ->get();
 
         // Ambil data hari libur pada bulan dan tahun ini untuk pegawai
         $harilibur = DB::table('harilibur')
             ->leftJoin('harilibur_detail', 'harilibur.kode_libur', '=', 'harilibur_detail.kode_libur')
-            ->whereRaw('MONTH(harilibur.tanggal_libur)="' . $bulan . '"')
-            ->whereRaw('YEAR(harilibur.tanggal_libur)="' . $tahun . '"')
+            ->whereRaw('MONTH(harilibur.tanggal_libur)="' . (int)$bulan . '"')
+            ->whereRaw('YEAR(harilibur.tanggal_libur)="' . (int)$tahun . '"')
             ->where(function ($query) use ($nik, $kode_cabang) {
                 $query->where('harilibur_detail.nik', $nik)
                     ->orWhere('harilibur.kode_cabang', 'ALL')
@@ -653,6 +693,8 @@ class PresensiController extends Controller
                     $item->keterangan = $hl->keterangan;
                 }
             }
+            $item->foto_in_url = !empty($item->foto_in) ? asset('storage/uploads/absensi/' . $item->foto_in) : null;
+            $item->foto_out_url = !empty($item->foto_out) ? asset('storage/uploads/absensi/' . $item->foto_out) : null;
             return $item;
         });
 
@@ -666,6 +708,8 @@ class PresensiController extends Controller
                     'jam_out' => null,
                     'foto_in' => null,
                     'foto_out' => null,
+                    'foto_in_url' => null,
+                    'foto_out_url' => null,
                     'lokasi_in' => null,
                     'lokasi_out' => null,
                     'status' => 'l',
@@ -683,7 +727,29 @@ class PresensiController extends Controller
             }
         }
 
-        $histori = $historyList->sortByDesc('tgl_presensi')->values();
+        return $historyList->sortByDesc('tgl_presensi')->values();
+    }
+
+    public function gethistori(Request $request)
+    {
+        $bulan = $request->bulan ?? (int)date('m');
+        $tahun = $request->tahun ?? (int)date('Y');
+        $user = Auth::guard('karyawan')->user();
+        $nik = $user ? $user->nik : null;
+        $kode_cabang = $user ? $user->kode_cabang : null;
+
+        $histori = $this->queryHistoriData($nik, $kode_cabang, $bulan, $tahun);
+        $defaultJamKerja = DB::table('jam_kerja')->first();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'bulan' => (int)$bulan,
+                'tahun' => (int)$tahun,
+                'histori' => $histori,
+                'default_jam_kerja' => $defaultJamKerja
+            ]);
+        }
 
         return view('presensi.gethistori', compact('histori'));
     }
@@ -1543,6 +1609,16 @@ class PresensiController extends Controller
                     ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
                     ->join('jam_kerja', 'konfigurasi_jk_dept_detail.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
                     ->where('kode_dept', $kode_dept)
+                    ->where('kode_cabang', $kode_cabang)
+                    ->where('hari', $namahari)
+                    ->first();
+            }
+
+            // Fallback: Jika seksi belum ada jadwal khusus, cari jadwal dari seksi lain di kantor/cabang yang sama
+            if ($jamkerja == null && $kode_cabang) {
+                $jamkerja = DB::table('konfigurasi_jk_dept_detail')
+                    ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
+                    ->join('jam_kerja', 'konfigurasi_jk_dept_detail.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
                     ->where('kode_cabang', $kode_cabang)
                     ->where('hari', $namahari)
                     ->first();

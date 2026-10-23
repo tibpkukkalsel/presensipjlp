@@ -116,7 +116,7 @@ class DashboardController extends Controller
             SUM(IF(status="i",1,0)) as jmlizin,
             SUM(IF(status="s",1,0)) as jmlsakit,
             SUM(IF(status="c",1,0)) as jmlcuti,
-            SUM(IF(jam_in > jam_masuk ,1,0)) as jmlterlambat
+            SUM(IF(status="h" AND ((jam_in IS NOT NULL AND jam_in != "" AND jam_in > jam_masuk) OR jam_in IS NULL OR jam_in = ""), 1, 0)) as jmlterlambat
             ')
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
             ->where('nik', $nik)
@@ -154,7 +154,7 @@ class DashboardController extends Controller
                 SUM(IF(status="i", 1, 0)) as jmlizin,
                 SUM(IF(status="s", 1, 0)) as jmlsakit,
                 SUM(IF(status="c", 1, 0)) as jmlcuti,
-                SUM(IF(jam_in > jam_masuk, 1, 0)) as jmlterlambat
+                SUM(IF(status="h" AND ((jam_in IS NOT NULL AND jam_in != "" AND jam_in > jam_masuk) OR jam_in IS NULL OR jam_in = ""), 1, 0)) as jmlterlambat
             ')
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
             ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')

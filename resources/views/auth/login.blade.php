@@ -40,7 +40,7 @@
                 <h2 class="side-title">PRESIS</h2>
                 <p class="side-desc">
                     Selamat datang di Sistem Presensi &amp; Pelaporan Pegawai BPKUK Prov. Kalsel. Silahkan masuk
-                    menggunakan Username Anda.
+                    menggunakan ID atau Nomor HP Anda.
                 </p>
             </div>
 
@@ -80,7 +80,7 @@
                 <form action="/proseslogin" method="POST" id="formLogin">
                     @csrf
 
-                    <!-- Input 1: Username / NIK -->
+                    <!-- Input 1: ID / No. HP -->
                     <div class="input-pill">
                         <div class="input-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -89,7 +89,7 @@
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </div>
-                        <input type="text" name="nik" id="nik" class="input-field" placeholder="Username"
+                        <input type="text" name="nik" id="nik" class="input-field" placeholder="ID / No. HP"
                             required autocomplete="username" autofocus>
                     </div>
 

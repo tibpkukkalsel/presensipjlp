@@ -76,6 +76,7 @@ class KaryawanController extends Controller
             ];
             $simpan = DB::table('pegawai')->insert($data);
             if ($simpan) {
+                $this->autoSetJamKerjaDept($kode_cabang, $kode_dept);
                 if ($request->hasFile('foto')) {
                     $folderPath = "public/uploads/karyawan/";
                     $request->file('foto')->storeAs($folderPath, $foto);
@@ -140,6 +141,7 @@ class KaryawanController extends Controller
             ];
             $update = DB::table('pegawai')->where('nik', $nik)->update($data);
             if ($update) {
+                $this->autoSetJamKerjaDept($kode_cabang, $kode_dept);
                 if ($request->hasFile('foto')) {
                     $folderPath = "public/uploads/karyawan/";
                     $folderPathOld = "public/uploads/karyawan/" . $old_foto;
@@ -218,6 +220,75 @@ class KaryawanController extends Controller
             return Redirect::back()->with(['success' => 'Status Jam Kerja Berhasil Diupdate']);
         } catch (\Exception $e) {
             return Redirect::back()->with(['warning' => 'Status Jam Kerja Gagal Diupdate']);
+        }
+    }
+
+    public function lockandunlockscan($nik)
+    {
+        try {
+            $karyawan = DB::table('pegawai')->where('nik', $nik)->first();
+            $status_scan = $karyawan->status_scan ?? '1';
+            $new_status = ($status_scan == '1') ? '0' : '1';
+            DB::table('pegawai')->where('nik', $nik)->update([
+                'status_scan' => $new_status
+            ]);
+
+            $msg = ($new_status == '1') 
+                ? 'Fitur Scan Wajah Diaktifkan untuk ' . $karyawan->nama_lengkap 
+                : 'Fitur Scan Wajah Dinonaktifkan (Mode Tombol Foto Aktif) untuk ' . $karyawan->nama_lengkap;
+
+            return Redirect::back()->with(['success' => $msg]);
+        } catch (\Exception $e) {
+            return Redirect::back()->with(['warning' => 'Status Scan Wajah Gagal Diupdate: ' . $e->getMessage()]);
+        }
+    }
+
+    private function autoSetJamKerjaDept($kode_cabang, $kode_dept)
+    {
+        if (empty($kode_cabang) || empty($kode_dept)) return;
+
+        $exists = DB::table('konfigurasi_jk_dept')
+            ->where('kode_cabang', $kode_cabang)
+            ->where('kode_dept', $kode_dept)
+            ->first();
+
+        if (!$exists) {
+            $kode_jk_dept = 'J' . $kode_cabang . $kode_dept;
+            DB::table('konfigurasi_jk_dept')->insert([
+                'kode_jk_dept' => $kode_jk_dept,
+                'kode_cabang' => $kode_cabang,
+                'kode_dept' => $kode_dept
+            ]);
+
+            // Ambil template jadwal dari seksi lain di kantor/cabang yang sama
+            $template = DB::table('konfigurasi_jk_dept')
+                ->where('kode_cabang', $kode_cabang)
+                ->where('kode_jk_dept', '!=', $kode_jk_dept)
+                ->first();
+
+            if ($template) {
+                $details = DB::table('konfigurasi_jk_dept_detail')
+                    ->where('kode_jk_dept', $template->kode_jk_dept)
+                    ->get();
+                foreach ($details as $d) {
+                    DB::table('konfigurasi_jk_dept_detail')->insert([
+                        'kode_jk_dept' => $kode_jk_dept,
+                        'hari' => $d->hari,
+                        'kode_jam_kerja' => $d->kode_jam_kerja
+                    ]);
+                }
+            } else {
+                $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                $defaultJk = DB::table('jam_kerja')->first();
+                $kodeJk = $defaultJk ? $defaultJk->kode_jam_kerja : 'JK01';
+                foreach ($hariList as $h) {
+                    DB::table('konfigurasi_jk_dept_detail')->insert([
+                        'kode_jk_dept' => $kode_jk_dept,
+                        'hari' => $h,
+                        'kode_jam_kerja' => ($h == 'Sabtu') ? null : $kodeJk
+                    ]);
+                }
+            }
         }
     }
 }

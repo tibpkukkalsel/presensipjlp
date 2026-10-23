@@ -138,6 +138,19 @@
                                                             <path d="M19 18v.01" />
                                                         </svg>
                                                     </th>
+                                                    <th style="width: 60px;" class="text-center" title="Mode Scan Wajah (ON: Scan Wajah | OFF: Tombol Foto Manual)">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                            class="icon icon-tabler icon-tabler-scan">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                                                            <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                                                            <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                                                            <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                                                            <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                        </svg>
+                                                    </th>
                                                     <th style="width: 130px;" class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -199,6 +212,39 @@
                                                                         <path
                                                                             d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                                                                         <path d="M8 11v-5a4 4 0 0 1 8 0" />
+                                                                    </svg>
+                                                                </a>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if (($d->status_scan ?? '1') == 1)
+                                                                <a href="/panel-adm14/pegawai/{{ $d->nik }}/lockandunlockscan"
+                                                                    class="btn btn-action btn-success btn-sm"
+                                                                    title="Scan Wajah Aktif (Klik untuk ubah ke Tombol Foto Manual)">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                                        class="icon icon-tabler icon-tabler-scan">
+                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                                        <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                                                                        <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                                                                        <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                                                                        <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                                                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                                    </svg>
+                                                                </a>
+                                                            @else
+                                                                <a href="/panel-adm14/pegawai/{{ $d->nik }}/lockandunlockscan"
+                                                                    class="btn btn-action btn-secondary btn-sm"
+                                                                    title="Tombol Foto Manual Aktif (Klik untuk aktifkan Scan Wajah)">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                                        class="icon icon-tabler icon-tabler-camera-off">
+                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                                        <path d="M8.297 4.289a1 1 0 0 1 .703 -.289h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v8m-1.18 2.825c-.25 .113 -.528 .175 -.82 .175h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h1" />
+                                                                        <path d="M14.757 14.755a3 3 0 0 1 -4.243 -4.243" />
+                                                                        <path d="M3 3l18 18" />
                                                                     </svg>
                                                                 </a>
                                                             @endif

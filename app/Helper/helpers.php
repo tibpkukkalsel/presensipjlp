@@ -286,12 +286,24 @@ function cekJadwalKerja($nik, $kode_cabang, $kode_dept, $tanggal, $hari, $jadwal
     }
 
     // 3. Cek Jadwal Kantor / Departemen
-    if ($jadwal_dept && !empty($kode_cabang) && !empty($kode_dept)) {
-        $deptKey = $kode_cabang . '_' . $kode_dept;
-        if (isset($jadwal_dept[$deptKey])) {
-            $byDept = $jadwal_dept[$deptKey]->firstWhere('hari', $hari);
-            if ($byDept) {
-                return !empty($byDept->kode_jam_kerja);
+    if ($jadwal_dept && !empty($kode_cabang)) {
+        if (!empty($kode_dept)) {
+            $deptKey = $kode_cabang . '_' . $kode_dept;
+            if (isset($jadwal_dept[$deptKey])) {
+                $byDept = $jadwal_dept[$deptKey]->firstWhere('hari', $hari);
+                if ($byDept) {
+                    return !empty($byDept->kode_jam_kerja);
+                }
+            }
+        }
+
+        // Fallback: jika seksi belum diset, cari jadwal seksi lain di cabang/kantor yang sama
+        foreach ($jadwal_dept as $key => $items) {
+            if (str_starts_with($key, $kode_cabang . '_')) {
+                $byDept = $items->firstWhere('hari', $hari);
+                if ($byDept) {
+                    return !empty($byDept->kode_jam_kerja);
+                }
             }
         }
     }
@@ -318,6 +330,18 @@ function cekJadwalKerja($nik, $kode_cabang, $kode_dept, $tanggal, $hari, $jadwal
             $byDept = DB::table('konfigurasi_jk_dept_detail')
                 ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
                 ->where('kode_dept', $kode_dept)
+                ->where('kode_cabang', $kode_cabang)
+                ->where('hari', $hari)
+                ->first();
+            if ($byDept) {
+                return !empty($byDept->kode_jam_kerja);
+            }
+        }
+
+        // Fallback cek cabang yang sama
+        if (!empty($kode_cabang)) {
+            $byDept = DB::table('konfigurasi_jk_dept_detail')
+                ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
                 ->where('kode_cabang', $kode_cabang)
                 ->where('hari', $hari)
                 ->first();

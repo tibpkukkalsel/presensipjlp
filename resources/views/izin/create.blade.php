@@ -32,8 +32,8 @@
     <div class="col">
         <form method="POST" action="/izinabsen/store" id="frmIzin">
             @csrf
-            <div class="form-group mb-2">
-                <select name="status" id="status" class="form-control" style="border: 1px solid #ced4da; border-radius: 8px; height: 45px; display: block !important;">
+            <div class="form-group">
+                <select name="status" id="status" class="form-control selectmaterialize">
                     <option value="i">Izin Absen (Tidak Masuk Kerja)</option>
                     <option value="it">Izin Terlambat (Masuk Kerja)</option>
                     <option value="ipc">Izin Pulang Cepat (Pulang Awal)</option>
