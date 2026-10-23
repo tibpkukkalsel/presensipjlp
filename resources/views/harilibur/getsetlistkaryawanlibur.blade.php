@@ -35,13 +35,13 @@
     $(function() {
         function loadsetlistkaryawanlibur() {
             var kode_libur = "{{ $kode_libur }}";
-            $("#loadsetlistkaryawanlibur").load('/konfigurasi/harilibur/' + kode_libur +
+            $("#loadsetlistkaryawanlibur").load('/panel-adm14/konfigurasi/harilibur/' + kode_libur +
                 '/getsetlistkaryawanlibur');
         }
 
         function loadkaryawanlibur() {
             var kode_libur = "{{ $kode_libur }}";
-            $("#loadkaryawanlibur").load('/konfigurasi/harilibur/' + kode_libur + '/getkaryawanlibur');
+            $("#loadkaryawanlibur").load('/panel-adm14/konfigurasi/harilibur/' + kode_libur + '/getkaryawanlibur');
         }
 
         $(".tambahkaryawan").click(function(e) {
@@ -49,7 +49,7 @@
             var nik = $(this).attr('nik');
             $.ajax({
                 type: 'POST',
-                url: '/konfigurasi/harilibur/storekaryawanlibur',
+                url: '/panel-adm14/konfigurasi/harilibur/storekaryawanlibur',
                 data: {
                     _token: "{{ csrf_token() }}",
                     kode_libur: kode_libur,
@@ -91,7 +91,7 @@
             var nik = $(this).attr('nik');
             $.ajax({
                 type: 'POST',
-                url: '/konfigurasi/harilibur/removekaryawanlibur',
+                url: '/panel-adm14/konfigurasi/harilibur/removekaryawanlibur',
                 data: {
                     _token: "{{ csrf_token() }}",
                     kode_libur: kode_libur,

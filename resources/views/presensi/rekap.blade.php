@@ -20,7 +20,7 @@
                 <div class="col-6">
                     <div class="card">
                         <div class="card-body">
-                            <form action="/presensi/cetakrekap" target="_blank" method="POST">
+                            <form action="/panel-adm14/presensi/cetakrekap" target="_blank" method="POST">
                                 @csrf
                                 @role('administrator', 'user')
                                     <div class="row mt-1">

@@ -18,25 +18,41 @@ class DepartemenController extends Controller
             $query->where('nama_dept', 'like', '%' . $nama_dept . '%');
         }
         $departemen = $query->get();
-        // $departemen = DB::table('departemen')->orderBy('kode_dept')->get();
         return view('departemen.index', compact('departemen'));
     }
-
 
     public function store(Request $request)
     {
         $kode_dept = $request->kode_dept;
         $nama_dept = $request->nama_dept;
+
+        if (empty($nama_dept)) {
+            return Redirect::back()->with(['warning' => 'Nama Seksi Harus Diisi']);
+        }
+
+        if (empty($kode_dept)) {
+            for ($i = 1; $i <= 99; $i++) {
+                $candidate = 'S' . sprintf('%02d', $i);
+                if (!DB::table('seksi')->where('kode_dept', $candidate)->exists()) {
+                    $kode_dept = $candidate;
+                    break;
+                }
+            }
+            if (empty($kode_dept)) {
+                $kode_dept = strtoupper(substr(uniqid(), -3));
+            }
+        }
+
         $data = [
             'kode_dept' => $kode_dept,
             'nama_dept' => $nama_dept
         ];
 
-        $cek = DB::table('departemen')->where('kode_dept', $kode_dept)->count();
+        $cek = DB::table('seksi')->where('kode_dept', $kode_dept)->count();
         if ($cek > 0) {
-            return Redirect::back()->with(['warning' => 'Data dengan Kode Dept.' . $kode_dept . ' Sudah Ada']);
+            return Redirect::back()->with(['warning' => 'Data dengan Kode ' . $kode_dept . ' Sudah Ada']);
         }
-        $simpan = DB::table('departemen')->insert($data);
+        $simpan = DB::table('seksi')->insert($data);
         if ($simpan) {
             return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
         } else {
@@ -47,7 +63,7 @@ class DepartemenController extends Controller
     public function edit(Request $request)
     {
         $kode_dept = $request->kode_dept;
-        $departemen = DB::table('departemen')->where('kode_dept', $kode_dept)->first();
+        $departemen = DB::table('seksi')->where('kode_dept', $kode_dept)->first();
         return view('departemen.edit', compact('departemen'));
     }
 
@@ -58,7 +74,7 @@ class DepartemenController extends Controller
             'nama_dept' => $nama_dept
         ];
 
-        $update = DB::table('departemen')->where('kode_dept', $kode_dept)->update($data);
+        $update = DB::table('seksi')->where('kode_dept', $kode_dept)->update($data);
         if ($update) {
             return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
         } else {
@@ -68,7 +84,7 @@ class DepartemenController extends Controller
 
     public function delete($kode_dept)
     {
-        $hapus = DB::table('departemen')->where('kode_dept', $kode_dept)->delete();
+        $hapus = DB::table('seksi')->where('kode_dept', $kode_dept)->delete();
         if ($hapus) {
             return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
         } else {

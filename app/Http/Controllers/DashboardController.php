@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,33 @@ class DashboardController extends Controller
         $kode_cabang = Auth::guard('karyawan')->user()->kode_cabang;
 
         $kode_dept = Auth::guard('karyawan')->user()->kode_dept;
-        $presensihariini = DB::table('presensi')->where('nik', $nik)->where('tgl_presensi', $hariini)->first();
+        $presensihariini = DB::table('presensi')
+            ->select('presensi.*', 'pengajuan_izin.keterangan')
+            ->leftJoin('pengajuan_izin', 'presensi.kode_izin', '=', 'pengajuan_izin.kode_izin')
+            ->where('presensi.nik', $nik)
+            ->where('presensi.tgl_presensi', $hariini)
+            ->first();
+
+        // Cek hari libur hari ini untuk pegawai
+        $dataliburhariini = DB::table('harilibur')
+            ->leftJoin('harilibur_detail', 'harilibur.kode_libur', '=', 'harilibur_detail.kode_libur')
+            ->where('harilibur.tanggal_libur', $hariini)
+            ->where(function ($query) use ($nik, $kode_cabang) {
+                $query->where('harilibur_detail.nik', $nik)
+                    ->orWhere('harilibur.kode_cabang', 'ALL')
+                    ->orWhere('harilibur.kode_cabang', $kode_cabang);
+            })
+            ->select('harilibur.kode_libur', 'harilibur.tanggal_libur', 'harilibur.keterangan')
+            ->first();
+
+        if (!$dataliburhariini && $presensihariini && $presensihariini->status == 'l') {
+            $dataliburhariini = (object)[
+                'kode_libur' => 'LIBUR',
+                'tanggal_libur' => $hariini,
+                'keterangan' => !empty($presensihariini->keterangan) ? $presensihariini->keterangan : 'Libur Nasional / Bersama'
+            ];
+        }
+
         $historibulanini = DB::table('presensi')
             ->select('presensi.*', 'keterangan', 'jam_kerja.*', 'doc_sid', 'nama_cuti')
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
@@ -29,6 +56,60 @@ class DashboardController extends Controller
             ->orderBy('tgl_presensi', 'desc')
             ->get();
 
+        // Ambil hari libur bulan ini untuk pegawai dan gabungkan ke histori
+        $hariliburbulanini = DB::table('harilibur')
+            ->leftJoin('harilibur_detail', 'harilibur.kode_libur', '=', 'harilibur_detail.kode_libur')
+            ->whereRaw('MONTH(harilibur.tanggal_libur)="' . $bulanini . '"')
+            ->whereRaw('YEAR(harilibur.tanggal_libur)="' . $tahunini . '"')
+            ->where(function ($query) use ($nik, $kode_cabang) {
+                $query->where('harilibur_detail.nik', $nik)
+                    ->orWhere('harilibur.kode_cabang', 'ALL')
+                    ->orWhere('harilibur.kode_cabang', $kode_cabang);
+            })
+            ->select('harilibur.tanggal_libur', 'harilibur.keterangan')
+            ->distinct()
+            ->get();
+
+        $existingDates = $historibulanini->pluck('tgl_presensi')->toArray();
+        $historyList = $historibulanini->map(function ($item) use ($hariliburbulanini) {
+            if ($item->status == 'l' && empty($item->keterangan)) {
+                $hl = $hariliburbulanini->firstWhere('tanggal_libur', $item->tgl_presensi);
+                if ($hl) {
+                    $item->keterangan = $hl->keterangan;
+                }
+            }
+            return $item;
+        });
+
+        foreach ($hariliburbulanini as $hl) {
+            if (!in_array($hl->tanggal_libur, $existingDates)) {
+                $historyList->push((object)[
+                    'id' => null,
+                    'nik' => $nik,
+                    'tgl_presensi' => $hl->tanggal_libur,
+                    'jam_in' => null,
+                    'jam_out' => null,
+                    'foto_in' => null,
+                    'foto_out' => null,
+                    'lokasi_in' => null,
+                    'lokasi_out' => null,
+                    'status' => 'l',
+                    'status_in' => null,
+                    'status_out' => null,
+                    'kode_jam_kerja' => null,
+                    'keterangan' => $hl->keterangan,
+                    'nama_jam_kerja' => 'Libur Nasional',
+                    'jam_masuk' => null,
+                    'jam_pulang' => null,
+                    'doc_sid' => null,
+                    'nama_cuti' => null,
+                    'kode_izin' => null
+                ]);
+            }
+        }
+
+        $historibulanini = $historyList->sortByDesc('tgl_presensi')->values();
+
         $rekappresensi = DB::table('presensi')
             ->selectRaw('
             SUM(IF(status="h",1,0)) as jmlhadir,
@@ -36,7 +117,6 @@ class DashboardController extends Controller
             SUM(IF(status="s",1,0)) as jmlsakit,
             SUM(IF(status="c",1,0)) as jmlcuti,
             SUM(IF(jam_in > jam_masuk ,1,0)) as jmlterlambat
-
             ')
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
             ->where('nik', $nik)
@@ -44,62 +124,89 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
             ->first();
 
-            $rekappenerimaan = DB::table('penerimaan')
-            ->selectRaw('
-            SUM(r2) as jmlr2,
-            SUM(r4) as jmlr4
-
-            ')
-            ->whereRaw('MONTH(tgl_penerimaan)="' . $bulanini . '"')
-            ->whereRaw('YEAR(tgl_penerimaan)="' . $tahunini . '"')
-            ->where('nik', $nik)
-            ->first();
-
-
+        $totalLiburBulanIni = count($hariliburbulanini);
 
         $leaderboard = DB::table('presensi')
-            ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
+            ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
             ->where('tgl_presensi', $hariini)
             ->orderBy('jam_in')
             ->get();
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         $cabang = DB::table('cabang')->where('kode_cabang', $kode_cabang)->first();
-        $departemen = DB::table('departemen')->where('kode_dept', $kode_dept)->first();
+        $departemen = DB::table('seksi')->where('kode_dept', $kode_dept)->first();
 
-        return view('dashboard.dashboard', compact('presensihariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekappresensi', 'leaderboard', 'cabang', 'departemen', 'rekappenerimaan'));
+        return view('dashboard.dashboard', compact('presensihariini', 'dataliburhariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekappresensi', 'totalLiburBulanIni', 'leaderboard', 'cabang', 'departemen'));
     }
 
     public function dashboardadmin()
     {
-
-
         $hariini = date("Y-m-d");
+        $user = Auth::guard('user')->user();
 
-        $rekappresensi = DB::table('presensi')
+        // Query total pegawai
+        $queryPegawai = DB::table('pegawai');
+
+        // Query rekap status presensi hari ini
+        $queryRekap = DB::table('presensi')
             ->selectRaw('
-            SUM(IF(status="h",1,0)) as jmlhadir,
-            SUM(IF(status="i",1,0)) as jmlizin,
-            SUM(IF(status="s",1,0)) as jmlsakit,
-            SUM(IF(status="c",1,0)) as jmlcuti,
-            SUM(IF(jam_in > jam_masuk ,1,0)) as jmlterlambat
-
+                SUM(IF(status="h", 1, 0)) as jmlhadir,
+                SUM(IF(status="i", 1, 0)) as jmlizin,
+                SUM(IF(status="s", 1, 0)) as jmlsakit,
+                SUM(IF(status="c", 1, 0)) as jmlcuti,
+                SUM(IF(jam_in > jam_masuk, 1, 0)) as jmlterlambat
             ')
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+            ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
+            ->where('tgl_presensi', $hariini);
+
+        // Query daftar presensi pegawai hari ini
+        $queryPresensi = DB::table('presensi')
+            ->select(
+                'presensi.*',
+                'pegawai.nama_lengkap',
+                'pegawai.jabatan',
+                'pegawai.foto as foto_pegawai',
+                'seksi.nama_dept',
+                'cabang.nama_cabang',
+                'jam_kerja.nama_jam_kerja',
+                'jam_kerja.jam_masuk as jam_masuk_jadwal',
+                'jam_kerja.jam_pulang as jam_pulang_jadwal',
+                'pengajuan_izin.keterangan as keterangan_izin'
+            )
+            ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
+            ->leftJoin('seksi', 'pegawai.kode_dept', '=', 'seksi.kode_dept')
+            ->leftJoin('cabang', 'pegawai.kode_cabang', '=', 'cabang.kode_cabang')
+            ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+            ->leftJoin('pengajuan_izin', 'presensi.kode_izin', '=', 'pengajuan_izin.kode_izin')
             ->where('tgl_presensi', $hariini)
-            ->first();
+            ->orderBy('presensi.jam_in', 'desc')
+            ->orderBy('presensi.id', 'desc');
 
-            $rekappenerimaan = DB::table('penerimaan')
-            ->selectRaw('
-            SUM(r2) as r2,
-            SUM(r4) as r4,
-            SUM(jumlah) as jumlah,
-            SUM(notice_keluar) as notice
-            ')
-            ->where('tgl_penerimaan', $hariini)
-            ->first();
+        if ($user && $user->hasRole('admin departemen')) {
+            $queryPegawai->where('pegawai.kode_cabang', $user->kode_cabang)->where('pegawai.kode_dept', $user->kode_dept);
+            $queryRekap->where('pegawai.kode_cabang', $user->kode_cabang)->where('pegawai.kode_dept', $user->kode_dept);
+            $queryPresensi->where('pegawai.kode_cabang', $user->kode_cabang)->where('pegawai.kode_dept', $user->kode_dept);
+        }
 
+        $totalpegawai = $queryPegawai->count();
+        $rekappresensi = $queryRekap->first();
+        $datapresensi = $queryPresensi->get();
 
-        return view('dashboard.dashboardadmin', compact('rekappresensi', 'rekappenerimaan'));
+        $jmlhadir = (int) ($rekappresensi->jmlhadir ?? 0);
+        $jmlizin = (int) (($rekappresensi->jmlizin ?? 0) + ($rekappresensi->jmlsakit ?? 0) + ($rekappresensi->jmlcuti ?? 0));
+        $jmlterlambat = (int) ($rekappresensi->jmlterlambat ?? 0);
+        $jmlbelumabsen = max(0, $totalpegawai - $jmlhadir - $jmlizin);
+
+        return view('dashboard.dashboardadmin', compact(
+            'totalpegawai',
+            'rekappresensi',
+            'datapresensi',
+            'jmlhadir',
+            'jmlizin',
+            'jmlterlambat',
+            'jmlbelumabsen',
+            'hariini'
+        ));
     }
 }

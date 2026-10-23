@@ -21,7 +21,7 @@
     $(function() {
         function loadkaryawanlibur() {
             var kode_libur = "{{ $kode_libur }}";
-            $("#loadkaryawanlibur").load('/konfigurasi/harilibur/' + kode_libur + '/getkaryawanlibur');
+            $("#loadkaryawanlibur").load('/panel-adm14/konfigurasi/harilibur/' + kode_libur + '/getkaryawanlibur');
         }
 
         $(".cancelkaryawan").click(function(e) {
@@ -29,7 +29,7 @@
             var nik = $(this).attr('nik');
             $.ajax({
                 type: 'POST',
-                url: '/konfigurasi/harilibur/removekaryawanlibur',
+                url: '/panel-adm14/konfigurasi/harilibur/removekaryawanlibur',
                 data: {
                     _token: "{{ csrf_token() }}",
                     kode_libur: kode_libur,

@@ -1,4 +1,4 @@
-<form action="/karyawan/{{ Crypt::encrypt($karyawan->nik) }}/update" method="POST" id="frmEditkaryawan"
+<form action="/panel-adm14/karyawan/{{ Crypt::encrypt($karyawan->nik) }}/update" method="POST" id="frmEditkaryawan"
     enctype="multipart/form-data">
     @csrf
     <div class="row">
@@ -93,7 +93,7 @@
     <div class="row mt-2">
         <div class="col-12">
             <select name="kode_dept" id="kode_dept" class="form-select">
-                <option value="">No. Plat</option>
+                <option value="">Seksi</option>
                 @foreach ($departemen as $d)
                     <option {{ $karyawan->kode_dept == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">
                         {{ $d->nama_dept }}</option>
@@ -187,7 +187,7 @@
         } else if (kode_dept == "") {
             Swal.fire({
                 title: 'Warning!',
-                text: 'Departemen Harus Diisi !',
+                text: 'Seksi Harus Diisi !',
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             }).then((result) => {

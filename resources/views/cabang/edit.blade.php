@@ -1,4 +1,4 @@
-<form action="/cabang/update" method="POST" id="frmCabangEdit">
+<form action="/panel-adm14/cabang/update" method="POST" id="frmCabangEdit">
     @csrf
     <div class="row">
         <div class="col-12">

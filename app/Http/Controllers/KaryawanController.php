@@ -22,28 +22,28 @@ class KaryawanController extends Controller
         $user = User::find(Auth::guard('user')->user()->id);
 
         $query = Karyawan::query();
-        $query->select('karyawan.*', 'nama_dept');
-        $query->join('departemen', 'karyawan.kode_dept', '=', 'departemen.kode_dept');
+        $query->select('pegawai.*', 'nama_dept');
+        $query->join('seksi', 'pegawai.kode_dept', '=', 'seksi.kode_dept');
         $query->orderBy('nama_lengkap');
         if (!empty($request->nama_karyawan)) {
             $query->where('nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
         }
 
         if (!empty($request->kode_dept)) {
-            $query->where('karyawan.kode_dept', $request->kode_dept);
+            $query->where('pegawai.kode_dept', $request->kode_dept);
         }
 
         if (!empty($request->kode_cabang)) {
-            $query->where('karyawan.kode_cabang', $request->kode_cabang);
+            $query->where('pegawai.kode_cabang', $request->kode_cabang);
         }
 
         if ($user->hasRole('admin departemen')) {
-            $query->where('karyawan.kode_dept', $kode_dept);
-            $query->where('karyawan.kode_cabang', $kode_cabang);
+            $query->where('pegawai.kode_dept', $kode_dept);
+            $query->where('pegawai.kode_cabang', $kode_cabang);
         }
         $karyawan = $query->paginate(10);
 
-        $departemen = DB::table('departemen')->get();
+        $departemen = DB::table('seksi')->get();
         $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
         return view('karyawan.index', compact('karyawan', 'departemen', 'cabang'));
     }
@@ -74,7 +74,7 @@ class KaryawanController extends Controller
                 'password' => $password,
                 'kode_cabang' => $kode_cabang
             ];
-            $simpan = DB::table('karyawan')->insert($data);
+            $simpan = DB::table('pegawai')->insert($data);
             if ($simpan) {
                 if ($request->hasFile('foto')) {
                     $folderPath = "public/uploads/karyawan/";
@@ -96,9 +96,9 @@ class KaryawanController extends Controller
     public function edit(Request $request)
     {
         $nik = $request->nik;
-        $departemen = DB::table('departemen')->get();
+        $departemen = DB::table('seksi')->get();
         $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
-        $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+        $karyawan = DB::table('pegawai')->where('nik', $nik)->first();
         return view('karyawan.edit', compact('departemen', 'karyawan', 'cabang'));
     }
 
@@ -120,7 +120,7 @@ class KaryawanController extends Controller
         }
 
 
-        $ceknik = DB::table('karyawan')
+        $ceknik = DB::table('pegawai')
             ->where('nik', $nik_baru)
             ->where('nik', '!=', $nik)
             ->count();
@@ -138,7 +138,7 @@ class KaryawanController extends Controller
                 'password' => $password,
                 'kode_cabang' => $kode_cabang
             ];
-            $update = DB::table('karyawan')->where('nik', $nik)->update($data);
+            $update = DB::table('pegawai')->where('nik', $nik)->update($data);
             if ($update) {
                 if ($request->hasFile('foto')) {
                     $folderPath = "public/uploads/karyawan/";
@@ -156,7 +156,7 @@ class KaryawanController extends Controller
 
     public function delete($nik)
     {
-        $delete = DB::table('karyawan')->where('nik', $nik)->delete();
+        $delete = DB::table('pegawai')->where('nik', $nik)->delete();
         if ($delete) {
             return Redirect::back()->with(['success' => 'Data Berhasil Dihapus']);
         } else {
@@ -168,7 +168,7 @@ class KaryawanController extends Controller
     {
         $nik = Crypt::decrypt($nik);
         $password = Hash::make('12345');
-        $reset = DB::table('karyawan')->where('nik', $nik)->update([
+        $reset = DB::table('pegawai')->where('nik', $nik)->update([
             'password' => $password
         ]);
 
@@ -182,14 +182,14 @@ class KaryawanController extends Controller
     public function lockandunlocklocation($nik)
     {
         try {
-            $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+            $karyawan = DB::table('pegawai')->where('nik', $nik)->first();
             $status_location = $karyawan->status_location;
             if ($status_location == '1') {
-                DB::table('karyawan')->where('nik', $nik)->update([
+                DB::table('pegawai')->where('nik', $nik)->update([
                     'status_location' => '0'
                 ]);
             } else {
-                DB::table('karyawan')->where('nik', $nik)->update([
+                DB::table('pegawai')->where('nik', $nik)->update([
                     'status_location' => '1'
                 ]);
             }
@@ -203,14 +203,14 @@ class KaryawanController extends Controller
     public function lockandunlockjamkerja($nik)
     {
         try {
-            $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+            $karyawan = DB::table('pegawai')->where('nik', $nik)->first();
             $status_jam_kerja = $karyawan->status_jam_kerja;
             if ($status_jam_kerja == '1') {
-                DB::table('karyawan')->where('nik', $nik)->update([
+                DB::table('pegawai')->where('nik', $nik)->update([
                     'status_jam_kerja' => '0'
                 ]);
             } else {
-                DB::table('karyawan')->where('nik', $nik)->update([
+                DB::table('pegawai')->where('nik', $nik)->update([
                     'status_jam_kerja' => '1'
                 ]);
             }

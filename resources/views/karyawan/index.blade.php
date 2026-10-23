@@ -7,7 +7,7 @@
                     <!-- Page pre-title -->
 
                     <h2 class="page-title">
-                        Data User
+                        Data Pegawai
                     </h2>
                 </div>
 
@@ -54,12 +54,12 @@
                             @endrole
                             <div class="row mt-2">
                                 <div class="col-12">
-                                    <form action="/karyawan" method="GET">
+                                    <form action="/panel-adm14/pegawai" method="GET">
                                         <div class="row">
                                             <div class="col-4">
                                                 <div class="form-group">
                                                     <input type="text" name="nama_karyawan" id="nama_karyawan"
-                                                        class="form-control" placeholder="Nama User"
+                                                        class="form-control" placeholder="Nama Pegawai"
                                                         value="{{ Request('nama_karyawan') }}">
                                                 </div>
                                             </div>
@@ -67,7 +67,7 @@
                                                 <div class="col-3">
                                                     <div class="form-group">
                                                         <select name="kode_dept" id="kode_dept" class="form-select">
-                                                            <option value="">No. Plat</option>
+                                                            <option value="">Seksi</option>
                                                             @foreach ($departemen as $d)
                                                                 <option
                                                                     {{ Request('kode_dept') == $d->kode_dept ? 'selected' : '' }}
@@ -112,80 +112,66 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-12">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>ID</th>
-                                                <th>Nama</th>
-                                                <th>Jabatan</th>
-                                                <th>No. HP</th>
-                                                <th>Foto</th>
-                                                <th>No. Plat</th>
-                                                <!-- <th>Lokasi</th> -->
-                                                <th>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-map-2">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" />
-                                                        <path d="M9 4v13" />
-                                                        <path d="M15 7v5.5" />
-                                                        <path
-                                                            d="M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z" />
-                                                        <path d="M19 18v.01" />
-                                                    </svg>
-                                                </th>
-                                                <th>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-clock">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M10.5 21h-4.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                                        <path d="M16 3v4" />
-                                                        <path d="M8 3v4" />
-                                                        <path d="M4 11h10" />
-                                                        <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                                        <path d="M18 16.5v1.5l.5 .5" />
-                                                    </svg>
-                                                </th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($karyawan as $d)
-                                                @php
-                                                    $path = Storage::url('uploads/karyawan/' . $d->foto);
-                                                @endphp
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-hover align-middle">
+                                            <thead>
                                                 <tr>
-                                                    <td>{{ $loop->iteration + $karyawan->firstItem() - 1 }}</td>
-                                                    <td>{{ $d->nik }}</td>
-                                                    <td>{{ $d->nama_lengkap }}</td>
-                                                    <td>{{ $d->jabatan }}</td>
-                                                    <td>{{ $d->no_hp }}</td>
-                                                    <td>
-                                                        @if (empty($d->foto))
-                                                            <img src="{{ asset('assets/img/nophoto.png') }}"
-                                                                class="avatar" alt="">
-                                                        @else
-                                                            <img src="{{ url($path) }}" class="avatar"
-                                                                alt="">
-                                                        @endif
-
-                                                    </td>
-                                                    <td>{{ $d->nama_dept }}</td>
-                                                    <!-- <td>{{ $d->kode_cabang }}</td> -->
-                                                    <td class="text-center">
-                                                        @if ($d->status_location == 1)
-                                                            <a href="/karyawan/{{ $d->nik }}/lockandunlocklocation">
-                                                                <span class=" badge bg-danger badge-sm">
+                                                    <th style="width: 50px;" class="text-center">No</th>
+                                                    <th style="width: 100px;">ID</th>
+                                                    <th>Nama Pegawai</th>
+                                                    <th>Jabatan</th>
+                                                    <th>No. HP</th>
+                                                    <th style="width: 70px;" class="text-center">Foto</th>
+                                                    <th>Seksi</th>
+                                                    <!-- <th>Lokasi</th> -->
+                                                    <th style="width: 60px;" class="text-center" title="Lock / Unlock Lokasi Presensi">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-map-2">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" />
+                                                            <path d="M9 4v13" />
+                                                            <path d="M15 7v5.5" />
+                                                            <path
+                                                                d="M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z" />
+                                                            <path d="M19 18v.01" />
+                                                        </svg>
+                                                    </th>
+                                                    <th style="width: 130px;" class="text-center">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($karyawan as $d)
+                                                    @php
+                                                        $path = Storage::url('uploads/karyawan/' . $d->foto);
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="text-center">{{ $loop->iteration + $karyawan->firstItem() - 1 }}</td>
+                                                        <td><span class="badge bg-light text-dark border">{{ $d->nik }}</span></td>
+                                                        <td class="fw-bold">{{ $d->nama_lengkap }}</td>
+                                                        <td>{{ $d->jabatan }}</td>
+                                                        <td>{{ $d->no_hp }}</td>
+                                                        <td class="text-center">
+                                                            @if (empty($d->foto))
+                                                                <img src="{{ asset('assets/img/nophoto.png') }}"
+                                                                    class="avatar" alt="">
+                                                            @else
+                                                                <img src="{{ url($path) }}" class="avatar"
+                                                                    alt="">
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $d->nama_dept }}</td>
+                                                        <!-- <td>{{ $d->kode_cabang }}</td> -->
+                                                        <td class="text-center">
+                                                            @if ($d->status_location == 1)
+                                                                <a href="/panel-adm14/karyawan/{{ $d->nik }}/lockandunlocklocation"
+                                                                    class="btn btn-action btn-danger btn-sm"
+                                                                    title="Lokasi Terkunci (Klik untuk Buka)">
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="icon icon-tabler icon-tabler-lock"
-                                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                                        stroke-width="1.5" stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke-width="2" stroke="currentColor"
                                                                         fill="none" stroke-linecap="round"
                                                                         stroke-linejoin="round">
                                                                         <path stroke="none" d="M0 0h24v24H0z"
@@ -195,83 +181,39 @@
                                                                         <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
                                                                         <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
                                                                     </svg>
-                                                                </span>
-                                                            </a>
-                                                        @else
-                                                            <a href="/karyawan/{{ $d->nik }}/lockandunlocklocation">
-                                                                <span class="badge bg-success badge-sm">
+                                                                </a>
+                                                            @else
+                                                                <a href="/panel-adm14/karyawan/{{ $d->nik }}/lockandunlocklocation"
+                                                                    class="btn btn-action btn-success btn-sm"
+                                                                    title="Lokasi Bebas (Klik untuk Kunci)">
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="icon icon-tabler icon-tabler-lock-open"
-                                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                                        stroke-width="1.5" stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke-width="2" stroke="currentColor"
                                                                         fill="none" stroke-linecap="round"
                                                                         stroke-linejoin="round">
                                                                         <path stroke="none" d="M0 0h24v24H0z"
                                                                             fill="none" />
                                                                         <path
-                                                                            d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+                                                                            d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
                                                                         <path
                                                                             d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                                                                         <path d="M8 11v-5a4 4 0 0 1 8 0" />
                                                                     </svg>
-                                                                </span>
-                                                            </a>
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if ($d->status_jam_kerja == 1)
-                                                            <a href="/karyawan/{{ $d->nik }}/lockandunlockjamkerja">
-                                                                <span class=" badge bg-danger badge-sm">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="icon icon-tabler icon-tabler-lock"
-                                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                                        stroke-width="1.5" stroke="currentColor"
-                                                                        fill="none" stroke-linecap="round"
-                                                                        stroke-linejoin="round">
-                                                                        <path stroke="none" d="M0 0h24v24H0z"
-                                                                            fill="none" />
-                                                                        <path
-                                                                            d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
-                                                                        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
-                                                                        <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
-                                                                    </svg>
-                                                                </span>
-                                                            </a>
-                                                        @else
-                                                            <a href="/karyawan/{{ $d->nik }}/lockandunlockjamkerja">
-                                                                <span class="badge bg-success badge-sm">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="icon icon-tabler icon-tabler-lock-open"
-                                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                                        stroke-width="1.5" stroke="currentColor"
-                                                                        fill="none" stroke-linecap="round"
-                                                                        stroke-linejoin="round">
-                                                                        <path stroke="none" d="M0 0h24v24H0z"
-                                                                            fill="none" />
-                                                                        <path
-                                                                            d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
-                                                                        <path
-                                                                            d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                                                        <path d="M8 11v-5a4 4 0 0 1 8 0" />
-                                                                    </svg>
-                                                                </span>
-                                                            </a>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex">
-                                                            <div>
+                                                                </a>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="d-flex align-items-center justify-content-center gap-1">
                                                                 @role('administrator', 'user')
-                                                                    <a href="#" class="edit btn btn-info btn-sm"
-                                                                        nik="{{ $d->nik }}">
+                                                                    <a href="#" class="edit btn btn-info btn-sm btn-action"
+                                                                        nik="{{ $d->nik }}" title="Edit Data Pegawai">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             class="icon icon-tabler icon-tabler-edit"
-                                                                            width="24" height="24" viewBox="0 0 24 24"
-                                                                            stroke-width="2" stroke="currentColor"
-                                                                            fill="none" stroke-linecap="round"
-                                                                            stroke-linejoin="round">
-                                                                            <path stroke="none" d="M0 0h24v24H0z"
-                                                                                fill="none"></path>
+                                                                            viewBox="0 0 24 24" stroke-width="2"
+                                                                            stroke="currentColor" fill="none"
+                                                                            stroke-linecap="round" stroke-linejoin="round">
+                                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                                             <path
                                                                                 d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1">
                                                                             </path>
@@ -282,28 +224,11 @@
                                                                         </svg>
                                                                     </a>
                                                                 @endrole
-
-                                                                <a href="/konfigurasi/{{ $d->nik }}/setjamkerja"
-                                                                    class="btn btn-success btn-sm ml-2">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="icon icon-tabler icon-tabler-settings"
-                                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                                        stroke-width="2" stroke="currentColor"
-                                                                        fill="none" stroke-linecap="round"
-                                                                        stroke-linejoin="round">
-                                                                        <path stroke="none" d="M0 0h24v24H0z"
-                                                                            fill="none"></path>
-                                                                        <path
-                                                                            d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
-                                                                        </path>
-                                                                        <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
-                                                                    </svg>
-                                                                </a>
-                                                                <a href="/karyawan/{{ Crypt::encrypt($d->nik) }}/resetpassword"
-                                                                    class="btn btn-sm btn-warning">
+                                                                <a href="/panel-adm14/karyawan/{{ Crypt::encrypt($d->nik) }}/resetpassword"
+                                                                    class="btn btn-sm btn-warning btn-action" title="Reset Password Pegawai">
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="icon icon-tabler icon-tabler-key-off"
-                                                                        width="24" height="24" viewBox="0 0 24 24"
+                                                                        viewBox="0 0 24 24"
                                                                         stroke-width="2" stroke="currentColor"
                                                                         fill="none" stroke-linecap="round"
                                                                         stroke-linejoin="round">
@@ -317,16 +242,13 @@
                                                                         <path d="M3 3l18 18" />
                                                                     </svg>
                                                                 </a>
-                                                            </div>
-                                                            @role('administrator', 'user')
-                                                                <div>
-                                                                    <form action="/karyawan/{{ $d->nik }}/delete"
-                                                                        method="POST" style="margin-left:5px">
+                                                                @role('administrator', 'user')
+                                                                    <form action="/panel-adm14/karyawan/{{ $d->nik }}/delete"
+                                                                        method="POST" class="m-0 d-inline-block">
                                                                         @csrf
-                                                                        <a class="btn btn-danger btn-sm delete-confirm">
+                                                                        <a class="btn btn-danger btn-sm btn-action delete-confirm" title="Hapus Pegawai">
                                                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                                                 class="icon icon-tabler icon-tabler-trash-filled"
-                                                                                width="24" height="24"
                                                                                 viewBox="0 0 24 24" stroke-width="2"
                                                                                 stroke="currentColor" fill="none"
                                                                                 stroke-linecap="round"
@@ -344,15 +266,14 @@
                                                                             </svg>
                                                                         </a>
                                                                     </form>
-                                                                </div>
-                                                            @endrole
-                                                        </div>
-
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                                                @endrole
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     {{ $karyawan->links('vendor.pagination.bootstrap-5') }}
                                 </div>
                             </div>
@@ -369,11 +290,11 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Data Karyawan</h5>
+                    <h5 class="modal-title">Tambah Data Pegawai</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/karyawan/store" method="POST" id="frmKaryawan" enctype="multipart/form-data">
+                    <form action="/panel-adm14/karyawan/store" method="POST" id="frmKaryawan" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-12">
@@ -471,7 +392,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <select name="kode_dept" id="kode_dept" class="form-select">
-                                    <option value="">No. Plat Mobil</option>
+                                    <option value="">Seksi</option>
                                     @foreach ($departemen as $d)
                                         <option value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
                                     @endforeach
@@ -518,7 +439,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Data User</h5>
+                    <h5 class="modal-title">Edit Data Pegawai</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="loadeditform">
@@ -544,7 +465,7 @@
                 var nik = $(this).attr('nik');
                 $.ajax({
                     type: 'POST',
-                    url: '/karyawan/edit',
+                    url: '/panel-adm14/karyawan/edit',
                     cache: false,
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -633,7 +554,7 @@
                 } else if (kode_dept == "") {
                     Swal.fire({
                         title: 'Warning!',
-                        text: 'Departemen Harus Diisi !',
+                        text: 'Seksi Harus Diisi !',
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     }).then((result) => {

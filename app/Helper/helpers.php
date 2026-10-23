@@ -149,18 +149,46 @@ function hitungjamkerja($tgl_presensi, $jam_mulai, $jam_berakhir, $max_total_jam
 
 function getkaryawanlibur($dari, $sampai)
 {
+    $harilibur = DB::table('harilibur')
+        ->whereBetween('tanggal_libur', [$dari, $sampai])
+        ->get();
+
+    if ($harilibur->isEmpty()) {
+        return [];
+    }
+
+    $allPegawai = DB::table('pegawai')->select('nik')->get();
+    $karyawanlibur = [];
+    $assigned = [];
+
+    // Ambil detail yang sudah ada di database jika ada
     $datalibur = DB::table('harilibur_detail')
         ->join('harilibur', 'harilibur_detail.kode_libur', '=', 'harilibur.kode_libur')
         ->whereBetween('tanggal_libur', [$dari, $sampai])
         ->get();
 
-    $karyawanlibur = [];
     foreach ($datalibur as $d) {
+        $assigned[$d->kode_libur . '_' . $d->nik] = true;
         $karyawanlibur[] = [
             'nik' => $d->nik,
             'tanggal_libur' => $d->tanggal_libur,
             'keterangan' => $d->keterangan
         ];
+    }
+
+    // Pastikan setiap hari libur berlaku untuk seluruh pegawai
+    foreach ($harilibur as $hl) {
+        foreach ($allPegawai as $p) {
+            $key = $hl->kode_libur . '_' . $p->nik;
+            if (!isset($assigned[$key])) {
+                $assigned[$key] = true;
+                $karyawanlibur[] = [
+                    'nik' => $p->nik,
+                    'tanggal_libur' => $hl->tanggal_libur,
+                    'keterangan' => $hl->keterangan
+                ];
+            }
+        }
     }
 
     return $karyawanlibur;
@@ -237,4 +265,72 @@ function gethari($hari)
     }
 
     return $hari_ini;
+}
+
+function cekJadwalKerja($nik, $kode_cabang, $kode_dept, $tanggal, $hari, $jadwal_by_date = null, $jadwal_pegawai = null, $jadwal_dept = null)
+{
+    // 1. Cek Jadwal Khusus per Tanggal
+    if ($jadwal_by_date && isset($jadwal_by_date[$nik])) {
+        $byDate = $jadwal_by_date[$nik]->firstWhere('tanggal', $tanggal);
+        if ($byDate) {
+            return !empty($byDate->kode_jam_kerja);
+        }
+    }
+
+    // 2. Cek Jadwal Harian Khusus Pegawai
+    if ($jadwal_pegawai && isset($jadwal_pegawai[$nik])) {
+        $byHari = $jadwal_pegawai[$nik]->firstWhere('hari', $hari);
+        if ($byHari) {
+            return !empty($byHari->kode_jam_kerja);
+        }
+    }
+
+    // 3. Cek Jadwal Kantor / Departemen
+    if ($jadwal_dept && !empty($kode_cabang) && !empty($kode_dept)) {
+        $deptKey = $kode_cabang . '_' . $kode_dept;
+        if (isset($jadwal_dept[$deptKey])) {
+            $byDept = $jadwal_dept[$deptKey]->firstWhere('hari', $hari);
+            if ($byDept) {
+                return !empty($byDept->kode_jam_kerja);
+            }
+        }
+    }
+
+    // Jika koleksi preload tidak diberikan, query langsung DB
+    if (!$jadwal_by_date && !$jadwal_pegawai && !$jadwal_dept) {
+        $byDate = DB::table('konfigurasi_jamkerja_by_date')
+            ->where('nik', $nik)
+            ->where('tanggal', $tanggal)
+            ->first();
+        if ($byDate) {
+            return !empty($byDate->kode_jam_kerja);
+        }
+
+        $byHari = DB::table('konfigurasi_jamkerja')
+            ->where('nik', $nik)
+            ->where('hari', $hari)
+            ->first();
+        if ($byHari) {
+            return !empty($byHari->kode_jam_kerja);
+        }
+
+        if (!empty($kode_cabang) && !empty($kode_dept)) {
+            $byDept = DB::table('konfigurasi_jk_dept_detail')
+                ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
+                ->where('kode_dept', $kode_dept)
+                ->where('kode_cabang', $kode_cabang)
+                ->where('hari', $hari)
+                ->first();
+            if ($byDept) {
+                return !empty($byDept->kode_jam_kerja);
+            }
+        }
+    }
+
+    // 4. Default: Minggu dan Sabtu libur jika tidak ada jadwal yang ditentukan
+    if ($hari == 'Minggu' || $hari == 'Sabtu') {
+        return false;
+    }
+
+    return true;
 }

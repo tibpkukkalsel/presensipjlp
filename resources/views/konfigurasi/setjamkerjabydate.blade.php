@@ -90,14 +90,18 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <table class="table table-bordered">
-            <thead>
-                <th>No.</th>
-                <th>Tanggal</th>
-                <th>Jam Kerja</th>
-                <th>#</th>
-            </thead>
-            <tbody id="loadjamkerjabydate"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;" class="text-center">No.</th>
+                        <th>Tanggal</th>
+                        <th>Jam Kerja</th>
+                        <th style="width: 60px;" class="text-center">#</th>
+                    </tr>
+                </thead>
+                <tbody id="loadjamkerjabydate"></tbody>
+            </table>
+        </div>
     </div>
 </div>

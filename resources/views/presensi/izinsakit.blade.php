@@ -7,7 +7,7 @@
                     <!-- Page pre-title -->
 
                     <h2 class="page-title">
-                        Data Maintenance Mobil
+                        Data Pengajuan Izin Pegawai
                     </h2>
                 </div>
 
@@ -97,7 +97,7 @@
                                         </svg>
                                     </span>
                                     <input type="text" value="{{ Request('nama_lengkap') }}" id="nama_lengkap"
-                                        class="form-control" placeholder="Nama Mobil" name="nama_lengkap">
+                                        class="form-control" placeholder="Nama Pegawai" name="nama_lengkap">
                                 </div>
                             </div>
                             <div class="col-2">
@@ -134,92 +134,101 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Kode</th>
-                                <th>Tanggal</th>
-                                <th>Mobil</th>
-                                <th>No. Plat</th>
-                                <th>Status</th>
-                                <th>Keterangan</th>
-                                <th>Status Approve</th>
-                                @role('administrator', 'user')
-                                    <th>Aksi</th>
-                                @endrole
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($izinsakit as $d)
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover align-middle">
+                            <thead>
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $d->kode_izin }}</td>
-                                    <td>
-                                        {{ date('d-m-Y', strtotime($d->tgl_izin_dari)) }} s/d
-                                        {{ date('d-m-Y', strtotime($d->tgl_izin_sampai)) }}
-                                    </td>
-                                    <td>{{ $d->nama_lengkap }}</td>
-                                    <td>{{ $d->nama_dept }}</td>
-                                    <td>
-                                        @if ($d->status == 'i')
-                                            Service Mobil
-                                        @elseif ($d->status == 's')
-                                            Service Perangkat
-                                        @elseif ($d->status = 'c')
-                                            Cuti
-                                        @endif
-                                    </td>
-                                    <td>{{ $d->keterangan }}</td>
-                                    <td>
-                                        @if ($d->status_approved == 1)
-                                            <span class="badge bg-success">Disetujui</span>
-                                        @elseif($d->status_approved == 2)
-                                            <span class="badge bg-danger">Ditolak</span>
-                                        @else
-                                            <span class="badge bg-warning">Pending</span>
-                                        @endif
-                                    </td>
+                                    <th style="width: 50px;" class="text-center">No.</th>
+                                    <th style="width: 120px;">Kode</th>
+                                    <th>Tanggal</th>
+                                    <th>Pegawai</th>
+                                    <th>Seksi</th>
+                                    <th>Kategori</th>
+                                    <th>Keterangan</th>
+                                    <th class="text-center">Status</th>
                                     @role('administrator', 'user')
-                                        <td>
-                                            @if ($d->status_approved == 0)
-                                                <a href="#" class="btn btn-sm btn-primary approve"
-                                                    kode_izin="{{ $d->kode_izin }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="icon icon-tabler icon-tabler-external-link" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M11 7h-5a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-5">
-                                                        </path>
-                                                        <path d="M10 14l10 -10"></path>
-                                                        <path d="M15 4l5 0l0 5"></path>
-                                                    </svg>
-                                                </a>
-                                            @else
-                                                <a href="/presensi/{{ $d->kode_izin }}/batalkanizinsakit"
-                                                    class="btn btn-sm bg-danger">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="icon icon-tabler icon-tabler-square-rounded-x" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M10 10l4 4m0 -4l-4 4"></path>
-                                                        <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z">
-                                                        </path>
-                                                    </svg>
-                                                    Batalkan
-                                                </a>
-                                            @endif
-
-                                        </td>
+                                        <th style="width: 80px;" class="text-center">Aksi</th>
                                     @endrole
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($izinsakit as $d)
+                                    <tr>
+                                        <td class="text-center">{{ $loop->iteration }}</td>
+                                        <td><span class="badge bg-light text-dark border">{{ $d->kode_izin }}</span></td>
+                                        <td>
+                                            <span class="fw-semibold">{{ date('d-m-Y', strtotime($d->tgl_izin_dari)) }}</span>
+                                            <span class="text-muted">s/d</span>
+                                            <span class="fw-semibold">{{ date('d-m-Y', strtotime($d->tgl_izin_sampai)) }}</span>
+                                        </td>
+                                        <td class="fw-bold">{{ $d->nama_lengkap }}</td>
+                                        <td>{{ $d->nama_dept }}</td>
+                                        <td>
+                                            @if ($d->status == 'tl')
+                                                <span class="badge text-white" style="background-color: #20c997;">Tugas Luar</span>
+                                            @elseif ($d->status == 'i')
+                                                <span class="badge bg-info text-white">Izin</span>
+                                            @elseif ($d->status == 's')
+                                                <span class="badge bg-danger text-white">Sakit</span>
+                                            @elseif ($d->status == 'c')
+                                                <span class="badge" style="background-color: #a600ff; color: #fff;">Cuti</span>
+                                            @elseif ($d->status == 'it')
+                                                <span class="badge bg-warning text-dark">Izin Terlambat</span>
+                                            @elseif ($d->status == 'ipc')
+                                                <span class="badge bg-primary text-white">Izin Pulang Cepat</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $d->keterangan }}</td>
+                                        <td class="text-center">
+                                            @if ($d->status_approved == 1)
+                                                <span class="badge bg-success">Disetujui</span>
+                                            @elseif($d->status_approved == 2)
+                                                <span class="badge bg-danger">Ditolak</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            @endif
+                                        </td>
+                                        @role('administrator', 'user')
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    @if ($d->status_approved == 0)
+                                                        <a href="#" class="btn btn-sm btn-primary btn-action approve"
+                                                            kode_izin="{{ $d->kode_izin }}" title="Proses Persetujuan">
+                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                class="icon icon-tabler icon-tabler-external-link"
+                                                                viewBox="0 0 24 24" stroke-width="2"
+                                                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                                                stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M11 7h-5a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-5">
+                                                                </path>
+                                                                <path d="M10 14l10 -10"></path>
+                                                                <path d="M15 4l5 0l0 5"></path>
+                                                            </svg>
+                                                        </a>
+                                                    @else
+                                                        <a href="/panel-adm14/presensi/{{ $d->kode_izin }}/batalkanizinsakit"
+                                                            class="btn btn-sm btn-danger btn-action" title="Batalkan Persetujuan">
+                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                class="icon icon-tabler icon-tabler-square-rounded-x"
+                                                                viewBox="0 0 24 24" stroke-width="2"
+                                                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                                                stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M10 10l4 4m0 -4l-4 4"></path>
+                                                                <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z">
+                                                                </path>
+                                                            </svg>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        @endrole
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                     {{ $izinsakit->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
@@ -229,11 +238,11 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Maintenance Mobil</h5>
+                    <h5 class="modal-title">Persetujuan Izin / Sakit</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/presensi/approveizinsakit" method="POST">
+                    <form action="/panel-adm14/presensi/approveizinsakit" method="POST">
                         @csrf
                         <input type="hidden" id="kode_izin_form" name="kode_izin_form">
                         <div class="row">

@@ -6,6 +6,7 @@ use App\Models\Setjamkerja;
 use App\Models\Setjamkerjadept;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class KonfigurasiController extends Controller
@@ -71,7 +72,7 @@ class KonfigurasiController extends Controller
             DB::table('jam_kerja')->insert($data);
             return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
-            dd($e);
+            Log::error('Error storejamkerja: ' . $e->getMessage());
             return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
         }
     }
@@ -81,6 +82,9 @@ class KonfigurasiController extends Controller
     {
         $kode_jam_kerja = $request->kode_jam_kerja;
         $jamkerja = DB::table('jam_kerja')->where('kode_jam_kerja', $kode_jam_kerja)->first();
+        if (!$jamkerja) {
+            return response('<div class="alert alert-warning mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Data Jam Kerja (' . e($kode_jam_kerja) . ') tidak ditemukan.</div>', 404);
+        }
         return view('konfigurasi.editjamkerja', compact('jamkerja'));
     }
 
@@ -113,7 +117,7 @@ class KonfigurasiController extends Controller
             DB::table('jam_kerja')->where('kode_jam_kerja', $kode_jam_kerja)->update($data);
             return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
         } catch (\Exception $e) {
-            dd($e);
+            Log::error('Error updatejamkerja: ' . $e->getMessage());
             return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
         }
     }
@@ -130,7 +134,7 @@ class KonfigurasiController extends Controller
 
     public function setjamkerja($nik)
     {
-        $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+        $karyawan = DB::table('pegawai')->where('nik', $nik)->first();
         $jamkerja = DB::table('jam_kerja')->orderBy('nama_jam_kerja')->get();
         $cekjamkerja = DB::table('konfigurasi_jamkerja')->where('nik', $nik)->count();
         $bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -161,9 +165,9 @@ class KonfigurasiController extends Controller
 
         try {
             Setjamkerja::insert($data);
-            return redirect('/karyawan')->with(['success' => 'Jam Kerja Berhasil Di Seting']);
+            return redirect('/panel-adm14/pegawai')->with(['success' => 'Jam Kerja Berhasil Di Seting']);
         } catch (\Exception $e) {
-            return redirect('/karyawan')->with(['warning' => 'Jam Kerja Gagal Di Seting']);
+            return redirect('/panel-adm14/pegawai')->with(['warning' => 'Jam Kerja Gagal Di Seting']);
             // dd($e);
         }
     }
@@ -189,20 +193,20 @@ class KonfigurasiController extends Controller
             DB::table('konfigurasi_jamkerja')->where('nik', $nik)->delete();
             Setjamkerja::insert($data);
             DB::commit();
-            return redirect('/karyawan')->with(['success' => 'Jam Kerja Berhasil Di Seting']);
+            return redirect('/panel-adm14/pegawai')->with(['success' => 'Jam Kerja Berhasil Di Seting']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect('/karyawan')->with(['warning' => 'Jam Kerja Gagal Di Seting']);
+            return redirect('/panel-adm14/pegawai')->with(['warning' => 'Jam Kerja Gagal Di Seting']);
             // dd($e);
         }
     }
 
     public function jamkerjadept()
     {
-
         $jamkerjadept = DB::table('konfigurasi_jk_dept')
             ->join('cabang', 'konfigurasi_jk_dept.kode_cabang', '=', 'cabang.kode_cabang')
-            ->join('departemen', 'konfigurasi_jk_dept.kode_dept', '=', 'departemen.kode_dept')
+            ->leftJoin('seksi', 'konfigurasi_jk_dept.kode_dept', '=', 'seksi.kode_dept')
+            ->select('konfigurasi_jk_dept.*', 'cabang.nama_cabang', 'seksi.nama_dept')
             ->get();
         return view('konfigurasi.jamkerjadept', compact('jamkerjadept'));
     }
@@ -212,7 +216,7 @@ class KonfigurasiController extends Controller
     {
         $jamkerja = DB::table('jam_kerja')->orderBy('nama_jam_kerja')->get();
         $cabang = DB::table('cabang')->get();
-        $departemen = DB::table('departemen')->get();
+        $departemen = DB::table('seksi')->get();
         return view('konfigurasi.createjamkerjadept', compact('jamkerja', 'cabang', 'departemen'));
     }
 
@@ -220,10 +224,15 @@ class KonfigurasiController extends Controller
     public function storejamkerjadept(Request $request)
     {
         $kode_cabang = $request->kode_cabang;
-        $kode_dept = $request->kode_dept;
+        $kode_dept = $request->kode_dept ?? null;
         $hari = $request->hari;
         $kode_jam_kerja = $request->kode_jam_kerja;
-        $kode_jk_dept = "J" . $kode_cabang . $kode_dept;
+        $kode_jk_dept = "J" . $kode_cabang . ($kode_dept ? $kode_dept : "");
+
+        $cek = DB::table('konfigurasi_jk_dept')->where('kode_cabang', $kode_cabang)->first();
+        if ($cek) {
+            return redirect('/panel-adm14/konfigurasi/jamkerjadept')->with(['warning' => 'Jam Kerja untuk Kantor/Cabang ini sudah ada. Silakan gunakan tombol Edit']);
+        }
 
         DB::beginTransaction();
         try {
@@ -234,6 +243,7 @@ class KonfigurasiController extends Controller
                 'kode_dept' => $kode_dept
             ]);
 
+            $data = [];
             for ($i = 0; $i < count($hari); $i++) {
                 $data[] = [
                     'kode_jk_dept' => $kode_jk_dept,
@@ -243,10 +253,10 @@ class KonfigurasiController extends Controller
             }
             Setjamkerjadept::insert($data);
             DB::commit();
-            return redirect('/konfigurasi/jamkerjadept')->with(['success' => 'Data Berhasil Disimpan']);
+            return redirect('/panel-adm14/konfigurasi/jamkerjadept')->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect('/konfigurasi/jamkerjadept')->with(['warning' => 'Data Gagal Disimpan']);
+            return redirect('/panel-adm14/konfigurasi/jamkerjadept')->with(['warning' => 'Data Gagal Disimpan']);
         }
     }
 
@@ -256,7 +266,7 @@ class KonfigurasiController extends Controller
 
         $jamkerja = DB::table('jam_kerja')->orderBy('nama_jam_kerja')->get();
         $cabang = DB::table('cabang')->get();
-        $departemen = DB::table('departemen')->get();
+        $departemen = DB::table('seksi')->get();
         $jamkerjadept = DB::table('konfigurasi_jk_dept')->where('kode_jk_dept', $kode_jk_dept)->first();
         $jamkerjadept_detail = DB::table('konfigurasi_jk_dept_detail')->where('kode_jk_dept', $kode_jk_dept)->get();
         return view('konfigurasi.editjamkerjadept', compact('jamkerja', 'cabang', 'departemen', 'jamkerjadept', 'jamkerjadept_detail'));
@@ -284,10 +294,10 @@ class KonfigurasiController extends Controller
             }
             Setjamkerjadept::insert($data);
             DB::commit();
-            return redirect('/konfigurasi/jamkerjadept')->with(['success' => 'Data Berhasil Disimpan']);
+            return redirect('/panel-adm14/konfigurasi/jamkerjadept')->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect('/konfigurasi/jamkerjadept')->with(['warning' => 'Data Gagal Disimpan']);
+            return redirect('/panel-adm14/konfigurasi/jamkerjadept')->with(['warning' => 'Data Gagal Disimpan']);
         }
     }
 
@@ -296,7 +306,7 @@ class KonfigurasiController extends Controller
     {
         $jamkerja = DB::table('jam_kerja')->orderBy('nama_jam_kerja')->get();
         $cabang = DB::table('cabang')->get();
-        $departemen = DB::table('departemen')->get();
+        $departemen = DB::table('seksi')->get();
         $jamkerjadept = DB::table('konfigurasi_jk_dept')->where('kode_jk_dept', $kode_jk_dept)->first();
         $jamkerjadept_detail = DB::table('konfigurasi_jk_dept_detail')
             ->join('jam_kerja', 'konfigurasi_jk_dept_detail.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
@@ -363,5 +373,61 @@ class KonfigurasiController extends Controller
         } catch (\Exception $e) {
             return 1;
         }
+    }
+
+    public function penandatangan()
+    {
+        $konfigurasi = DB::table('konfigurasi_laporan')->where('id', 1)->first();
+        if (!$konfigurasi) {
+            DB::table('konfigurasi_laporan')->insert([
+                'id' => 1,
+                'pejabat1_jabatan' => 'KEPALA BPKUK PROV. KALSEL',
+                'pejabat1_nama' => 'FEBRY RAHARJO, S.IP, MM',
+                'pejabat1_nip' => '19870222 200701 1 002',
+                'pejabat2_jabatan' => 'KASUBBAG TATA USAHA',
+                'pejabat2_nama' => 'ADIMAS FITRIANDI, ST',
+                'pejabat2_nip' => '19800813 200712 1 001',
+                'kota_cetak' => 'Pelaihari',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $konfigurasi = DB::table('konfigurasi_laporan')->where('id', 1)->first();
+        }
+        return view('konfigurasi.penandatangan', compact('konfigurasi'));
+    }
+
+    public function updatepenandatangan(Request $request)
+    {
+        $request->validate([
+            'pejabat1_jabatan' => 'required',
+            'pejabat1_nama' => 'required',
+            'pejabat1_nip' => 'required',
+            'pejabat2_jabatan' => 'required',
+            'pejabat2_nama' => 'required',
+            'pejabat2_nip' => 'required',
+            'kota_cetak' => 'required',
+        ]);
+
+        $data = [
+            'pejabat1_jabatan' => $request->pejabat1_jabatan,
+            'pejabat1_nama' => $request->pejabat1_nama,
+            'pejabat1_nip' => $request->pejabat1_nip,
+            'pejabat2_jabatan' => $request->pejabat2_jabatan,
+            'pejabat2_nama' => $request->pejabat2_nama,
+            'pejabat2_nip' => $request->pejabat2_nip,
+            'kota_cetak' => $request->kota_cetak,
+            'updated_at' => now(),
+        ];
+
+        $cek = DB::table('konfigurasi_laporan')->where('id', 1)->first();
+        if ($cek) {
+            DB::table('konfigurasi_laporan')->where('id', 1)->update($data);
+        } else {
+            $data['id'] = 1;
+            $data['created_at'] = now();
+            DB::table('konfigurasi_laporan')->insert($data);
+        }
+
+        return Redirect::back()->with(['success' => 'Data Pejabat Penandatangan Laporan Berhasil Diperbarui']);
     }
 }

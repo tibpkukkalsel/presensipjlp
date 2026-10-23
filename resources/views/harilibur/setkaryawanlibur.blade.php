@@ -66,7 +66,7 @@
                                         </tr>
                                         <tr>
                                             <th>Cabang</th>
-                                            <td>{{ $harilibur->nama_cabang }}</td>
+                                            <td>{{ $harilibur->nama_cabang ?? 'Semua Cabang (Semua Pegawai)' }}</td>
                                         </tr>
                                         <tr>
                                             <th>Keterangan</th>
@@ -80,7 +80,7 @@
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th>No.</th>
+                                                <th>No</th>
                                                 <th>NIK</th>
                                                 <th>Nama Karyawan</th>
                                                 <th>Jabatan</th>
@@ -117,7 +117,7 @@
 
             function loadkaryawanlibur() {
                 var kode_libur = "{{ $harilibur->kode_libur }}";
-                $("#loadkaryawanlibur").load('/konfigurasi/harilibur/' + kode_libur + '/getkaryawanlibur');
+                $("#loadkaryawanlibur").load('/panel-adm14/konfigurasi/harilibur/' + kode_libur + '/getkaryawanlibur');
             }
 
             loadkaryawanlibur();
@@ -125,7 +125,7 @@
             $("#btnSetkaryawanlibur").click(function(e) {
                 var kode_libur = "{{ $harilibur->kode_libur }}";
                 $("#modal-setkaryawanlibur").modal("show");
-                $("#loadsetkaryawanlibur").load('/konfigurasi/harilibur/' + kode_libur +
+                $("#loadsetkaryawanlibur").load('/panel-adm14/konfigurasi/harilibur/' + kode_libur +
                     '/setlistkaryawanlibur');
             });
         });

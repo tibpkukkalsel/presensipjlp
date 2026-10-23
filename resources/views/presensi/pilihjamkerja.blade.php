@@ -20,7 +20,7 @@
                     @foreach ($jamkerja as $d)
                         <a href="/presensi/{{ Crypt::encrypt($d->kode_jam_kerja) }}/create"
                             style="text-decoration: none; color:black">
-                            <div class="card mb-1" style="border : 1px solid blue">
+                            <div class="card mb-1" style="border: 1px solid #2A8BF2;">
                                 <div class="card-body">
                                     <div class="historicontent">
                                         <div class="iconpresensi">

@@ -70,15 +70,32 @@
     <div class="row">
         <div class="col">
             @if ($cek > 0)
-                <button id="takeabsen" class="btn btn-danger btn-block">
-                    <ion-icon name="camera-outline"></ion-icon>
-                    Absen Pulang
-                </button>
+                @if (!empty($datapresensi->jam_out))
+                    <div class="alert alert-info text-center py-2 mb-0">
+                        <ion-icon name="checkmark-circle-outline" style="font-size: 24px; vertical-align: middle;"></ion-icon>
+                        <div>Anda sudah menyelesaikan presensi masuk dan pulang untuk hari ini.</div>
+                    </div>
+                @else
+                    <button id="takeabsen" data-status="out" class="btn btn-danger btn-block">
+                        <ion-icon name="camera-outline"></ion-icon>
+                        Absen Pulang
+                    </button>
+                @endif
             @else
-                <button id="takeabsen" class="btn btn-primary btn-block">
-                    <ion-icon name="camera-outline"></ion-icon>
-                    Absen Masuk
-                </button>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button id="takeabsen" data-status="in" class="btn btn-primary btn-block">
+                            <ion-icon name="camera-outline"></ion-icon>
+                            Absen Masuk
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button id="takeabsen_out" data-status="out" class="btn btn-danger btn-block">
+                            <ion-icon name="camera-outline"></ion-icon>
+                            Absen Pulang
+                        </button>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -138,7 +155,17 @@
 
         var lokasi = document.getElementById('lokasi');
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+            navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        } else {
+            Swal.fire({
+                title: 'GPS Tidak Didukung',
+                text: 'Browser atau perangkat Anda tidak mendukung fitur lokasi GPS.',
+                icon: 'error'
+            });
         }
 
         function successCallback(position) {
@@ -162,26 +189,72 @@
             }).addTo(map);
         }
 
-        function errorCallback() {
-
+        function errorCallback(error) {
+            var msg = 'Gagal mendeteksi lokasi GPS.';
+            if (error) {
+                if (error.code == 1) {
+                    msg = 'Akses lokasi ditolak. Harap izinkan akses lokasi (GPS) pada browser Anda.';
+                } else if (error.code == 2) {
+                    msg = 'Titik lokasi GPS tidak dapat ditentukan oleh perangkat Anda.';
+                } else if (error.code == 3) {
+                    msg = 'Waktu permintaan lokasi GPS habis (timeout). Pastikan GPS aktif.';
+                }
+            }
+            Swal.fire({
+                title: 'Perhatian!',
+                text: msg,
+                icon: 'warning'
+            });
         }
 
-        $("#takeabsen").click(function(e) {
-            Webcam.snap(function(uri) {
-                image = uri;
-            });
-            var lokasi = $("#lokasi").val();
+        $("#takeabsen, #takeabsen_out").click(function(e) {
+            e.preventDefault();
+            var statusAbsen = $(this).data('status') || 'in';
+            var image = "";
+            try {
+                Webcam.snap(function(uri) {
+                    image = uri;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+
+            if (!image) {
+                Swal.fire({
+                    title: 'Kamera Belum Siap',
+                    text: 'Pastikan kamera aktif dan berikan izin akses kamera pada browser Anda.',
+                    icon: 'warning'
+                });
+                return false;
+            }
+
+            var lokasiVal = $("#lokasi").val();
+            if (!lokasiVal) {
+                Swal.fire({
+                    title: 'Lokasi Belum Terdeteksi',
+                    text: 'Sedang mencari titik koordinat GPS Anda. Pastikan GPS aktif dan izinkan akses lokasi pada browser.',
+                    icon: 'warning'
+                });
+                return false;
+            }
+
+            var btn = $(this);
+            var originalHtml = btn.html();
+            btn.prop('disabled', true).text('Memproses Presensi...');
+
             $.ajax({
                 type: 'POST',
                 url: '/presensi/store',
                 data: {
                     _token: "{{ csrf_token() }}",
                     image: image,
-                    lokasi: lokasi,
-                    kode_jam_kerja: "{{ $kode_jam_kerja }}"
+                    lokasi: lokasiVal,
+                    kode_jam_kerja: "{{ $kode_jam_kerja }}",
+                    status_absen: statusAbsen
                 },
                 cache: false,
                 success: function(respond) {
+                    btn.prop('disabled', false).html(originalHtml);
                     var status = respond.split("|");
                     if (status[0] == "success") {
                         if (status[2] == "in") {
@@ -193,8 +266,10 @@
                             title: 'Berhasil !',
                             text: status[1],
                             icon: 'success'
-                        })
-                        setTimeout("location.href='/dashboard'", 3000);
+                        });
+                        setTimeout(function() {
+                            location.href = '/dashboard';
+                        }, 2500);
                     } else {
                         if (status[2] == "radius") {
                             radius_sound.play();
@@ -203,8 +278,16 @@
                             title: 'Error !',
                             text: status[1],
                             icon: 'error'
-                        })
+                        });
                     }
+                },
+                error: function(xhr, status, error) {
+                    btn.prop('disabled', false).html(originalHtml);
+                    Swal.fire({
+                        title: 'Terjadi Kesalahan!',
+                        text: 'Gagal memproses presensi (' + (xhr.status || '') + ' ' + (xhr.statusText || error) + '). Silakan hubungi admin / IT.',
+                        icon: 'error'
+                    });
                 }
             });
 

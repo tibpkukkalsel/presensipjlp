@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-6">
+                <div class="col-lg-5 col-12 mb-3">
                     <div class="card">
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs nav-fill" data-bs-toggle="tabs" role="tablist">
@@ -126,34 +126,36 @@
 
 
                 </div>
-                <div class="col-6">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th colspan="6">Master Jam Kerja</th>
-                            </tr>
-                            <tr>
-                                <th>Kode</th>
-                                <th>Nama</th>
-                                <th>Awal Masuk</th>
-                                <th>Jam Masuk</th>
-                                <th>Akhir Masuk</th>
-                                <th>Jam Pulang</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($jamkerja as $d)
+                <div class="col-lg-7 col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead>
                                 <tr>
-                                    <td>{{ $d->kode_jam_kerja }}</td>
-                                    <td>{{ $d->nama_jam_kerja }}</td>
-                                    <td>{{ $d->awal_jam_masuk }}</td>
-                                    <td>{{ $d->jam_masuk }}</td>
-                                    <td>{{ $d->akhir_jam_masuk }}</td>
-                                    <td>{{ $d->jam_pulang }}</td>
+                                    <th colspan="6" class="text-center bg-light">Master Jam Kerja</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama</th>
+                                    <th>Awal Masuk</th>
+                                    <th>Jam Masuk</th>
+                                    <th>Akhir Masuk</th>
+                                    <th>Jam Pulang</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($jamkerja as $d)
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark border">{{ $d->kode_jam_kerja }}</span></td>
+                                        <td class="fw-semibold">{{ $d->nama_jam_kerja }}</td>
+                                        <td class="font-monospace">{{ substr($d->awal_jam_masuk, 0, 5) }}</td>
+                                        <td class="font-monospace fw-bold text-primary">{{ substr($d->jam_masuk, 0, 5) }}</td>
+                                        <td class="font-monospace">{{ substr($d->akhir_jam_masuk, 0, 5) }}</td>
+                                        <td class="font-monospace fw-bold text-success">{{ substr($d->jam_pulang, 0, 5) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -86,35 +86,40 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-12">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Kode Libur</th>
-                                                <th>Tanggal Libur</th>
-                                                <th>Cabang</th>
-                                                <th>Keterangan</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($harilibur as $d)
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-hover align-middle">
+                                            <thead>
                                                 <tr>
-                                                    <td>{{ $loop->iteration + $harilibur->firstItem() - 1 }}</td>
-                                                    <td>{{ $d->kode_libur }}</td>
-                                                    <td>{{ date('d-m-Y', strtotime($d->tanggal_libur)) }}</td>
-                                                    <td>{{ $d->kode_cabang }}</td>
-                                                    <td>{{ $d->keterangan }}</td>
-                                                    <td>
-                                                        <div class="d-flex">
-                                                            @role('administrator', 'user')
-                                                                <div>
-
-                                                                    <a href="#" class="edit btn btn-info btn-sm mr-1"
-                                                                        kode_libur="{{ $d->kode_libur }}">
+                                                    <th style="width: 50px;" class="text-center">No</th>
+                                                    <th style="width: 120px;">Kode Libur</th>
+                                                    <th>Tanggal Libur</th>
+                                                    <th>Cabang</th>
+                                                    <th>Keterangan</th>
+                                                    <th style="width: 120px;" class="text-center">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($harilibur as $d)
+                                                    <tr>
+                                                        <td class="text-center">{{ $loop->iteration + $harilibur->firstItem() - 1 }}</td>
+                                                        <td><span class="badge bg-light text-dark border">{{ $d->kode_libur }}</span></td>
+                                                        <td class="fw-bold">{{ date('d-m-Y', strtotime($d->tanggal_libur)) }}</td>
+                                                        <td>
+                                                            @if ($d->kode_cabang == 'ALL')
+                                                                <span class="badge bg-primary text-white">Semua Pegawai</span>
+                                                            @else
+                                                                <span class="badge bg-secondary text-white">{{ $d->kode_cabang }}</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $d->keterangan }}</td>
+                                                        <td class="text-center">
+                                                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                                                @role('administrator', 'user')
+                                                                    <a href="#" class="edit btn btn-info btn-sm btn-action"
+                                                                        kode_libur="{{ $d->kode_libur }}" title="Edit Hari Libur">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             class="icon icon-tabler icon-tabler-edit"
-                                                                            width="24" height="24" viewBox="0 0 24 24"
+                                                                            viewBox="0 0 24 24"
                                                                             stroke-width="2" stroke="currentColor"
                                                                             fill="none" stroke-linecap="round"
                                                                             stroke-linejoin="round">
@@ -129,12 +134,12 @@
                                                                             <path d="M16 5l3 3"></path>
                                                                         </svg>
                                                                     </a>
-                                                                    <a href="/konfigurasi/harilibur/{{ $d->kode_libur }}/setkaryawanlibur"
-                                                                        class="btn btn-success btn-sm">
+                                                                    <a href="/panel-adm14/konfigurasi/harilibur/{{ $d->kode_libur }}/setkaryawanlibur"
+                                                                        class="btn btn-success btn-sm btn-action" title="Daftar Pegawai Libur">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             class="icon icon-tabler icon-tabler-settings-up"
-                                                                            width="24" height="24" viewBox="0 0 24 24"
-                                                                            stroke-width="1.5" stroke="currentColor"
+                                                                            viewBox="0 0 24 24"
+                                                                            stroke-width="2" stroke="currentColor"
                                                                             fill="none" stroke-linecap="round"
                                                                             stroke-linejoin="round">
                                                                             <path stroke="none" d="M0 0h24v24H0z"
@@ -146,19 +151,13 @@
                                                                             <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
                                                                         </svg>
                                                                     </a>
-                                                                </div>
-                                                            @endrole
-
-                                                            @role('administrator', 'user')
-                                                                <div>
                                                                     <form
-                                                                        action="/konfigurasi/harilibur/{{ $d->kode_libur }}/delete"
-                                                                        method="POST" style="margin-left:5px">
+                                                                        action="/panel-adm14/konfigurasi/harilibur/{{ $d->kode_libur }}/delete"
+                                                                        method="POST" class="m-0 d-inline-block">
                                                                         @csrf
-                                                                        <a class="btn btn-danger btn-sm delete-confirm">
+                                                                        <a class="btn btn-danger btn-sm btn-action delete-confirm" title="Hapus Hari Libur">
                                                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                                                 class="icon icon-tabler icon-tabler-trash-filled"
-                                                                                width="24" height="24"
                                                                                 viewBox="0 0 24 24" stroke-width="2"
                                                                                 stroke="currentColor" fill="none"
                                                                                 stroke-linecap="round" stroke-linejoin="round">
@@ -175,13 +174,14 @@
                                                                             </svg>
                                                                         </a>
                                                                     </form>
-                                                                </div>
-                                                            @endrole
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                                                @endrole
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     {{-- {{ $karyawan->links('vendor.pagination.bootstrap-5') }} --}}
                                 </div>
                             </div>
@@ -226,14 +226,14 @@
         $(function() {
             $("#btntambahHarilibur").click(function() {
                 $("#modal-createlibur").modal("show");
-                $("#loadcreatelibur").load('/konfigurasi/harilibur/create');
+                $("#loadcreatelibur").load('/panel-adm14/konfigurasi/harilibur/create');
             });
 
             $(".edit").click(function() {
                 var kode_libur = $(this).attr('kode_libur');
                 $.ajax({
                     type: 'POST',
-                    url: '/konfigurasi/harilibur/edit',
+                    url: '/panel-adm14/konfigurasi/harilibur/edit',
                     cache: false,
                     data: {
                         _token: "{{ csrf_token() }}",

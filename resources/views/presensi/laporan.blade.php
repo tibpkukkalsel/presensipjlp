@@ -20,7 +20,7 @@
             <div class="col-6">
                 <div class="card">
                     <div class="card-body">
-                        <form action="/presensi/cetaklaporan" id="frmLaporan" target="_blank" method="POST">
+                        <form action="/panel-adm14/presensi/cetaklaporan" id="frmLaporan" target="_blank" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-12">
@@ -53,7 +53,7 @@
                                 <div class="col-12">
                                     <div class="form-group">
                                         <select name="nik" id="nik" class="form-select">
-                                            <option value="">Pilih Mobil</option>
+                                            <option value="">Pilih Pegawai</option>
                                             @foreach ($karyawan as $d)
                                             <option value="{{ $d->nik }}">{{ $d->nama_lengkap }}</option>
                                             @endforeach

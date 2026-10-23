@@ -20,12 +20,15 @@ class IzinabsenController extends Controller
         $nik = Auth::guard('karyawan')->user()->nik;
         $tgl_izin_dari = $request->tgl_izin_dari;
         $tgl_izin_sampai = $request->tgl_izin_sampai;
-        $status = "i";
+        $status = $request->status ?? "i";
         $keterangan = $request->keterangan;
+
+        if (in_array($status, ['it', 'ipc']) && empty($tgl_izin_sampai)) {
+            $tgl_izin_sampai = $tgl_izin_dari;
+        }
 
         $bulan = date("m", strtotime($tgl_izin_dari));
         $tahun = date("Y", strtotime($tgl_izin_dari));
-        // dd($tahun);
         $thn = substr($tahun, 2, 2);
         $lastizin = DB::table('pengajuan_izin')
             ->whereRaw('MONTH(tgl_izin_dari)="' . $bulan . '"')
@@ -36,7 +39,6 @@ class IzinabsenController extends Controller
         $format = "IZ" . $bulan . $thn;
         $kode_izin = buatkode($lastkodeizin, $format, 3);
 
-        //dd($kode_izin);
         $data = [
             'kode_izin' => $kode_izin,
             'nik' => $nik,
@@ -47,15 +49,19 @@ class IzinabsenController extends Controller
         ];
 
         //Cek Sudah Absen / Belum
-
         $cekpresensi = DB::table('presensi')
             ->whereBetween('tgl_presensi', [$tgl_izin_dari, $tgl_izin_sampai])
             ->where('nik', $nik);
+
+        if ($status == 'ipc') {
+            // Untuk izin pulang cepat, jika sudah absen masuk tapi belum absen pulang diperbolehkan
+            $cekpresensi = $cekpresensi->whereNotNull('jam_out');
+        }
+
         //Cek Sudah Di Ajukan / Belum
         $cekpengajuan = DB::table('pengajuan_izin')
             ->where('nik', $nik)
             ->whereRaw('"' . $tgl_izin_dari . '" BETWEEN tgl_izin_dari AND tgl_izin_sampai');
-
 
         $datapresensi = $cekpresensi->get();
 
@@ -64,7 +70,7 @@ class IzinabsenController extends Controller
             foreach ($datapresensi as $d) {
                 $blacklistdate .= date('d-m-Y', strtotime($d->tgl_presensi)) . ",";
             }
-            return redirect('/presensi/izin')->with(['error' => 'Tidak Bisa Melakukan Pengajuan Pada Tanggal ' . $blacklistdate . 'Karena Ada tanggal yang sudah digunkan / sudah melakukan Presensi, Silahkan Ganti Periode Tanggal Pengajuan']);
+            return redirect('/presensi/izin')->with(['error' => 'Tidak Bisa Melakukan Pengajuan Pada Tanggal ' . $blacklistdate . ' Karena sudah melakukan Presensi, Silahkan Ganti Periode Tanggal Pengajuan']);
         } else if ($cekpengajuan->count() > 0) {
             return redirect('/presensi/izin')->with(['error' => 'Tidak Bisa Melakukan Pengajuan Pada Tanggal Tersebut Karena Ada tanggal yang sudah digunakan Sebelumnya !']);
         } else {

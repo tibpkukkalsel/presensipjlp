@@ -1,111 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
-    <title>LAPORAN PRESENSI</title>
-
-    <!-- Normalize or reset CSS with your favorite library -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
-
-    <!-- Load paper.css for happy printing -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css">
-
-    <!-- Set page size here: A5, A4 or A3 -->
-    <!-- Set also "landscape" if you need -->
+    <title>Laporan Presensi - {{ $karyawan->nama_lengkap ?? '' }}</title>
     <style>
-        @page {
-            size: Legal
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: #111;
+            line-height: 1.3;
         }
 
-        #title {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 18px;
+        .header-table {
+            width: 100%;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        .header-title {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .header-title h2 {
+            font-size: 13pt;
             font-weight: bold;
+            margin: 0;
+            padding: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title h3 {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 2px 0;
+            padding: 0;
+            text-transform: uppercase;
+        }
+
+        .header-title p {
+            font-size: 10pt;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            text-transform: uppercase;
         }
 
         .tabeldatakaryawan {
-            margin-top: 40px;
+            margin-bottom: 12px;
+            font-size: 9.5pt;
         }
 
-        .tabeldatakaryawan tr td {
-            padding: 5px;
+        .tabeldatakaryawan td {
+            padding: 2px 4px;
         }
 
         .tabelpresensi {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
+            font-size: 8.5pt;
         }
 
-        .tabelpresensi tr th {
-            border: 1px solid #131212;
-            padding: 8px;
-            background-color: #dbdbdb;
+        .tabelpresensi th {
+            border: 0.5px solid #222;
+            padding: 5px 3px;
+            background-color: #eaeaea;
+            font-weight: bold;
+            text-align: center;
         }
 
-        .tabelpresensi tr td {
-            border: 1px solid #131212;
-            padding: 5px;
-            font-size: 12px;
+        .tabelpresensi td {
+            border: 0.5px solid #222;
+            padding: 4px 3px;
+            vertical-align: middle;
         }
 
-        .foto {
+        .foto-presensi {
             width: 40px;
-            height: 30px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 3px;
+            border: 0.5px solid #ccc;
+        }
 
+        .text-center {
+            text-align: center;
+        }
+
+        .badge-status {
+            font-weight: bold;
+        }
+
+        .ttd-table {
+            width: 100%;
+            margin-top: 25px;
+            page-break-inside: avoid;
+            font-size: 9.5pt;
+        }
+
+        .ttd-table td {
+            vertical-align: top;
         }
     </style>
 </head>
 
-<!-- Set "A5", "A4" or "A3" for class name -->
-<!-- Set also "landscape" if you need -->
+<body>
+    @php
+        $logo_path = str_replace('\\', '/', public_path('assets/img/Logo Provinsi Kalimantan Selatan.png'));
+        $has_logo = file_exists($logo_path);
+    @endphp
 
-<body class="legal">
+    <table class="header-table">
+        <tr>
+            <td style="width: 65px; text-align: center; vertical-align: middle;">
+                @if ($has_logo)
+                    <img src="{{ $logo_path }}" width="50" height="68" alt="Logo">
+                @endif
+            </td>
+            <td class="header-title">
+                <h2>LAPORAN PRESENSI BPKUK PROV. KALSEL</h2>
+                <h3>PENYEDIA JASA LAINNYA PERORANGAN</h3>
+                <p>BULAN {{ strtoupper($namabulan[(int) $bulan] ?? '') }} TAHUN {{ $tahun }}</p>
+            </td>
+            <td style="width: 65px;"></td>
+        </tr>
+    </table>
 
-    <!-- Each sheet element should have the class "sheet" -->
-    <!-- "padding-**mm" is optional: you can set 10, 15, 20 or 25 -->
-    <section class="sheet padding-10mm">
+    <table class="tabeldatakaryawan">
+        <tr>
+            <td style="width: 110px; font-weight: bold;">Nama Pegawai</td>
+            <td style="width: 10px;">:</td>
+            <td style="font-weight: bold;">{{ $karyawan->nama_lengkap ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td style="font-weight: bold;">Jabatan</td>
+            <td>:</td>
+            <td>{{ $karyawan->jabatan ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td style="font-weight: bold;">Seksi</td>
+            <td>:</td>
+            <td>{{ $karyawan->nama_dept ?? '-' }}</td>
+        </tr>
+    </table>
 
-    <table style="width: 100%">
+    <table class="tabelpresensi">
+        <thead>
             <tr>
-                <td style="width: 60px">
-                    <img src="{{ asset('assets/img/Logo Provinsi Kalimantan Selatan.png') }}" width="50" height="70" alt="">
-                </td>
-                <td>
-                    <span id="title">
-                          LAPORAN PRESENSI SAMSAT KELILING<br>
-                          BPKUK PROV. KALSEL<br>
-                          BULAN {{ strtoupper($namabulan[$bulan])}}
-                    </span>
-                </td>
+                <th style="width: 4%;">No.</th>
+                <th style="width: 12%;">Tanggal</th>
+                <th style="width: 9%;">Jam Masuk</th>
+                <th style="width: 11%;">Foto</th>
+                <th style="width: 9%;">Jam Pulang</th>
+                <th style="width: 11%;">Foto</th>
+                <th style="width: 14%;">Status</th>
+                <th style="width: 18%;">Keterangan</th>
+                <th style="width: 12%;">Jml Jam</th>
             </tr>
-        </table>
-        <table class="tabeldatakaryawan">
-            <tr>
-                <td>Mobil <br></td>
-                <td>:</td>
-                <td>{{ $karyawan->nama_lengkap }}</span></td>
-            </tr>
-        </table>
-        <table class="tabelpresensi">
-            <tr>
-                <th width="1">No.</th>
-                <th>Tanggal</th>
-                <th>Jam Masuk</th>
-                <th>Foto</th>
-                <th>Jam Pulang</th>
-                <th>Foto</th>
-                <th>Status</th>
-                <th>Keterangan</th>
-                <th>Jml Jam</th>
-            </tr>
-
-            @foreach ($presensi as $d)
+        </thead>
+        <tbody>
+            @forelse ($presensi as $d)
                 @if ($d->status == 'h')
                     @php
-                        $path_in = Storage::url('uploads/absensi/' . $d->foto_in);
-                        $path_out = Storage::url('uploads/absensi/' . $d->foto_out);
+                        $file_in = public_path('storage/uploads/absensi/' . $d->foto_in);
+                        $has_in = !empty($d->foto_in) && file_exists($file_in);
+                        $path_in = $has_in ? str_replace('\\', '/', $file_in) : null;
+
+                        $file_out = public_path('storage/uploads/absensi/' . $d->foto_out);
+                        $has_out = !empty($d->foto_out) && file_exists($file_out);
+                        $path_out = $has_out ? str_replace('\\', '/', $file_out) : null;
+
                         $terlambat = hitungjamterlambat($d->jam_masuk, $d->jam_in);
                         $terlambat_desimal = hitungjamterlambatdesimal($d->jam_masuk, $d->jam_in);
                         $j_terlambat = explode(':', $terlambat);
@@ -127,112 +194,153 @@
                         );
                     @endphp
                     <tr>
-                        <td align="center">{{ $loop->iteration }}</td>
-                        <td align="center">{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</td>
-                        <td align="center" width="50">{{ $d->jam_in }}</td>
-                        <td align="center"><img src="{{ url($path_in) }}" alt="" height="90"></td>
-                        <td align="center" width="50">{{ $d->jam_out != null ? $d->jam_out : 'Belum Absen' }}</td>
-                        <td align="center">
-                            @if ($d->jam_out != null)
-                                <img src="{{ url($path_out) }}" alt="" height="90">
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td class="text-center">{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</td>
+                        <td class="text-center">{{ $d->jam_in }}</td>
+                        <td class="text-center">
+                            @if ($has_in)
+                                <img src="{{ $path_in }}" class="foto-presensi" alt="In">
                             @else
-                                <img src="{{ asset('assets/img/camera.jpg') }}" alt="" height="90">
+                                <span style="color: #888;">-</span>
                             @endif
                         </td>
-                        <td style="text-align: center">
-                        @if ($d->status == 'i')
-                                            Service Mobil
-                                        @elseif ($d->status == 's')
-                                            Service Perangkat
-                                        @elseif ($d->status = 'h')
-                                            Hadir
-                                        @endif
+                        <td class="text-center">{{ $d->jam_out != null ? $d->jam_out : 'Belum Absen' }}</td>
+                        <td class="text-center">
+                            @if ($has_out)
+                                <img src="{{ $path_out }}" class="foto-presensi" alt="Out">
+                            @else
+                                <span style="color: #888;">-</span>
+                            @endif
                         </td>
-                        <td align="center">
+                        <td class="text-center badge-status">
+                            @if ($d->status == 'i')
+                                Izin
+                            @elseif ($d->status == 's')
+                                Sakit
+                            @elseif ($d->status == 'c')
+                                Cuti
+                            @elseif ($d->status == 'it')
+                                Izin Terlambat
+                            @elseif ($d->status == 'ipc')
+                                Izin Pulang Cepat
+                            @else
+                                Hadir
+                            @endif
+                        </td>
+                        <td class="text-center">
                             @if ($d->jam_in > $d->jam_masuk)
-                                Terlambat {{ $terlambat_desimal }} Jam
+                                <span style="color: #d9534f;">Terlambat {{ $terlambat_desimal }} Jam</span>
                             @else
-                                Tepat Waktu
+                                <span style="color: #5cb85c;">Tepat Waktu</span>
                             @endif
                         </td>
-                        <td align="center">
+                        <td class="text-center">
                             {{ $total_jam }}
                         </td>
                     </tr>
                 @else
                     <tr>
-                        <td align="center">{{ $loop->iteration }}</td>
-                        <td align='center'>{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</td>
-                        <td align="center"></td>
-                        <td align="center"></td>
-                        <td align="center"></td>
-                        <td align="center"></td>
-                        <td style="text-align: center"> @if ($d->status == 'i')
-                                            Service Mobil
-                                        @elseif ($d->status == 's')
-                                            Service Perangkat
-                                        @elseif ($d->status = 'h')
-                                            Hadir
-                                        @endif</td>
-                        <td align="center">{{ $d->keterangan }}</td>
-                        <td align="center"></td>
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td class="text-center">{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center badge-status">
+                            @if ($d->status == 'tl')
+                                Tugas Luar
+                            @elseif ($d->status == 'i')
+                                Izin
+                            @elseif ($d->status == 's')
+                                Sakit
+                            @elseif ($d->status == 'c')
+                                Cuti
+                            @elseif ($d->status == 'l')
+                                Libur Nasional
+                            @elseif ($d->status == 'it')
+                                Izin Terlambat
+                            @elseif ($d->status == 'ipc')
+                                Izin Pulang Cepat
+                            @else
+                                {{ strtoupper($d->status) }}
+                            @endif
+                        </td>
+                        <td class="text-center">{{ $d->keterangan ?? '-' }}</td>
+                        <td class="text-center">-</td>
                     </tr>
                 @endif
-            @endforeach
-        </table>
+            @empty
+                <tr>
+                    <td colspan="9" class="text-center" style="padding: 15px; font-style: italic; color: #777;">
+                        Tidak ada data presensi pada bulan ini.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
-        <table width="100%" style="margin-top:100px">
-            <tr>
-                <td style="text-align: center"></td>
-                <?php
-function tgl_indo($tanggal){
-	$bulan = array (
-		1 =>   'Januari',
-		'Februari',
-		'Maret',
-		'April',
-		'Mei',
-		'Juni',
-		'Juli',
-		'Agustus',
-		'September',
-		'Oktober',
-		'November',
-		'Desember'
-	);
-	$pecahkan = explode('-', $tanggal);
+    @php
+        if (!function_exists('tgl_indo')) {
+            function tgl_indo($tanggal)
+            {
+                $bulan = [
+                    1 => 'Januari',
+                    'Februari',
+                    'Maret',
+                    'April',
+                    'Mei',
+                    'Juni',
+                    'Juli',
+                    'Agustus',
+                    'September',
+                    'Oktober',
+                    'November',
+                    'Desember',
+                ];
+                $pecahkan = explode('-', $tanggal);
+                return $pecahkan[2] . ' ' . $bulan[(int) $pecahkan[1]] . ' ' . $pecahkan[0];
+            }
+        }
+    @endphp
 
-	// variabel pecahkan 0 = tanggal
-	// variabel pecahkan 1 = bulan
-	// variabel pecahkan 2 = tahun
+    @php
+        $kota_cetak = $konfigurasi_laporan->kota_cetak ?? 'Pelaihari';
+        $pejabat1_jabatan = $konfigurasi_laporan->pejabat1_jabatan ?? 'KEPALA BPKUK PROV. KALSEL';
+        $pejabat1_nama = $konfigurasi_laporan->pejabat1_nama ?? 'FEBRY RAHARJO, S.IP, MM';
+        $pejabat1_nip = $konfigurasi_laporan->pejabat1_nip ?? '19870222 200701 1 002';
+        $pejabat2_jabatan = $konfigurasi_laporan->pejabat2_jabatan ?? 'KASUBBAG TATA USAHA';
+        $pejabat2_nama = $konfigurasi_laporan->pejabat2_nama ?? 'ADIMAS FITRIANDI, ST';
+        $pejabat2_nip = $konfigurasi_laporan->pejabat2_nip ?? '19800813 200712 1 001';
+    @endphp
 
-	return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
-    } ?>
-                <td style="text-align: center">Pelaihari, <?php echo tgl_indo(date('Y-m-d')); ?></td>
-            </tr>
-            <tr>
-                <td style="text-align: center">Mengetahui,</td>
-
-                <td style="text-align: center"></td>
-            </tr>
-            <tr>
-                <td style="text-align: center"><b>KEPALA BPKUK PROV. KALSEL</b></td>
-
-                <td style="text-align: center"><b>KEPALA SEKSI PELAYANAN <br> PKB & BBNKB</b></td>
-            </tr>
-            <tr>
-                <td style="text-align: center; vertical-align:bottom" height="100px">
-                    <b><u>FEBRY RAHARJO, S.IP, MM</b></u><br>
-                    <span>NIP. 19870222 200701 1 002 <span>
-                </td>
-                <td style="text-align: center; vertical-align:bottom">
-                <b><u>ADIMAS FITRIANDI, ST</b></u><br>
-                <span>NIP. 19800813 200712 1 001<span>
-                </td>
-            </tr>
-        </table>
-    </section>
-
+    <table class="ttd-table">
+        <tr>
+            <td style="width: 50%;"></td>
+            <td style="width: 50%; text-align: center;">{{ $kota_cetak }}, {{ tgl_indo(date('Y-m-d')) }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: center;">Mengetahui,</td>
+            <td style="text-align: center;"></td>
+        </tr>
+        <tr>
+            <td style="text-align: center; font-weight: bold;">{!! nl2br(e($pejabat1_jabatan)) !!}</td>
+            <td style="text-align: center; font-weight: bold;">{!! nl2br(e($pejabat2_jabatan)) !!}</td>
+        </tr>
+        <tr>
+            <td style="height: 60px;"></td>
+            <td style="height: 60px;"></td>
+        </tr>
+        <tr>
+            <td style="text-align: center; vertical-align: bottom;">
+                <b><u>{{ $pejabat1_nama }}</u></b><br>
+                <span>NIP. {{ $pejabat1_nip }}</span>
+            </td>
+            <td style="text-align: center; vertical-align: bottom;">
+                <b><u>{{ $pejabat2_nama }}</u></b><br>
+                <span>NIP. {{ $pejabat2_nip }}</span>
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>

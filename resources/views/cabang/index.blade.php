@@ -49,7 +49,7 @@
                         </div>
                         <div class="row mt-2">
                             <div class="col-12">
-                                <form action="/cabang" method="GET">
+                                <form action="/panel-adm14/cabang" method="GET">
                                     <div class="row">
                                         <div class="col-10">
                                             <select name="kode_cabang" class="form-select" id="">
@@ -74,52 +74,53 @@
                         </div>
                         <div class="row mt-2">
                             <div class="col-12">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Kode Lokasi</th>
-                                            <th>Nama Lokasi</th>
-                                            <th>Lokasi</th>
-                                            <th>Radius</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($cabang as $d)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->kode_cabang }}</td>
-                                            <td>{{ $d->nama_cabang }}</td>
-                                            <td>{{ $d->lokasi_cabang }}</td>
-                                            <td>{{ $d->radius_cabang }} Meter</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="#" class="edit btn btn-info btn-sm" kode_cabang="{{ $d->kode_cabang }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
-                                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
-                                                            <path d="M16 5l3 3"></path>
-                                                        </svg>
-                                                    </a>
-                                                    <form action="/cabang/{{ $d->kode_cabang }}/delete" method="POST" style="margin-left:5px">
-                                                        @csrf
-                                                        <a class="btn btn-danger btn-sm delete-confirm">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped table-hover align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 60px;" class="text-center">No</th>
+                                                <th style="width: 120px;">Kode Lokasi</th>
+                                                <th>Nama Lokasi</th>
+                                                <th>Titik Koordinat</th>
+                                                <th style="width: 130px;">Radius</th>
+                                                <th style="width: 100px;" class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($cabang as $d)
+                                            <tr>
+                                                <td class="text-center">{{ $loop->iteration }}</td>
+                                                <td><span class="badge bg-light text-dark border">{{ $d->kode_cabang }}</span></td>
+                                                <td class="fw-bold">{{ $d->nama_cabang }}</td>
+                                                <td><code>{{ $d->lokasi_cabang }}</code></td>
+                                                <td><span class="badge bg-info text-white">{{ $d->radius_cabang }} Meter</span></td>
+                                                <td class="text-center">
+                                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                                        <a href="#" class="edit btn btn-info btn-sm btn-action" kode_cabang="{{ $d->kode_cabang }}" title="Edit Lokasi">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                                <path d="M20 6a1 1 0 0 1 .117 1.993l-.117 .007h-.081l-.919 11a3 3 0 0 1 -2.824 2.995l-.176 .005h-8c-1.598 0 -2.904 -1.249 -2.992 -2.75l-.005 -.167l-.923 -11.083h-.08a1 1 0 0 1 -.117 -1.993l.117 -.007h16z" stroke-width="0" fill="currentColor"></path>
-                                                                <path d="M14 2a2 2 0 0 1 2 2a1 1 0 0 1 -1.993 .117l-.007 -.117h-4l-.007 .117a1 1 0 0 1 -1.993 -.117a2 2 0 0 1 1.85 -1.995l.15 -.005h4z" stroke-width="0" fill="currentColor"></path>
+                                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                                                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                                                                <path d="M16 5l3 3"></path>
                                                             </svg>
                                                         </a>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-
+                                                        <form action="/panel-adm14/cabang/{{ $d->kode_cabang }}/delete" method="POST" class="m-0 d-inline-block">
+                                                            @csrf
+                                                            <a class="btn btn-danger btn-sm btn-action delete-confirm" title="Hapus Lokasi">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash-filled" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                    <path d="M20 6a1 1 0 0 1 .117 1.993l-.117 .007h-.081l-.919 11a3 3 0 0 1 -2.824 2.995l-.176 .005h-8c-1.598 0 -2.904 -1.249 -2.992 -2.75l-.005 -.167l-.923 -11.083h-.08a1 1 0 0 1 -.117 -1.993l.117 -.007h16z" stroke-width="0" fill="currentColor"></path>
+                                                                    <path d="M14 2a2 2 0 0 1 2 2a1 1 0 0 1 -1.993 .117l-.007 -.117h-4l-.007 .117a1 1 0 0 1 -1.993 -.117a2 2 0 0 1 1.85 -1.995l.15 -.005h4z" stroke-width="0" fill="currentColor"></path>
+                                                                </svg>
+                                                            </a>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -139,7 +140,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/cabang/store" method="POST" id="frmCabang">
+                <form action="/panel-adm14/cabang/store" method="POST" id="frmCabang">
                     @csrf
                     <div class="row">
                         <div class="col-12">
@@ -258,7 +259,7 @@
             var kode_cabang = $(this).attr('kode_cabang');
             $.ajax({
                 type: 'POST'
-                , url: '/cabang/edit'
+                , url: '/panel-adm14/cabang/edit'
                 , cache: false
                 , data: {
                     _token: "{{ csrf_token(); }}"

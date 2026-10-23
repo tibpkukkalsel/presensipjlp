@@ -11,7 +11,16 @@ class AuthController extends Controller
 {
     public function proseslogin(Request $request)
     {
-        if (Auth::guard('karyawan')->attempt(['nik' => $request->nik, 'password' => $request->password])) {
+        // Otomatis aktifkan "Remember Me" agar pada device & browser yang sama otomatis login
+        $remember = true;
+        $loginInput = $request->nik;
+        $password = $request->password;
+
+        if (Auth::guard('karyawan')->attempt(['nik' => $loginInput, 'password' => $password], $remember) ||
+            Auth::guard('karyawan')->attempt(['username' => $loginInput, 'password' => $password], $remember)) {
+            if ($request->hasSession()) {
+                $request->session()->regenerate();
+            }
             return redirect('/dashboard');
         } else {
             return redirect('/')->with(['warning' => 'ID / Password Salah']);
@@ -22,24 +31,29 @@ class AuthController extends Controller
     {
         if (Auth::guard('karyawan')->check()) {
             Auth::guard('karyawan')->logout();
-            return redirect('/');
+            if (request()->hasSession()) {
+                request()->session()->invalidate();
+                request()->session()->regenerateToken();
+            }
         }
+        return redirect('/');
     }
 
     public function proseslogoutadmin()
     {
         if (Auth::guard('user')->check()) {
             Auth::guard('user')->logout();
-            return redirect('/panel');
+            return redirect('/panel-adm14');
         }
+        return redirect('/panel-adm14');
     }
 
     public function prosesloginadmin(Request $request)
     {
         if (Auth::guard('user')->attempt(['email' => $request->email, 'password' => $request->password])) {
-            return redirect('/panel/dashboardadmin');
+            return redirect('/panel-adm14/dashboardadmin');
         } else {
-            return redirect('/panel')->with(['warning' => 'Username atau Password Salah']);
+            return redirect('/panel-adm14')->with(['warning' => 'Username atau Password Salah']);
         }
     }
 }

@@ -122,13 +122,17 @@ body {
     position: relative;
     z-index: 3;
     width: 100%;
-    max-width: 330px;
+    max-width: 350px;
     line-height: 0;
 }
 
-.side-illustration svg {
+.side-illustration svg,
+.side-illustration img {
     width: 100%;
     height: auto;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
 }
 
 /* Right Panel (White Form Side) */
@@ -470,13 +474,17 @@ body {
     }
 
     .mobile-illustration {
-        width: 250px;
+        width: 270px;
         line-height: 0;
         margin: 0 auto;
     }
 
-    .mobile-illustration svg {
+    .mobile-illustration svg,
+    .mobile-illustration img {
         width: 100%;
         height: auto;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
     }
 }

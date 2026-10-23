@@ -1,4 +1,4 @@
-<form action="/konfigurasi/updatejamkerja" method="POST" id="frmJK_edit">
+<form action="/panel-adm14/konfigurasi/updatejamkerja" method="POST" id="frmJK_edit">
     @csrf
     <div class="row">
         <div class="col-12">
@@ -19,8 +19,8 @@
                         <path d="M19 11l0 2"></path>
                     </svg>
                 </span>
-                <input type="text" id="kode_jam_kerja" name="kode_jam_kerja" value="{{ $jamkerja->kode_jam_kerja }}"
-                    class="form-control" placeholder="Kode Jam Kerja" name="kode_jam_kerja_edit">
+                <input type="text" id="kode_jam_kerja_edit" name="kode_jam_kerja" value="{{ $jamkerja->kode_jam_kerja }}"
+                    class="form-control" placeholder="Kode Jam Kerja" readonly>
             </div>
         </div>
     </div>
@@ -154,8 +154,8 @@
             <div class="form-group">
                 <select name="status_istirahat" id="status_istirahat_edit" class="form-select">
                     <option value="">Istirahat</option>
-                    <option value="1">Ada</option>
-                    <option value="0">Tidak</option>
+                    <option value="1" {{ $jamkerja->status_istirahat == 1 ? 'selected' : '' }}>Ada</option>
+                    <option value="0" {{ $jamkerja->status_istirahat == 0 ? 'selected' : '' }}>Tidak</option>
                 </select>
             </div>
         </div>
@@ -175,7 +175,7 @@
                         <path d="M17 4l2.75 2"></path>
                     </svg>
                 </span>
-                <input type="text" value="" id="awal_jam_istirahat_edit" class="form-control"
+                <input type="text" value="{{ $jamkerja->awal_jam_istirahat }}" id="awal_jam_istirahat_edit" class="form-control"
                     placeholder="Awal Jam Istirahat" name="awal_jam_istirahat">
             </div>
         </div>
@@ -195,7 +195,7 @@
                         <path d="M17 4l2.75 2"></path>
                     </svg>
                 </span>
-                <input type="text" value="" id="akhir_jam_istirahat_edit" class="form-control"
+                <input type="text" value="{{ $jamkerja->akhir_jam_istirahat }}" id="akhir_jam_istirahat_edit" class="form-control"
                     placeholder="Akhir Jam Istirahat" name="akhir_jam_istirahat">
             </div>
         </div>
@@ -203,7 +203,7 @@
     <div class="row">
         <div class="col-12">
             <div class="form-group">
-                <select name="lintashari" id="lintashari" class="form-select">
+                <select name="lintashari" id="lintashari_edit" class="form-select">
                     <option value="">Lintas Hari</option>
                     <option value="1" {{ $jamkerja->lintashari == 1 ? 'selected' : '' }}>Ya</option>
                     <option value="0" {{ $jamkerja->lintashari == 0 ? 'selected' : '' }}>Tidak</option>
@@ -266,7 +266,7 @@
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             }).then((result) => {
-                $("#kode_jam_kerja").focus();
+                $("#kode_jam_kerja_edit").focus();
             });
 
             return false;
@@ -326,7 +326,7 @@
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             }).then((result) => {
-                $("#status_istirahat").focus();
+                $("#status_istirahat_edit").focus();
             });
 
             return false;
@@ -386,7 +386,7 @@
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             }).then((result) => {
-                $("#lintashari").focus();
+                $("#lintashari_edit").focus();
             });
 
             return false;

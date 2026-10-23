@@ -1,4 +1,4 @@
-<form action="/konfigurasi/harilibur/{{ $harilibur->kode_libur }}/update" method="POST" id="frmeditHarilibur">
+<form action="/panel-adm14/konfigurasi/harilibur/{{ $harilibur->kode_libur }}/update" method="POST" id="frmeditHarilibur">
     @csrf
     <div class="row">
         <div class="col-12">
@@ -50,12 +50,15 @@
         <div class="col-12">
             <div class="form-group">
                 <select name="kode_cabang" id="kode_cabang" class="form-select">
-                    <option value="">Pilih Cabang</option>
+                    <option value="ALL" {{ $harilibur->kode_cabang == 'ALL' ? 'selected' : '' }}>SEMUA CABANG (SEMUA PEGAWAI)</option>
                     @foreach ($cabang as $d)
                         <option {{ $harilibur->kode_cabang == $d->kode_cabang ? 'selected' : '' }}
                             value="{{ $d->kode_cabang }}">{{ strtoupper($d->nama_cabang) }}</option>
                     @endforeach
                 </select>
+                <small class="text-muted d-block mt-1">
+                    * Hari libur otomatis berlaku dan diterapkan ke semua pegawai.
+                </small>
             </div>
         </div>
     </div>

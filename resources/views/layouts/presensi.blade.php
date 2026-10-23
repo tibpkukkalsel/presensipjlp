@@ -11,15 +11,15 @@
         content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#2A8BF2">
     <title>PRESIS BPKUK Prov. Kalsel</title>
     <meta name="description" content="PRESIS BPKUK Prov. Kalsel">
     <meta name="keywords" content="ABSEN PRESENSI BPKUK PROV. KALSEL" />
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}" sizes="32x32">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="icon" type="image/png" href="{{ asset('Logo Presis.png') }}" sizes="32x32"
+        onerror="this.src='{{ asset('assets/img/favicon.png') }}'">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('Logo Presis.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-
-    <link rel="manifest" href="__manifest.json">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
     <style>
         .selectmaterialize {
             display: block;

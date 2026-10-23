@@ -7,7 +7,7 @@
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
-        <div class="pageTitle">Data Maintenance Mobil</div>
+        <div class="pageTitle">Data Izin & Cuti</div>
         <div class="right"></div>
     </div>
 
@@ -100,14 +100,20 @@
         <div class="col">
             @foreach ($dataizin as $d)
                 @php
-                    if ($d->status == 'i') {
-                        $status = 'Perbaikan Mobil';
+                    if ($d->status == 'tl') {
+                        $status = 'Tugas Luar';
+                    } elseif ($d->status == 'i') {
+                        $status = 'Izin Absen';
                     } elseif ($d->status == 's') {
-                        $status = 'Perbaikan Perangkat';
+                        $status = 'Sakit';
                     } elseif ($d->status == 'c') {
                         $status = 'Cuti';
+                    } elseif ($d->status == 'it') {
+                        $status = 'Izin Terlambat';
+                    } elseif ($d->status == 'ipc') {
+                        $status = 'Izin Pulang Cepat';
                     } else {
-                        $status = 'Not Found';
+                        $status = 'Izin';
                     }
                 @endphp
                 <div class="card mt-1 card_izin" kode_izin="{{ $d->kode_izin }}" status_approved="{{ $d->status_approved }}"
@@ -115,15 +121,24 @@
                     <div class="card-body">
                         <div class="historicontent">
                             <div class="iconpresensi">
-                                @if ($d->status == 'i')
-                                    <ion-icon name="car-outline"
+                                @if ($d->status == 'tl')
+                                    <ion-icon name="briefcase-outline"
+                                        style="font-size: 48px; color:rgb(13, 148, 136)"></ion-icon>
+                                @elseif ($d->status == 'i')
+                                    <ion-icon name="document-text-outline"
                                         style="font-size: 48px; color:rgb(21, 95, 207)"></ion-icon>
                                 @elseif($d->status == 's')
-                                    <ion-icon name="laptop-outline"
+                                    <ion-icon name="medkit-outline"
                                         style="font-size: 48px; color:rgb(191, 7, 65)"></ion-icon>
                                 @elseif($d->status == 'c')
                                     <ion-icon name="calendar-outline"
                                         style="font-size: 48px; color:rgb(237, 128, 5)"></ion-icon>
+                                @elseif($d->status == 'it')
+                                    <ion-icon name="time-outline"
+                                        style="font-size: 48px; color:rgb(245, 158, 11)"></ion-icon>
+                                @elseif($d->status == 'ipc')
+                                    <ion-icon name="walk-outline"
+                                        style="font-size: 48px; color:rgb(16, 185, 129)"></ion-icon>
                                 @endif
                             </div>
                             <div class="datapresensi">
@@ -141,7 +156,7 @@
                                         <span class="badge bg-warning">{{ $d->nama_cuti }}</span>
                                     @endif
                                     @if (!empty($d->doc_sid))
-                                        <span style="color: blue">
+                                        <span style="color: #2A8BF2">
                                             <ion-icon name="document-attach-outline"></ion-icon> Lihat SID
                                         </span>
                                     @endif
@@ -192,13 +207,13 @@
         <div class="dropdown-menu">
             <a class="dropdown-item bg-primary" href="/izinabsen">
                 <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
-                <p>Perbaikan Mobil</p>
+                <p>Izin Absen</p>
             </a>
 
             <a class="dropdown-item bg-primary" href="/izinsakit">
                 <ion-icon name="document-outline" role="img" class="md hydrated"
                     aria-label="videocam outline"></ion-icon>
-                <p>Perbaikan Perangkat</p>
+                <p>Izin Sakit</p>
             </a>
         </div>
     </div>

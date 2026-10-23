@@ -36,19 +36,35 @@ class HariliburController extends Controller
         $lastkodelibur = $lastlibur != null ? $lastlibur->kode_libur : "";
         $format = "LB"  . $thn;
         $kode_libur = buatkode($lastkodelibur, $format, 3);
+        $kode_cabang = !empty($request->kode_cabang) ? $request->kode_cabang : 'ALL';
 
+        DB::beginTransaction();
         try {
             DB::table('harilibur')
                 ->insert([
                     'kode_libur' => $kode_libur,
                     'tanggal_libur' => $request->tanggal_libur,
-                    'kode_cabang' => $request->kode_cabang,
+                    'kode_cabang' => $kode_cabang,
                     'keterangan' => $request->keterangan
                 ]);
 
-            return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
+            // Otomatis terapkan hari libur ke SEMUA pegawai
+            $pegawai = DB::table('pegawai')->select('nik')->get();
+            $detail = [];
+            foreach ($pegawai as $p) {
+                $detail[] = [
+                    'kode_libur' => $kode_libur,
+                    'nik' => $p->nik
+                ];
+            }
+            if (!empty($detail)) {
+                DB::table('harilibur_detail')->insert($detail);
+            }
+
+            DB::commit();
+            return Redirect::back()->with(['success' => 'Hari Libur berhasil disimpan dan otomatis diterapkan untuk semua pegawai.']);
         } catch (\Exception $e) {
-            //dd($e);
+            DB::rollBack();
             return Redirect::back()->with(['warning' => $e->getMessage()]);
         }
     }
@@ -65,28 +81,51 @@ class HariliburController extends Controller
 
     public function update(Request $request, $kode_libur)
     {
+        $kode_cabang = !empty($request->kode_cabang) ? $request->kode_cabang : 'ALL';
+        DB::beginTransaction();
         try {
             DB::table('harilibur')
                 ->where('kode_libur', $kode_libur)
                 ->update([
                     'tanggal_libur' => $request->tanggal_libur,
-                    'kode_cabang' => $request->kode_cabang,
+                    'kode_cabang' => $kode_cabang,
                     'keterangan' => $request->keterangan
                 ]);
 
+            // Pastikan semua pegawai tetap terdaftar di harilibur_detail
+            $existingNiks = DB::table('harilibur_detail')->where('kode_libur', $kode_libur)->pluck('nik')->toArray();
+            $pegawai = DB::table('pegawai')->select('nik')->get();
+            $detail = [];
+            foreach ($pegawai as $p) {
+                if (!in_array($p->nik, $existingNiks)) {
+                    $detail[] = [
+                        'kode_libur' => $kode_libur,
+                        'nik' => $p->nik
+                    ];
+                }
+            }
+            if (!empty($detail)) {
+                DB::table('harilibur_detail')->insert($detail);
+            }
+
+            DB::commit();
             return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
         } catch (\Exception $e) {
-            //dd($e);
+            DB::rollBack();
             return Redirect::back()->with(['warning' => $e->getMessage()]);
         }
     }
 
     public function delete($kode_libur)
     {
+        DB::beginTransaction();
         try {
+            DB::table('harilibur_detail')->where('kode_libur', $kode_libur)->delete();
             DB::table('harilibur')->where('kode_libur', $kode_libur)->delete();
+            DB::commit();
             return Redirect::back()->with(['success' => 'Data Berhasil Dihapus']);
         } catch (\Exception $e) {
+            DB::rollBack();
             return Redirect::back()->with(['warning' => $e->getMessage()]);
         }
     }
@@ -95,7 +134,7 @@ class HariliburController extends Controller
     public function setkaryawanlibur($kode_libur)
     {
         $harilibur = DB::table('harilibur')
-            ->join('cabang', 'harilibur.kode_cabang', '=', 'cabang.kode_cabang')
+            ->leftJoin('cabang', 'harilibur.kode_cabang', '=', 'cabang.kode_cabang')
             ->where('kode_libur', $kode_libur)->first();
         return view('harilibur.setkaryawanlibur', compact('harilibur'));
     }
@@ -110,20 +149,23 @@ class HariliburController extends Controller
     public function getsetlistkaryawanlibur($kode_libur)
     {
         $harilibur = DB::table('harilibur')->where('kode_libur', $kode_libur)->first();
-        $karyawan = DB::table('karyawan')
-            ->select('karyawan.*', 'hariliburdetail.nik as ceknik')
+        $query = DB::table('pegawai')
+            ->select('pegawai.*', 'hariliburdetail.nik as ceknik')
             ->leftJoin(
                 DB::raw("(
                 SELECT nik FROM harilibur_detail
                 WHERE kode_libur = '$kode_libur'
             ) hariliburdetail"),
                 function ($join) {
-                    $join->on('karyawan.nik', '=', 'hariliburdetail.nik');
+                    $join->on('pegawai.nik', '=', 'hariliburdetail.nik');
                 }
-            )
-            ->where('kode_cabang', $harilibur->kode_cabang)
-            ->orderBy('nama_lengkap')
-            ->get();
+            );
+
+        if ($harilibur && !empty($harilibur->kode_cabang) && $harilibur->kode_cabang != 'ALL') {
+            $query->where('kode_cabang', $harilibur->kode_cabang);
+        }
+
+        $karyawan = $query->orderBy('nama_lengkap')->get();
         return view('harilibur.getsetlistkaryawanlibur', compact('karyawan', 'kode_libur'));
     }
 
@@ -165,7 +207,7 @@ class HariliburController extends Controller
     public function getkaryawanlibur($kode_libur)
     {
         $karyawanlibur = DB::table('harilibur_detail')
-            ->join('karyawan', 'harilibur_detail.nik', '=', 'karyawan.nik')
+            ->join('pegawai', 'harilibur_detail.nik', '=', 'pegawai.nik')
             ->where('kode_libur', $kode_libur)
             ->get();
 

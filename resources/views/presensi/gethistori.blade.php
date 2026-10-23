@@ -9,13 +9,13 @@
     }
 
     .card {
-        border: 1px solid blue;
+        border: 1px solid #2A8BF2;
     }
 </style>
 
 @if ($histori->isEmpty())
-    <div class="alert  alert-outline-warning">
-        <p>Data Belum Aada</p>
+    <div class="alert alert-outline-warning">
+        <p>Data Belum Ada</p>
     </div>
 @endif
 @foreach ($histori as $d)
@@ -57,6 +57,40 @@
                         @else
                             <span style="color:green">Tepat Waktu</span>
                         @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif($d->status == 'tl')
+        <div class="card mb-1">
+            <div class="card-body">
+                <div class="historicontent">
+                    <div class="iconpresensi">
+                        <ion-icon name="briefcase-outline" style="font-size: 48px;" class="text-info"></ion-icon>
+                    </div>
+                    <div class="datapresensi">
+                        <h3 style="line-height: 3px">TUGAS LUAR {{ !empty($d->kode_izin) ? '- ' . $d->kode_izin : '' }}</h3>
+                        <h4 style="margin:0px !important">{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</h4>
+                        <span>
+                            {{ $d->keterangan }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif($d->status == 'l')
+        <div class="card mb-1">
+            <div class="card-body">
+                <div class="historicontent">
+                    <div class="iconpresensi">
+                        <ion-icon name="calendar-outline" style="font-size: 48px;" class="text-danger"></ion-icon>
+                    </div>
+                    <div class="datapresensi">
+                        <h3 style="line-height: 3px">LIBUR NASIONAL</h3>
+                        <h4 style="margin:0px !important">{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</h4>
+                        <span class="text-danger font-weight-bold">
+                            {{ !empty($d->keterangan) ? $d->keterangan : 'Libur Nasional / Bersama' }}
+                        </span>
                     </div>
                 </div>
             </div>

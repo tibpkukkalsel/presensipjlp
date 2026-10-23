@@ -32,17 +32,24 @@
     <div class="col">
         <form method="POST" action="/izinabsen/store" id="frmIzin">
             @csrf
-            <div class="form-group">
-                <input type="text" id="tgl_izin_dari" autocomplete="off" name="tgl_izin_dari" class="form-control datepicker" placeholder="Dari">
+            <div class="form-group mb-2">
+                <select name="status" id="status" class="form-control" style="border: 1px solid #ced4da; border-radius: 8px; height: 45px; display: block !important;">
+                    <option value="i">Izin Absen (Tidak Masuk Kerja)</option>
+                    <option value="it">Izin Terlambat (Masuk Kerja)</option>
+                    <option value="ipc">Izin Pulang Cepat (Pulang Awal)</option>
+                </select>
             </div>
             <div class="form-group">
-                <input type="text" id="tgl_izin_sampai" autocomplete="off" name="tgl_izin_sampai" class="form-control datepicker" placeholder="Sampai">
+                <input type="text" id="tgl_izin_dari" autocomplete="off" name="tgl_izin_dari" class="form-control datepicker" placeholder="Dari Tanggal">
+            </div>
+            <div class="form-group" id="group_sampai">
+                <input type="text" id="tgl_izin_sampai" autocomplete="off" name="tgl_izin_sampai" class="form-control datepicker" placeholder="Sampai Tanggal">
             </div>
             <div class="form-group">
                 <input type="text" id="jml_hari" name="jml_hari" class="form-control" autocomplete="off" placeholder="Jumlah Hari" readonly>
             </div>
             <div class="form-group">
-                <input type="text" id="keterangan" name="keterangan" class="form-control" autocomplete="off" placeholder="Keterangan">
+                <input type="text" id="keterangan" name="keterangan" class="form-control" autocomplete="off" placeholder="Keterangan / Alasan">
             </div>
             <div class="form-group">
                 <button class="btn btn-primary w-100">Kirim</button>
@@ -82,46 +89,44 @@
             $("#jml_hari").val(jmlhari + " Hari");
         }
 
-        $("#tgl_izin_dari,#tgl_izin_sampai").change(function(e) {
-            loadjumlahhari();
+        $("#status").change(function() {
+            var val = $(this).val();
+            if (val == 'it' || val == 'ipc') {
+                $("#group_sampai").hide();
+                if ($("#tgl_izin_dari").val() != "") {
+                    $("#tgl_izin_sampai").val($("#tgl_izin_dari").val());
+                }
+                $("#jml_hari").val("1 Hari");
+            } else {
+                $("#group_sampai").show();
+                loadjumlahhari();
+            }
         });
 
-
-
-
-
-
-
-
-        // $("#tgl_izin").change(function(e) {
-        //     var tgl_izin = $(this).val();
-        //     $.ajax({
-        //         type: 'POST'
-        //         , url: '/presensi/cekpengajuanizin'
-        //         , data: {
-        //             _token: "{{ csrf_token() }}"
-        //             , tgl_izin: tgl_izin
-        //         }
-        //         , cache: false
-        //         , success: function(respond) {
-        //             if (respond == 1) {
-        //                 Swal.fire({
-        //                     title: 'Oops !'
-        //                     , text: 'Anda Sudah Melakukan Input Pengjuan Izin Pada Tanggal Tersebut !'
-        //                     , icon: 'warning'
-        //                 }).then((result) => {
-        //                     $("#tgl_izin").val("");
-        //                 });
-        //             }
-        //         }
-        //     });
-        // });
+        $("#tgl_izin_dari,#tgl_izin_sampai").change(function(e) {
+            var val = $("#status").val();
+            if (val == 'it' || val == 'ipc') {
+                $("#tgl_izin_sampai").val($("#tgl_izin_dari").val());
+                $("#jml_hari").val("1 Hari");
+            } else {
+                loadjumlahhari();
+            }
+        });
 
         $("#frmIzin").submit(function() {
+            var val = $("#status").val();
             var tgl_izin_dari = $("#tgl_izin_dari").val();
             var tgl_izin_sampai = $("#tgl_izin_sampai").val();
             var keterangan = $("#keterangan").val();
-            if (tgl_izin_dari == "" || tgl_izin_sampai == "") {
+
+            if (val == 'it' || val == 'ipc') {
+                if (tgl_izin_sampai == "") {
+                    $("#tgl_izin_sampai").val(tgl_izin_dari);
+                    tgl_izin_sampai = tgl_izin_dari;
+                }
+            }
+
+            if (tgl_izin_dari == "" || (val == 'i' && tgl_izin_sampai == "")) {
                 Swal.fire({
                     title: 'Oops !'
                     , text: 'Tanggal Harus Diisi'

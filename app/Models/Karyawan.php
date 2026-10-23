@@ -12,7 +12,7 @@ class Karyawan extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = "karyawan";
+    protected $table = "pegawai";
     protected $primaryKey = "nik";
     public $incrementing = false;
     public $timestamps = false;

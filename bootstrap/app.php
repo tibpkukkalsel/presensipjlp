@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(function (Request $request) {
-            if ($request->is('panel') || $request->is('panel/*')) {
+            if ($request->is('panel-adm14') || $request->is('panel-adm14/*')) {
                 return route('loginadmin');
             }
             return route('login');
@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->redirectUsersTo(function (Request $request) {
             if (Auth::guard('user')->check()) {
-                return '/panel/dashboardadmin';
+                return '/panel-adm14/dashboardadmin';
             }
             if (Auth::guard('karyawan')->check()) {
                 return '/dashboard';
@@ -41,4 +41,34 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 403);
+            }
+
+            if ($request->is('panel-adm14') || $request->is('panel-adm14/*')) {
+                return redirect()->route('loginadmin')->with(['warning' => 'Sesi Anda telah berakhir, silakan login kembali.']);
+            }
+
+            return redirect('/')->with(['warning' => 'Sesi Anda telah berakhir, silakan login kembali.']);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, Request $request) {
+            if ($e->getStatusCode() === 403) {
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json([
+                        'message' => $e->getMessage() ?: 'Forbidden',
+                    ], 403);
+                }
+
+                if ($request->is('panel-adm14') || $request->is('panel-adm14/*')) {
+                    return redirect()->route('loginadmin')->with(['warning' => 'Sesi Anda telah berakhir, silakan login kembali.']);
+                }
+
+                return redirect('/')->with(['warning' => 'Sesi Anda telah berakhir, silakan login kembali.']);
+            }
+        });
     })->create();

@@ -14,28 +14,18 @@
         </div>
     </a>
 
-    @if (Auth::guard('karyawan')->user()->status_jam_kerja == 1)
-        <a href="/presensi/null/create" class="item ">
-            <div class="col">
-                <div class="action-button large">
-                    <ion-icon name="camera-outline"></ion-icon>
-                </div>
+    <a href="/presensi/null/create" class="item ">
+        <div class="col">
+            <div class="action-button large">
+                <ion-icon name="camera-outline"></ion-icon>
             </div>
-        </a>
-    @else
-        <a href="/presensi/pilihjamkerja" class="item ">
-            <div class="col">
-                <div class="action-button large">
-                    <ion-icon name="camera-outline"></ion-icon>
-                </div>
-            </div>
-        </a>
-    @endif
+        </div>
+    </a>
 
     <a href="/presensi/izin" class="item {{ request()->is('presensi/izin') ? 'active' : '' }}">
         <div class="col">
             <ion-icon name="calendar-outline"></ion-icon>
-            <strong>Maintenance</strong>
+            <strong>Izin</strong>
         </div>
     </a>
     <a href="/editprofile" class="item {{ request()->is('editprofile') ? 'active' : '' }}">

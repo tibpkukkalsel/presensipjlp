@@ -11,11 +11,11 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $departemen = DB::table('departemen')->orderBy('kode_dept')->get();
+        $departemen = DB::table('seksi')->orderBy('kode_dept')->get();
         $role = DB::table('roles')->orderBy('id')->get();
         $query = User::query();
         $query->select('users.id', 'users.name', 'email', 'nama_dept', 'roles.name as role', 'kode_cabang');
-        $query->join('departemen', 'users.kode_dept', '=', 'departemen.kode_dept');
+        $query->join('seksi', 'users.kode_dept', '=', 'seksi.kode_dept');
         $query->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id');
         $query->join('roles', 'model_has_roles.role_id', '=', 'roles.id');
         if (!empty($request->name)) {
@@ -64,7 +64,7 @@ class UserController extends Controller
     public function edit(Request $request)
     {
         $id_user = $request->id_user;
-        $departemen = DB::table('departemen')->orderBy('kode_dept')->get();
+        $departemen = DB::table('seksi')->orderBy('kode_dept')->get();
         $role = DB::table('roles')->orderBy('id')->get();
         $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
         $user = DB::table('users')

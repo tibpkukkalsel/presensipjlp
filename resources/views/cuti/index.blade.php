@@ -206,15 +206,30 @@
 @push('myscript')
 <script>
     $(function() {
-        $("#btnTambahcuti").click(function() {
-            $("#modal-inputcuti").modal("show");
+        $("#btnTambahcuti").click(function(e) {
+            e.preventDefault();
+            var modalEl = document.getElementById('modal-inputcuti');
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            } else {
+                $("#modal-inputcuti").modal("show");
+            }
         });
 
-        $(".edit").click(function() {
+        $(".edit").click(function(e) {
+            e.preventDefault();
             var kode_cuti = $(this).attr('kode_cuti');
+            var modalEl = document.getElementById('modal-editcuti');
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            } else {
+                $("#modal-editcuti").modal("show");
+            }
+            $("#loadeditform").html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><div class="mt-2 text-muted small">Memuat data cuti...</div></div>');
+
             $.ajax({
                 type: 'POST'
-                , url: '/cuti/edit'
+                , url: '/panel-adm14/cuti/edit'
                 , cache: false
                 , data: {
                     _token: "{{ csrf_token(); }}"
@@ -223,8 +238,10 @@
                 , success: function(respond) {
                     $("#loadeditform").html(respond);
                 }
+                , error: function(xhr, status, error) {
+                    $("#loadeditform").html('<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Gagal memuat data cuti.</div>');
+                }
             });
-            $("#modal-editcuti").modal("show");
         });
 
         $(".delete-confirm").click(function(e) {
