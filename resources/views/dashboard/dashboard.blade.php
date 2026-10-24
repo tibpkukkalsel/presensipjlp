@@ -245,7 +245,7 @@
                 <ul class="nav nav-tabs style1" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#home" role="tab">
-                            Bulan Ini
+                            Minggu Ini
                         </a>
                     </li>
                     <li class="nav-item">
@@ -257,38 +257,16 @@
             </div>
             <div class="tab-content mt-2" style="margin-bottom:100px;">
                 <div class="tab-pane fade show active" id="home" role="tabpanel">
-                    <!--
-                                                                                                                                                                                                                                <ul class="listview image-listview">
-                                                                                                                                                                                                                                    @foreach ($historibulanini as $d)
-    @php
-        $path = Storage::url('uploads/absensi/' . $d->foto_in);
-    @endphp
-                                                                                                                                                                                                                                    <li>
-                                                                                                                                                                                                                                        <div class="item">
-                                                                                                                                                                                                                                            <div class="icon-box bg-primary">
-                                                                                                                                                                                                                                                <ion-icon name="finger-print-outline"></ion-icon>
-                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                            <div class="in">
-                                                                                                                                                                                                                                                <div>{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</div>
-                                                                                                                                                                                                                                                <span class="badge badge-success">{{ $d->jam_in }}</span>
-                                                                                                                                                                                                                                                <span class="badge badge-danger">{{ $presensihariini != null && $d->jam_out != null ? $d->jam_out : 'Belum Absen' }}</span>
-                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                    </li>
-    @endforeach
-                                                                                                                                                                                                                                </ul>
-                                                                                                                                                                                                                            -->
-
-                    @if ($historibulanini->isEmpty())
+                    @if ($historimingguini->isEmpty())
                         <div class="card" style="border-radius: 12px; border: 1px dashed #cbd5e1;">
                             <div class="card-body text-center py-4">
                                 <ion-icon name="calendar-outline" style="font-size: 36px; color: #94a3b8;"></ion-icon>
-                                <p class="text-muted mt-2 mb-0" style="font-size: 13px;">Belum ada catatan aktivitas presensi pada bulan ini.</p>
+                                <p class="text-muted mt-2 mb-0" style="font-size: 13px;">Belum ada catatan aktivitas presensi pada minggu ini.</p>
                             </div>
                         </div>
                     @endif
 
-                    @foreach ($historibulanini as $d)
+                    @foreach ($historimingguini as $d)
                         @if ($d->status == 'h')
                             @php
                                 $has_jam_in = !empty($d->jam_in);

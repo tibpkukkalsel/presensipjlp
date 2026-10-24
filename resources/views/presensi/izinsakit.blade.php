@@ -7,8 +7,9 @@
                     <!-- Page pre-title -->
 
                     <h2 class="page-title">
-                        Data Pengajuan Izin Pegawai
+                        Status Kehadiran Pegawai
                     </h2>
+                    <div class="text-muted small mt-1">Persetujuan & Penolakan Permohonan Izin / Sakit / Cuti Pegawai</div>
                 </div>
 
             </div>
@@ -33,7 +34,7 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <form action="/presensi/izinsakit" method="GET" autocomplete="off">
+                    <form action="/panel-adm14/presensi/izinsakit" method="GET" autocomplete="off">
                         <div class="row">
                             <div class="col-6">
                                 <div class="input-icon mb-3">

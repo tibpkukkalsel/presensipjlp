@@ -21,7 +21,7 @@
         rel="stylesheet">
 
     <!-- Custom Admin Login Stylesheet (Gray / Slate Theme) -->
-    <link rel="stylesheet" href="{{ asset('assets/css/loginadmin.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/loginadmin.css') }}?v={{ time() }}">
 </head>
 
 <body>

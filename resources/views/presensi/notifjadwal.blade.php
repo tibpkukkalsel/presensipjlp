@@ -57,7 +57,7 @@
     <div class="col">
         <div class="alert alert-warning">
             <p>
-                Maaf,Anda Tidak Memiliki Jadwal Pada Hari ini !, Silahkan Hubungi HRD
+                Maaf,Anda Tidak Memiliki Jadwal Pada Hari ini, Silahkan Hubungi Admin Presis
             </p>
         </div>
     </div>

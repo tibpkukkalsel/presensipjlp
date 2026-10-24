@@ -117,6 +117,10 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
     Route::get('/proseslogoutadmin', [AuthController::class, 'proseslogoutadmin']);
     Route::get('/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
 
+    // Profil Admin
+    Route::get('/profile', [UserController::class, 'profile']);
+    Route::post('/updateprofile', [UserController::class, 'updateprofile']);
+
     //Pegawai / Karyawan
     Route::get('/karyawan', [KaryawanController::class, 'index']);
     Route::get('/pegawai', [KaryawanController::class, 'index']);
@@ -142,8 +146,8 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
 
     Route::get('/presensi/izinsakit', [PresensiController::class, 'izinsakit']);
 
-    // Status Kehadiran Pegawai (Kelola Status Kehadiran oleh Admin)
-    Route::get('/presensi/statuskehadiran', [PresensiController::class, 'statuskehadiran']);
+    // Menu Status Kehadiran diarahkan ke persetujuan izin pegawai (izinsakit)
+    Route::get('/presensi/statuskehadiran', fn() => redirect('/panel-adm14/presensi/izinsakit'));
     Route::post('/presensi/storestatuskehadiran', [PresensiController::class, 'storestatuskehadiran']);
     Route::post('/presensi/editstatuskehadiran', [PresensiController::class, 'editstatuskehadiran']);
     Route::post('/presensi/updatestatuskehadiran', [PresensiController::class, 'updatestatuskehadiran']);
@@ -270,6 +274,7 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
 Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen,user']], function () {
     Route::get('/panel/dashboardadmin', fn() => redirect('/panel-adm14/dashboardadmin'));
     Route::get('/proseslogoutadmin', fn() => redirect('/panel-adm14/proseslogoutadmin'));
+    Route::get('/profile', fn() => redirect('/panel-adm14/profile'));
     Route::get('/karyawan', fn() => redirect('/panel-adm14/pegawai'));
     Route::get('/pegawai', fn() => redirect('/panel-adm14/pegawai'));
     Route::get('/seksi', fn() => redirect('/panel-adm14/seksi'));
@@ -279,7 +284,7 @@ Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen
     Route::get('/presensi/laporan', fn() => redirect('/panel-adm14/presensi/laporan'));
     Route::get('/presensi/rekap', fn() => redirect('/panel-adm14/presensi/rekap'));
     Route::get('/presensi/izinsakit', fn() => redirect('/panel-adm14/presensi/izinsakit'));
-    Route::get('/presensi/statuskehadiran', fn() => redirect('/panel-adm14/presensi/statuskehadiran'));
+    Route::get('/presensi/statuskehadiran', fn() => redirect('/panel-adm14/presensi/izinsakit'));
     Route::get('/cuti', fn() => redirect('/panel-adm14/cuti'));
     Route::get('/konfigurasi/harilibur', fn() => redirect('/panel-adm14/konfigurasi/harilibur'));
     Route::get('/konfigurasi/jamkerja', fn() => redirect('/panel-adm14/konfigurasi/jamkerja'));

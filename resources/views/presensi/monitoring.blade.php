@@ -52,7 +52,7 @@
                                                         <path d="M8 15h2v2h-2z"></path>
                                                     </svg>
                                                 </span>
-                                                <input type="text" id="tanggal" value="{{ date('Y-m-d') }}" name="tanggal"
+                                                <input type="text" id="tanggal" value="{{ session('tgl_presensi') ?? date('Y-m-d') }}" name="tanggal"
                                                     class="form-control" placeholder="Tanggal Presensi" autocomplete="off">
                                             </div>
                                         </div>
@@ -123,9 +123,23 @@
                 <div class="modal-body" id="loadmap">
 
                 </div>
-
             </div>
         </div>
+    </div>
+
+    <div class="modal modal-blur fade" id="modal-koreksipresensi" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Koreksi Presensi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="loadkoreksipresensi">
+
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @push('myscript')
     <script>

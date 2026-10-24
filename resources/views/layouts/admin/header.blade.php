@@ -30,10 +30,12 @@
 
             <!--begin::User Menu Dropdown-->
             <li class="nav-item dropdown user-menu">
-                <a href="#" class="nav-link dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                    <img src="{{ asset('tabler/static/avatars/000m.jpg') }}" class="user-image rounded-circle shadow-sm"
-                        alt="User Avatar" style="width: 32px; height: 32px; object-fit: cover;"
-                        onerror="this.src='{{ asset('assets/img/user.png') }}'">
+                <a href="#" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                    data-bs-toggle="dropdown">
+                    <img src="{{ asset('assets/img/Logo Provinsi Kalimantan Selatan.png') }}"
+                        class="user-image rounded-circle shadow-sm p-1 bg-white border"
+                        alt="Logo Provinsi" style="width: 34px; height: 34px; object-fit: contain;"
+                        onerror="this.src='{{ asset('Logo Presis.png') }}'">
                     <span class="d-none d-md-inline fw-medium text-dark">
                         {{ Auth::guard('user')->user()->name }}
                     </span>
@@ -41,9 +43,10 @@
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow-sm border-0">
                     <!--begin::User Header-->
                     <li class="user-header text-bg-primary text-center p-3 rounded-top">
-                        <img src="{{ asset('tabler/static/avatars/000m.jpg') }}" class="rounded-circle shadow mb-2"
-                            alt="User Avatar" style="width: 60px; height: 60px; object-fit: cover;"
-                            onerror="this.src='{{ asset('assets/img/user.png') }}'">
+                        <img src="{{ asset('assets/img/Logo Provinsi Kalimantan Selatan.png') }}"
+                            class="rounded-circle shadow mb-2 p-1 bg-white border"
+                            alt="Logo Provinsi" style="width: 65px; height: 65px; object-fit: contain;"
+                            onerror="this.src='{{ asset('Logo Presis.png') }}'">
                         <p class="mb-0 fw-bold fs-6">
                             {{ Auth::guard('user')->user()->name }}
                         </p>
@@ -54,8 +57,9 @@
                     <!--end::User Header-->
 
                     <!--begin::Menu Footer-->
-                    <li class="user-footer p-2 d-flex justify-content-between align-items-center bg-light rounded-bottom">
-                        <a href="/panel-adm14/konfigurasi/users" class="btn btn-sm btn-outline-secondary">
+                    <li
+                        class="user-footer p-2 d-flex justify-content-between align-items-center bg-light rounded-bottom">
+                        <a href="/panel-adm14/profile" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-person me-1"></i> Profil
                         </a>
                         <a href="/panel-adm14/proseslogoutadmin" class="btn btn-sm btn-outline-danger">

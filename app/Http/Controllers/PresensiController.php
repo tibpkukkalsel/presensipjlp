@@ -1825,7 +1825,14 @@ class PresensiController extends Controller
     public function showact($kode_izin)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
-        $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->where('nik', $nik)->first();
+        $dataizin = DB::table('pengajuan_izin')
+            ->leftJoin('master_cuti', 'pengajuan_izin.kode_cuti', '=', 'master_cuti.kode_cuti')
+            ->join('pegawai', 'pengajuan_izin.nik', '=', 'pegawai.nik')
+            ->select('pengajuan_izin.*', 'master_cuti.nama_cuti', 'pegawai.nama_lengkap')
+            ->where('pengajuan_izin.kode_izin', $kode_izin)
+            ->where('pengajuan_izin.nik', $nik)
+            ->first();
+
         if (!$dataizin) {
             return '<div class="alert alert-danger p-2 m-2">Data tidak ditemukan atau bukan milik Anda.</div>';
         }
@@ -1897,12 +1904,12 @@ class PresensiController extends Controller
         $status = $request->status;
         $nik = $request->nik;
         $tanggal = $request->tanggal;
-        $jam_in = $status == "a" ? NULL : $request->jam_in;
-        $jam_out = $status == "a" ? NULL : $request->jam_out;
-        $kode_jam_kerja = $status == "a" ? NULL : $request->kode_jam_kerja;
+        $isHadir = ($status === 'h');
+        $jam_in = $isHadir ? $request->jam_in : null;
+        $jam_out = $isHadir ? $request->jam_out : null;
+        $kode_jam_kerja = $isHadir ? $request->kode_jam_kerja : null;
 
         try {
-
             $cekpresensi = DB::table('presensi')->where('nik', $nik)->where('tgl_presensi', $tanggal)->count();
             if ($cekpresensi > 0) {
                 DB::table('presensi')
@@ -1925,11 +1932,10 @@ class PresensiController extends Controller
                 ]);
             }
 
-
-            return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
+            return Redirect::back()->with(['success' => 'Data presensi berhasil disimpan', 'tgl_presensi' => $tanggal]);
         } catch (\Exception $e) {
-            dd($e);
-            return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
+            \Illuminate\Support\Facades\Log::error('Error storekoreksipresensi: ' . $e->getMessage());
+            return Redirect::back()->with(['warning' => 'Data presensi gagal disimpan']);
         }
     }
 

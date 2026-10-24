@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -45,22 +46,24 @@ class DashboardController extends Controller
             ];
         }
 
-        $historibulanini = DB::table('presensi')
+        // Rentang tanggal minggu yang berjalan (Senin sampai Minggu)
+        $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
+        $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
+
+        $historimingguini = DB::table('presensi')
             ->select('presensi.*', 'keterangan', 'jam_kerja.*', 'doc_sid', 'nama_cuti')
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
             ->leftJoin('pengajuan_izin', 'presensi.kode_izin', '=', 'pengajuan_izin.kode_izin')
             ->leftJoin('master_cuti', 'pengajuan_izin.kode_cuti', '=', 'master_cuti.kode_cuti')
             ->where('presensi.nik', $nik)
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulanini . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
+            ->whereBetween('presensi.tgl_presensi', [$startOfWeek, $endOfWeek])
             ->orderBy('tgl_presensi', 'desc')
             ->get();
 
-        // Ambil hari libur bulan ini untuk pegawai dan gabungkan ke histori
-        $hariliburbulanini = DB::table('harilibur')
+        // Ambil hari libur minggu ini untuk pegawai dan gabungkan ke histori
+        $hariliburmingguini = DB::table('harilibur')
             ->leftJoin('harilibur_detail', 'harilibur.kode_libur', '=', 'harilibur_detail.kode_libur')
-            ->whereRaw('MONTH(harilibur.tanggal_libur)="' . $bulanini . '"')
-            ->whereRaw('YEAR(harilibur.tanggal_libur)="' . $tahunini . '"')
+            ->whereBetween('harilibur.tanggal_libur', [$startOfWeek, $endOfWeek])
             ->where(function ($query) use ($nik, $kode_cabang) {
                 $query->where('harilibur_detail.nik', $nik)
                     ->orWhere('harilibur.kode_cabang', 'ALL')
@@ -70,10 +73,10 @@ class DashboardController extends Controller
             ->distinct()
             ->get();
 
-        $existingDates = $historibulanini->pluck('tgl_presensi')->toArray();
-        $historyList = $historibulanini->map(function ($item) use ($hariliburbulanini) {
+        $existingDates = $historimingguini->pluck('tgl_presensi')->toArray();
+        $historyList = $historimingguini->map(function ($item) use ($hariliburmingguini) {
             if ($item->status == 'l' && empty($item->keterangan)) {
-                $hl = $hariliburbulanini->firstWhere('tanggal_libur', $item->tgl_presensi);
+                $hl = $hariliburmingguini->firstWhere('tanggal_libur', $item->tgl_presensi);
                 if ($hl) {
                     $item->keterangan = $hl->keterangan;
                 }
@@ -81,7 +84,7 @@ class DashboardController extends Controller
             return $item;
         });
 
-        foreach ($hariliburbulanini as $hl) {
+        foreach ($hariliburmingguini as $hl) {
             if (!in_array($hl->tanggal_libur, $existingDates)) {
                 $historyList->push((object)[
                     'id' => null,
@@ -108,7 +111,8 @@ class DashboardController extends Controller
             }
         }
 
-        $historibulanini = $historyList->sortByDesc('tgl_presensi')->values();
+        $historimingguini = $historyList->sortByDesc('tgl_presensi')->values();
+        $historibulanini = $historimingguini; // Kompatibilitas alias
 
         $rekappresensi = DB::table('presensi')
             ->selectRaw('
@@ -124,7 +128,7 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
             ->first();
 
-        $totalLiburBulanIni = count($hariliburbulanini);
+        $totalLiburBulanIni = count($hariliburmingguini);
 
         $leaderboard = DB::table('presensi')
             ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
@@ -136,7 +140,7 @@ class DashboardController extends Controller
         $cabang = DB::table('cabang')->where('kode_cabang', $kode_cabang)->first();
         $departemen = DB::table('seksi')->where('kode_dept', $kode_dept)->first();
 
-        return view('dashboard.dashboard', compact('presensihariini', 'dataliburhariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekappresensi', 'totalLiburBulanIni', 'leaderboard', 'cabang', 'departemen'));
+        return view('dashboard.dashboard', compact('presensihariini', 'dataliburhariini', 'historimingguini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekappresensi', 'totalLiburBulanIni', 'leaderboard', 'cabang', 'departemen', 'startOfWeek', 'endOfWeek'));
     }
 
     public function dashboardadmin()

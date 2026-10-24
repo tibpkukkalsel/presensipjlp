@@ -21,7 +21,7 @@
         rel="stylesheet">
 
     <!-- Custom Login Stylesheet -->
-    <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}?v={{ time() }}">
 </head>
 
 <body>

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class UserController extends Controller
@@ -128,6 +130,58 @@ class UserController extends Controller
             return Redirect::back()->with(['success' => ' Data Berhasil Dihapus']);
         } catch (\Exception $e) {
             return Redirect::back()->with(['warning' => ' Data Gagal Dihapus']);
+        }
+    }
+
+    public function profile()
+    {
+        $id = Auth::guard('user')->user()->id;
+        $user = DB::table('users')
+            ->leftJoin('seksi', 'users.kode_dept', '=', 'seksi.kode_dept')
+            ->leftJoin('cabang', 'users.kode_cabang', '=', 'cabang.kode_cabang')
+            ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('users.id', $id)
+            ->select('users.*', 'seksi.nama_dept', 'cabang.nama_cabang', 'roles.name as role_name')
+            ->first();
+
+        return view('users.profile', compact('user'));
+    }
+
+    public function updateprofile(Request $request)
+    {
+        $id = Auth::guard('user')->user()->id;
+
+        $messages = [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email ini telah digunakan oleh akun lain.',
+            'password.min' => 'Password minimal harus 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.'
+        ];
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|min:6|confirmed'
+        ], $messages);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email
+        ];
+
+        if (!empty($request->password)) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        try {
+            DB::table('users')->where('id', $id)->update($data);
+            return Redirect::back()->with(['success' => 'Data profil berhasil diperbarui!']);
+        } catch (\Exception $e) {
+            Log::error('Error updateprofile admin: ' . $e->getMessage());
+            return Redirect::back()->with(['warning' => 'Gagal memperbarui profil: ' . $e->getMessage()]);
         }
     }
 }

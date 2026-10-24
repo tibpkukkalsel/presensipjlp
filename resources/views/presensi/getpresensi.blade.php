@@ -138,8 +138,8 @@ if (!function_exists('hitungSelisihAdmin')) {
             @endif
         </td>
         <td class="text-center">
-            @if ($d->lokasi_in != null)
-                <div class="d-flex align-items-center justify-content-center">
+            <div class="d-flex align-items-center justify-content-center gap-1">
+                @if ($d->lokasi_in != null)
                     <a href="#" class="btn btn-primary btn-sm btn-action tampilkanpeta" id="{{ $d->id }}" title="Lihat Peta Lokasi">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-2"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -152,10 +152,18 @@ if (!function_exists('hitungSelisihAdmin')) {
                             <path d="M15 15l0 5"></path>
                         </svg>
                     </a>
-                </div>
-            @else
-                <span class="text-muted">-</span>
-            @endif
+                @endif
+                <a href="#" class="btn btn-success btn-sm btn-action koreksipresensi" nik="{{ $d->nik }}" title="Koreksi Presensi">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                        <path d="M16 5l3 3"></path>
+                    </svg>
+                </a>
+            </div>
         </td>
     </tr>
 @empty
@@ -190,6 +198,30 @@ if (!function_exists('hitungSelisihAdmin')) {
                 }
             });
             $("#modal-tampilkanpeta").modal("show");
+        });
+
+        $(".koreksipresensi").click(function(e) {
+            e.preventDefault();
+            var nik = $(this).attr("nik");
+            var tanggal = "{{ $tanggal }}";
+            $("#loadkoreksipresensi").html('<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><div class="mt-2 text-muted">Memuat form koreksi...</div></div>');
+            $("#modal-koreksipresensi").modal("show");
+            $.ajax({
+                type: 'POST',
+                url: '/panel-adm14/koreksipresensi',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    nik: nik,
+                    tanggal: tanggal
+                },
+                cache: false,
+                success: function(respond) {
+                    $("#loadkoreksipresensi").html(respond);
+                },
+                error: function(xhr, status, error) {
+                    $("#loadkoreksipresensi").html('<div class="alert alert-danger m-3">Gagal memuat form koreksi presensi.</div>');
+                }
+            });
         });
     });
 </script>

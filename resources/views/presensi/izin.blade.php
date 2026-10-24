@@ -256,17 +256,8 @@
         $(function() {
             $(".card_izin").click(function(e) {
                 var kode_izin = $(this).attr("kode_izin");
-                var status_approved = $(this).attr("status_approved");
-
-                if (status_approved == 1) {
-                    Swal.fire({
-                        title: 'Oops !',
-                        text: 'Data Sudah Disetujui, Tidak Dapat di Ubah !',
-                        icon: 'warning'
-                    })
-                } else {
-                    $("#showact").load('/izin/' + kode_izin + '/showact');
-                }
+                $("#showact").html('<div class="text-center p-3 text-muted"><ion-icon name="sync-outline" class="rotate" style="font-size:24px;"></ion-icon><div style="font-size:12px; margin-top:4px;">Memuat data...</div></div>');
+                $("#showact").load('/izin/' + kode_izin + '/showact');
             });
         });
     </script>

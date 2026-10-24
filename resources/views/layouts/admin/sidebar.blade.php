@@ -130,10 +130,10 @@
                     </a>
                 </li>
 
-                <!-- 4. Status Kehadiran Pegawai -->
+                <!-- 4. Status Kehadiran Pegawai (Persetujuan Izin / Sakit / Cuti) -->
                 <li class="nav-item">
-                    <a href="/panel-adm14/presensi/statuskehadiran"
-                        class="nav-link {{ request()->is('panel-adm14/presensi/statuskehadiran*') ? 'active' : '' }}">
+                    <a href="/panel-adm14/presensi/izinsakit"
+                        class="nav-link {{ request()->is(['panel-adm14/presensi/izinsakit*', 'panel-adm14/presensi/statuskehadiran*']) ? 'active' : '' }}">
                         <i class="nav-icon bi bi-person-check-fill"></i>
                         <p>Status Kehadiran</p>
                     </a>
