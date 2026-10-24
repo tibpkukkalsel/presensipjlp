@@ -3,7 +3,7 @@
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="javascript:;" class="headerButton goBack">
+            <a href="/dashboard" class="headerButton goBack">
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
@@ -11,55 +11,31 @@
         <div class="right"></div>
     </div>
     <!-- * App Header -->
-    <style>
-        .webcam-capture,
-        .webcam-capture video {
-            display: inline-block;
-            width: 100% !important;
-            margin: auto;
-            height: auto !important;
-            border-radius: 15px;
-
-        }
-
-        #map {
-            height: 200px;
-        }
-
-        .jam-digital-malasngoding {
-
-            background-color: #27272783;
-            position: absolute;
-            top: 65px;
-            right: 10px;
-            z-index: 9999;
-            width: 150px;
-            border-radius: 10px;
-            padding: 5px;
-        }
-
-
-
-        .jam-digital-malasngoding p {
-            color: #fff;
-            font-size: 16px;
-            text-align: left;
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-    </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 @endsection
+
 @section('content')
-    <div class="row" style="margin-top: 60px">
-        <div class="col">
-            <div class="alert alert-warning">
-                <p>
-                    Maaf,Anda hari ini tidak bisa melakukan presensi karena sudah melakukan pengajuan Izin Sebelumnya !,
-                    Silahkan Hubungi HRD
-                </p>
+    <div style="padding-top: 75px; padding-bottom: 30px;">
+        <div class="row">
+            <div class="col-12 px-3">
+                <div class="card text-center" style="border-radius: 18px; border: 1px solid #fef3c7; box-shadow: 0 4px 16px rgba(0,0,0,0.06); padding: 20px 15px; background: #ffffff;">
+                    <div class="card-body">
+                        <div style="width: 72px; height: 72px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+                            <ion-icon name="document-text-outline" style="font-size: 38px; color: #f59e0b;"></ion-icon>
+                        </div>
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">Sudah Ada Izin!</h3>
+                        <p style="color: #64748b; font-size: 0.92rem; line-height: 1.5; margin-bottom: 20px;">
+                            Maaf, Anda hari ini tidak bisa melakukan presensi karena sudah melakukan pengajuan Izin/Sakit sebelumnya. Silahkan hubungi Admin Presis jika ada kendala.
+                        </p>
+                        <div class="mt-2">
+                            <a href="/dashboard" class="btn btn-primary w-100" style="border-radius: 12px; font-weight: 600; height: 44px; display: flex; align-items: center; justify-content: center;">
+                                <ion-icon name="arrow-back-outline" style="margin-right: 6px; font-size: 18px;"></ion-icon>
+                                Kembali ke Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 @endsection
+

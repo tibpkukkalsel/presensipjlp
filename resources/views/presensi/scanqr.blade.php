@@ -3,7 +3,7 @@
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
     <div class="left">
-        <a href="javascript:;" class="headerButton goBack">
+        <a href="/dashboard" class="headerButton goBack">
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
@@ -24,7 +24,8 @@
         height: 200px;
     }
 </style>
-<div class="row" style="margin-top: 60px">
+<div style="padding-top: 75px; padding-bottom: 30px;">
+<div class="row">
     <div class="col-12">
         <video id="qr-video"></video>
         <h4 id="cam-qr-result" class="text-center">None</h4>
@@ -54,6 +55,7 @@
     <div class="col">
         <div id="map"></div>
     </div>
+</div>
 </div>
 <audio id="notifikasi_in">
     <source src="{{ asset('assets/sound/notifikasi_in.mp3') }}" type="audio/mpeg">

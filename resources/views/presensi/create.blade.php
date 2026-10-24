@@ -3,7 +3,7 @@
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="javascript:;" class="headerButton goBack">
+            <a href="/dashboard" class="headerButton goBack">
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
@@ -153,7 +153,8 @@
 @endsection
 
 @section('content')
-    <div class="row" style="margin-top: 60px">
+    <div style="padding-top: 75px; padding-bottom: 30px;">
+        <div class="row">
         <div class="col-12">
 
             @php
@@ -245,6 +246,7 @@
             </div>
 
         </div>
+    </div>
     </div>
 
     <!-- Audios -->
