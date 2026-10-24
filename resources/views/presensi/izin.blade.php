@@ -34,7 +34,7 @@
     <!-- * App Header -->
 @endsection
 @section('content')
-    <div class="row" style="margin-top:70px">
+    <div class="row" style="margin-top:10px">
         <div class="col">
             @php
                 $messagesuccess = Session::get('success');

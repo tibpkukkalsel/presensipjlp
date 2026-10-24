@@ -15,7 +15,7 @@
 
 @section('content')
 
-<form action="/presensi/{{ $karyawan->nik }}/updateprofile" method="POST" enctype="multipart/form-data" style="margin-top:70px">
+<form action="/presensi/{{ $karyawan->nik }}/updateprofile" method="POST" enctype="multipart/form-data" style="margin-top:15px">
     @csrf
     <div class="col">
         @php

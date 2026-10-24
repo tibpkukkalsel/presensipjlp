@@ -4,18 +4,30 @@
         .logout {
             position: absolute;
             color: white;
-            font-size: 30px;
+            font-size: 28px;
             text-decoration: none;
-            right: 8px;
+            right: 16px;
+            top: 22px;
+            z-index: 10;
         }
 
         .logout:hover {
             color: white;
         }
 
+        #user-section {
+            min-height: 190px !important;
+            height: auto !important;
+            padding: 24px 18px 55px 18px !important;
+            position: relative;
+            background-color: #2A8BF2;
+            background: linear-gradient(135deg, #2A8BF2 0%, #1A73E8 100%);
+        }
+
         #user-detail {
             display: flex;
             align-items: center;
+            margin-top: 6px !important;
         }
 
         #user-detail .avatar {
@@ -35,6 +47,53 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), 0 0 0 2px rgba(255, 255, 255, 0.4) !important;
             background-color: #ffffff;
         }
+
+        #user-info {
+            margin-left: 14px !important;
+            line-height: 1.3 !important;
+            max-width: calc(100% - 110px);
+        }
+
+        #user-name {
+            font-size: 15.5px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            margin-bottom: 3px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #user-role {
+            font-size: 12.5px !important;
+            color: rgba(255, 255, 255, 0.92) !important;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #menu-section {
+            position: relative !important;
+            top: 0 !important;
+            margin-top: -42px !important;
+            width: 100% !important;
+            z-index: 99 !important;
+            padding: 0 16px !important;
+        }
+
+        #presence-section {
+            position: relative !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+            background-color: transparent !important;
+        }
+
+        .todaypresence {
+            margin-top: 0 !important;
+            margin-bottom: 16px !important;
+        }
     </style>
     @csrf
 
@@ -49,7 +108,8 @@
                     @php
                         $path = Storage::url('uploads/karyawan/' . Auth::guard('karyawan')->user()->foto);
                     @endphp
-                    <img src="{{ url($path) }}" alt="avatar" class="imaged w64 rounded" style="width:64px; height:64px; object-fit:cover;">
+                    <img src="{{ url($path) }}" alt="avatar" class="imaged w64 rounded" style="width:64px; height:64px; object-fit:cover;"
+                         onerror="this.src='{{ asset('assets/img/sample/avatar/avatar1.jpg') }}'">
                 @else
                     <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded" style="width:64px; height:64px; object-fit:cover;">
                 @endif

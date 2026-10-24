@@ -82,10 +82,40 @@
         .datapresensi {
             margin-left: 10px;
         }
+
+        /* ========================================================
+           GLOBAL APK & MOBILE WEBVIEW PRECISION FIX
+           ======================================================== */
+        .appHeader {
+            height: 56px !important;
+            min-height: 56px !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* Berikan padding atas otomatis agar konten tidak tertutup header */
+        .has-app-header #appCapsule,
+        body:has(.appHeader) #appCapsule {
+            padding-top: 65px !important;
+        }
+
+        /* Berikan padding bawah aman agar tidak tertutup Bottom Navigation Bar */
+        #appCapsule {
+            padding-bottom: 95px !important;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
-<body style="background-color:#e9ecef;">
+<body class="@hasSection('header') has-app-header @endif" style="background-color:#e9ecef;">
 
     <!-- loader -->
     <div id="loader">
