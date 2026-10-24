@@ -313,9 +313,8 @@ body {
 }
 
 /* ================= MOBILE LAYOUT ================= */
-/* Sembunyikan panel ilustrasi bawah di semua ukuran layar agar form fokus dan berada di tengah */
 .mobile-bottom-panel {
-    display: none !important;
+    display: none;
 }
 
 @media (max-width: 860px) {
@@ -327,15 +326,16 @@ body {
         justify-content: center;
         padding: 24px 16px;
         background: linear-gradient(135deg, #2A8BF2 0%, #1A73E8 100%);
+        overflow-y: auto;
     }
 
     .page-container {
         width: 100%;
-        max-width: 400px;
+        max-width: 390px;
         min-height: auto;
         background: #FFFFFF;
         border-radius: 24px;
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -347,10 +347,10 @@ body {
         display: none !important;
     }
 
-    /* Form input berada tepat di tengah */
+    /* Form input berada di bagian atas-tengah kartu */
     .panel-form {
-        flex: 1;
-        padding: 38px 26px 30px 26px;
+        flex: none;
+        padding: 28px 24px 14px 24px;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -361,7 +361,7 @@ body {
 
     .form-wrap {
         width: 100%;
-        max-width: 330px;
+        max-width: 320px;
         margin: 0 auto;
     }
 
@@ -370,7 +370,7 @@ body {
         align-items: center;
         justify-content: center;
         gap: 10px;
-        margin-bottom: 22px;
+        margin-bottom: 18px;
     }
 
     .form-logo {
@@ -379,8 +379,77 @@ body {
     }
 
     .form-title {
-        font-size: 28px;
+        font-size: 26px;
         margin-bottom: 0;
+    }
+
+    .form-footer {
+        display: none;
+    }
+
+    /* Panel ilustrasi di bagian bawah kartu */
+    .mobile-bottom-panel {
+        display: flex !important;
+        flex-direction: column;
+        background: linear-gradient(145deg, #2A8BF2 0%, #1976D2 100%);
+        color: #FFFFFF;
+        position: relative;
+        padding: 0 18px 18px 18px;
+        text-align: center;
+        margin-top: 4px;
+    }
+
+    .mobile-wave-top {
+        width: 100%;
+        line-height: 0;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .mobile-wave-top svg {
+        width: 100%;
+        height: 34px;
+        display: block;
+    }
+
+    .mobile-info-wrap {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mobile-info-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 2px;
+        color: #FFFFFF;
+        letter-spacing: 0.5px;
+    }
+
+    .mobile-info-desc {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.92);
+        max-width: 270px;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+
+    .mobile-illustration {
+        width: 100%;
+        max-width: 230px;
+        line-height: 0;
+        margin: 0 auto;
+    }
+
+    .mobile-illustration img {
+        width: 100%;
+        max-height: 130px;
+        height: auto;
+        display: block;
+        object-fit: contain;
+        margin: 0 auto;
+        filter: drop-shadow(0 6px 14px rgba(10, 45, 110, 0.28));
     }
 }
 
@@ -390,10 +459,14 @@ body {
     }
 
     .panel-form {
-        padding: 28px 18px 22px 18px;
+        padding: 22px 18px 10px 18px;
     }
 
     .form-title {
-        font-size: 24px;
+        font-size: 22px;
+    }
+
+    .mobile-illustration img {
+        max-height: 110px;
     }
 }
