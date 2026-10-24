@@ -3,7 +3,7 @@
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
     <div class="left">
-        <a href="javascript:;" class="headerButton goBack">
+        <a href="/dashboard" class="headerButton goBack">
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
@@ -15,7 +15,7 @@
 
 @section('content')
 
-<form action="/presensi/{{ $karyawan->nik }}/updatelokasi" method="POST" enctype="multipart/form-data" style="margin-top:70px">
+<form action="/presensi/{{ $karyawan->nik }}/updatelokasi" method="POST" enctype="multipart/form-data" style="padding-top: 75px; padding-bottom: 30px;">
     @csrf
     <div class="col">
         @php

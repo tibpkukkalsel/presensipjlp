@@ -14,11 +14,52 @@
         height: 5rem !important;
     }
 
+    /* Proteksi presisi header & tombol kembali terhadap conflict CSS Materialize */
+    .appHeader .left {
+        position: absolute !important;
+        left: 10px !important;
+        top: 0 !important;
+        float: none !important;
+        height: 56px !important;
+        display: flex !important;
+        align-items: center !important;
+        z-index: 10 !important;
+    }
+
+    .appHeader .left .headerButton {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 56px !important;
+        min-width: 36px !important;
+        padding: 0 10px !important;
+        color: #ffffff !important;
+    }
+
+    .appHeader .left .headerButton ion-icon {
+        font-size: 26px !important;
+        color: #ffffff !important;
+    }
+
+    .appHeader .pageTitle {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    .appHeader .right {
+        position: absolute !important;
+        right: 10px !important;
+        top: 0 !important;
+        float: none !important;
+        height: 56px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
 </style>
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
     <div class="left">
-        <a href="javascript:;" class="headerButton goBack">
+        <a href="/presensi/izin" class="headerButton goBack">
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
@@ -28,26 +69,28 @@
 <!-- * App Header -->
 @endsection
 @section('content')
-<div class="row" style="margin-top:70px">
-    <div class="col">
-        <form method="POST" action="/izinabsen/{{ $dataizin->kode_izin }}/update" id="frmIzin">
-            @csrf
-            <div class="form-group">
-                <input type="text" id="tgl_izin_dari" value="{{ $dataizin->tgl_izin_dari }}" autocomplete="off" name="tgl_izin_dari" class="form-control datepicker" placeholder="Dari">
-            </div>
-            <div class="form-group">
-                <input type="text" id="tgl_izin_sampai" value="{{ $dataizin->tgl_izin_sampai }}" autocomplete="off" name="tgl_izin_sampai" class="form-control datepicker" placeholder="Sampai">
-            </div>
-            <div class="form-group">
-                <input type="text" id="jml_hari" name="jml_hari" class="form-control" autocomplete="off" placeholder="Jumlah Hari" readonly>
-            </div>
-            <div class="form-group">
-                <input type="text" id="keterangan" value="{{ $dataizin->keterangan }}" name="keterangan" class="form-control" autocomplete="off" placeholder="Keterangan">
-            </div>
-            <div class="form-group">
-                <button class="btn btn-primary w-100">Kirim</button>
-            </div>
-        </form>
+<div style="padding-top: 75px; padding-bottom: 30px;">
+    <div class="row">
+        <div class="col">
+            <form method="POST" action="/izinabsen/{{ $dataizin->kode_izin }}/update" id="frmIzin">
+                @csrf
+                <div class="form-group">
+                    <input type="text" id="tgl_izin_dari" value="{{ $dataizin->tgl_izin_dari }}" autocomplete="off" name="tgl_izin_dari" class="form-control datepicker" placeholder="Dari">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="tgl_izin_sampai" value="{{ $dataizin->tgl_izin_sampai }}" autocomplete="off" name="tgl_izin_sampai" class="form-control datepicker" placeholder="Sampai">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="jml_hari" name="jml_hari" class="form-control" autocomplete="off" placeholder="Jumlah Hari" readonly>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="keterangan" value="{{ $dataizin->keterangan }}" name="keterangan" class="form-control" autocomplete="off" placeholder="Keterangan">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary w-100">Kirim</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

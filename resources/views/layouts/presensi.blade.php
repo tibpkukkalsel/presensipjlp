@@ -71,6 +71,42 @@
             border-bottom: 1px solid #2A8BF2 !important;
             box-shadow: 0 1px 0 0 #2A8BF2 !important;
         }
+
+        /* Pastikan posisi tombol kembali di header tidak tertimpa oleh float Materialize CSS */
+        .appHeader .left {
+            position: absolute !important;
+            left: 10px !important;
+            top: 0 !important;
+            float: none !important;
+            height: 56px !important;
+            display: flex !important;
+            align-items: center !important;
+            z-index: 10 !important;
+        }
+
+        .appHeader .right {
+            position: absolute !important;
+            right: 10px !important;
+            top: 0 !important;
+            float: none !important;
+            height: 56px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .appHeader .left .headerButton {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 56px !important;
+            min-width: 36px !important;
+        }
+
+        .appHeader.text-light .left .headerButton,
+        .appHeader.text-light .left .headerButton ion-icon,
+        .appHeader.text-light .pageTitle {
+            color: #ffffff !important;
+        }
     </style>
 
     <style>

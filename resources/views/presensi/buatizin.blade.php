@@ -10,11 +10,52 @@
         background-color: #0f3a7e !important;
     }
 
+    /* Proteksi presisi header & tombol kembali terhadap conflict CSS Materialize */
+    .appHeader .left {
+        position: absolute !important;
+        left: 10px !important;
+        top: 0 !important;
+        float: none !important;
+        height: 56px !important;
+        display: flex !important;
+        align-items: center !important;
+        z-index: 10 !important;
+    }
+
+    .appHeader .left .headerButton {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 56px !important;
+        min-width: 36px !important;
+        padding: 0 10px !important;
+        color: #ffffff !important;
+    }
+
+    .appHeader .left .headerButton ion-icon {
+        font-size: 26px !important;
+        color: #ffffff !important;
+    }
+
+    .appHeader .pageTitle {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    .appHeader .right {
+        position: absolute !important;
+        right: 10px !important;
+        top: 0 !important;
+        float: none !important;
+        height: 56px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
 </style>
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
     <div class="left">
-        <a href="javascript:;" class="headerButton goBack">
+        <a href="/presensi/izin" class="headerButton goBack">
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
@@ -24,27 +65,29 @@
 <!-- * App Header -->
 @endsection
 @section('content')
-<div class="row" style="margin-top:70px">
-    <div class="col">
-        <form method="POST" action="/presensi/storeizin" id="frmIzin">
-            @csrf
-            <div class="form-group">
-                <input type="text" id="tgl_izin" name="tgl_izin" class="form-control datepicker" placeholder="Tanggal">
-            </div>
-            <div class="form-group">
-                <select name="status" id="status" class="form-control selectmaterialize">
-                    <option value="">Izin / Sakit</option>
-                    <option value="i">Izin</option>
-                    <option value="s">Sakit</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <textarea name="keterangan" id="keterangan" cols="30" rows="5" class="form-control" placeholder="Keterangan"></textarea>
-            </div>
-            <div class="form-group">
-                <button class="btn btn-primary w-100">Kirim</button>
-            </div>
-        </form>
+<div style="padding-top: 75px; padding-bottom: 30px;">
+    <div class="row">
+        <div class="col">
+            <form method="POST" action="/presensi/storeizin" id="frmIzin">
+                @csrf
+                <div class="form-group">
+                    <input type="text" id="tgl_izin" name="tgl_izin" class="form-control datepicker" placeholder="Tanggal">
+                </div>
+                <div class="form-group">
+                    <select name="status" id="status" class="form-control selectmaterialize">
+                        <option value="">Izin / Sakit</option>
+                        <option value="i">Izin</option>
+                        <option value="s">Sakit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea name="keterangan" id="keterangan" cols="30" rows="5" class="form-control" placeholder="Keterangan"></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary w-100">Kirim</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
