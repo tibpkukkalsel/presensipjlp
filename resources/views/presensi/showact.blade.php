@@ -48,7 +48,7 @@
 
     $alasan = !empty($dataizin->keterangan) ? $dataizin->keterangan : '-';
 
-    $pesanPermohonan = "Assalamu’alaikum Wr. Wb.\nKepada Yth. Kepala Balai Pelatihan Koperasi & Usaha Kecil Prov. Kalsel\nCq. Kasubbag Tata Usaha\n\nSaya a.n. " . $namaPegawai . " pada hari ini " . $teksTanggal . " memohon izin " . $jenisIzin . " karena " . $alasan . ".\nDemikian pesan ini disampaikan, atas berkanannya diucapkan terimakasi.";
+    $pesanPermohonan = "Assalamu’alaikum Wr. Wb.\nKepada Yth. Kepala Balai Pelatihan Koperasi & Usaha Kecil Prov. Kalsel\nCq. Kasubbag Tata Usaha\n\nSaya a.n. " . $namaPegawai . " pada hari ini " . $teksTanggal . " memohon izin " . $jenisIzin . " karena " . $alasan . ".\nDemikian pesan ini disampaikan, atas berkenannya diucapkan terimakasih.";
 @endphp
 
 <ul class="action-button-list">
@@ -58,6 +58,16 @@
             <span>
                 <ion-icon name="logo-whatsapp" style="font-size: 22px; color: #25D366;"></ion-icon>
                 Kirim via WhatsApp
+            </span>
+        </a>
+    </li>
+
+    <!-- Tombol Salin Pesan WhatsApp -->
+    <li>
+        <a href="javascript:void(0);" id="btnSalinWA" class="btn btn-list text-primary" style="font-weight: 600;">
+            <span>
+                <ion-icon name="copy-outline" style="font-size: 22px; color: #2A8BF2;"></ion-icon>
+                Salin Teks WhatsApp
             </span>
         </a>
     </li>
@@ -114,6 +124,53 @@
         // Handle Delete Button link
         $("#deletebutton").click(function(e) {
             $("#hapuspengajuan").attr('href', '/izin/' + '{{ $dataizin->kode_izin }}/delete');
+        });
+
+        // Handle Salin WA
+        $("#btnSalinWA").click(function(e) {
+            e.preventDefault();
+            var text = @json($pesanPermohonan);
+
+            function showSuccess() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Tersalin!',
+                    text: 'Teks permohonan izin berhasil disalin.',
+                    timer: 1800,
+                    showConfirmButton: false
+                });
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showSuccess).catch(function() {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+
+            function fallbackCopy(val) {
+                var textArea = document.createElement("textarea");
+                textArea.value = val;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess();
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Tidak dapat menyalin teks secara otomatis.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+                document.body.removeChild(textArea);
+            }
         });
     });
 </script>
