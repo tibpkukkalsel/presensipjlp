@@ -34,25 +34,31 @@
     <!-- * App Header -->
 @endsection
 @section('content')
-    <div class="row" style="margin-top:10px">
-        <div class="col">
-            @php
-                $messagesuccess = Session::get('success');
-                $messageerror = Session::get('error');
-            @endphp
-            @if (Session::get('success'))
-                <div class="alert alert-success">
-                    {{ $messagesuccess }}
+    <div style="padding-top: 75px;">
+        @php
+            $messagesuccess = Session::get('success');
+            $messageerror = Session::get('error');
+        @endphp
+        @if (Session::get('success'))
+            <div class="row">
+                <div class="col">
+                    <div class="alert alert-success">
+                        {{ $messagesuccess }}
+                    </div>
                 </div>
-            @endif
-            @if (Session::get('error'))
-                <div class="alert alert-warning">
-                    {{ $messageerror }}
+            </div>
+        @endif
+        @if (Session::get('error'))
+            <div class="row">
+                <div class="col">
+                    <div class="alert alert-warning">
+                        {{ $messageerror }}
+                    </div>
                 </div>
-            @endif
-        </div>
-    </div>
-    <div class="row" style="z-index: 0">
+            </div>
+        @endif
+
+        <div class="row" style="z-index: 0">
         <div class="col">
             <form method="GET" action="/presensi/izin">
                 <div class="row">
@@ -249,6 +255,7 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @push('myscript')
