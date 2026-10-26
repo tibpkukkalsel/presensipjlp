@@ -357,7 +357,9 @@ Route::get('/storage/uploads/{folder}/{filename}', function ($folder, $filename)
             finfo_close($finfo);
             return response()->file($filePath, [
                 'Content-Type' => $mimeType,
-                'Cache-Control' => 'public, max-age=86400',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
             ]);
         }
     }

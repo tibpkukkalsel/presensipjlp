@@ -314,7 +314,8 @@ class PresensiController extends Controller
         }
 
         $folderPath = "public/uploads/absensi/";
-        $formatName = $nik . "-" . $tgl_presensi . "-" . $ket;
+        $timeSuffix = date('His');
+        $formatName = $nik . "-" . $tgl_presensi . "-" . $ket . "-" . $timeSuffix;
         $image_parts = explode(";base64", $image);
         $image_base64 = base64_decode($image_parts[1]);
         if (empty($image_base64) || !@imagecreatefromstring($image_base64)) {
@@ -774,8 +775,8 @@ class PresensiController extends Controller
                     $item->keterangan = $hl->keterangan;
                 }
             }
-            $item->foto_in_url = !empty($item->foto_in) ? asset('storage/uploads/absensi/' . $item->foto_in) : null;
-            $item->foto_out_url = !empty($item->foto_out) ? asset('storage/uploads/absensi/' . $item->foto_out) : null;
+            $item->foto_in_url = !empty($item->foto_in) ? asset('storage/uploads/absensi/' . $item->foto_in) . '?v=' . time() : null;
+            $item->foto_out_url = !empty($item->foto_out) ? asset('storage/uploads/absensi/' . $item->foto_out) . '?v=' . time() : null;
             return $item;
         });
 

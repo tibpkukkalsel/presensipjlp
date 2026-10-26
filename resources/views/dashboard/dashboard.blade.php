@@ -302,7 +302,7 @@
                                         @php
                                             $path = Storage::url('uploads/absensi/' . $presensihariini->foto_in);
                                         @endphp
-                                        <img src="{{ url($path) }}" alt="Foto Masuk" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <img src="{{ url($path) }}?v={{ time() }}" alt="Foto Masuk" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                         <ion-icon name="camera" style="display: none;"></ion-icon>
                                     @else
                                         <ion-icon name="camera"></ion-icon>
@@ -325,7 +325,7 @@
                                         @php
                                             $path = Storage::url('uploads/absensi/' . $presensihariini->foto_out);
                                         @endphp
-                                        <img src="{{ url($path) }}" alt="Foto Pulang" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <img src="{{ url($path) }}?v={{ time() }}" alt="Foto Pulang" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                         <ion-icon name="camera" style="display: none;"></ion-icon>
                                     @else
                                         <ion-icon name="camera"></ion-icon>

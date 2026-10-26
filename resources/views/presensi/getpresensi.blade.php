@@ -22,8 +22,8 @@ if (!function_exists('hitungSelisihAdmin')) {
 
 @forelse ($presensi as $d)
     @php
-        $foto_in = !empty($d->foto_in) ? Storage::url('uploads/absensi/' . $d->foto_in) : null;
-        $foto_out = !empty($d->foto_out) ? Storage::url('uploads/absensi/' . $d->foto_out) : null;
+        $foto_in = !empty($d->foto_in) ? Storage::url('uploads/absensi/' . $d->foto_in) . '?v=' . time() : null;
+        $foto_out = !empty($d->foto_out) ? Storage::url('uploads/absensi/' . $d->foto_out) . '?v=' . time() : null;
         
         $ceklibur = !empty($datalibur) ? cekkaryawanlibur($datalibur, ['nik' => $d->nik, 'tanggal_libur' => $tanggal]) : [];
         $is_libur = !empty($ceklibur);
