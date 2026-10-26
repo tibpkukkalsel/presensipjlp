@@ -416,7 +416,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="tab-content mt-2" style="margin-bottom:100px;">
+            <div class="tab-content mt-2" style="margin-bottom:20px;">
                 <div class="tab-pane fade show active" id="home" role="tabpanel">
                     @if ($historimingguini->isEmpty())
                         <div class="card" style="border-radius: 12px; border: 1px dashed #cbd5e1;">
@@ -665,6 +665,16 @@
                     </ul>
                 </div>
 
+            </div>
+
+            <!-- Footer Copyright Balai Pelatihan Koperasi dan Usaha Kecil Prov. Kalsel -->
+            <div class="text-center pt-2 pb-4" style="color: #64748b; font-size: 11.5px; line-height: 1.5; margin-bottom: 75px;">
+                <div style="font-weight: 600; color: #475569;">
+                    Copyright &copy; {{ date('Y') }} Balai Pelatihan Koperasi dan Usaha Kecil Prov. Kalsel
+                </div>
+                <div style="color: #94a3b8; font-size: 11px;">
+                    All Rights Reserved
+                </div>
             </div>
         </div>
     </div>
