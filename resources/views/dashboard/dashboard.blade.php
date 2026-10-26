@@ -216,10 +216,12 @@
                     @php
                         $path = Storage::url('uploads/karyawan/' . Auth::guard('karyawan')->user()->foto);
                     @endphp
-                    <img src="{{ url($path) }}" alt="avatar" class="imaged w64 rounded" style="width:64px; height:64px; object-fit:cover;"
-                         onerror="this.src='{{ asset('assets/img/sample/avatar/avatar1.jpg') }}'">
+                    <img src="{{ url($path) }}" alt="avatar" class="imaged w64 rounded"
+                        style="width:64px; height:64px; object-fit:cover;"
+                        onerror="this.src='{{ asset('assets/img/sample/avatar/avatar1.jpg') }}'">
                 @else
-                    <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded" style="width:64px; height:64px; object-fit:cover;">
+                    <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded"
+                        style="width:64px; height:64px; object-fit:cover;">
                 @endif
             </div>
             <div id="user-info">
@@ -280,13 +282,18 @@
     <div class="section mt-2" id="presence-section">
         <div class="todaypresence">
             @if ($dataliburhariini != null)
-                <div class="card mb-2" style="background: #ffffff; border-radius: 10px; border-left: 4px solid #e11d48; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                <div class="card mb-2"
+                    style="background: #ffffff; border-radius: 10px; border-left: 4px solid #e11d48; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
                     <div class="card-body py-2 px-3">
                         <div class="d-flex align-items-center">
-                            <ion-icon name="calendar" style="font-size: 26px; color: #e11d48; margin-right: 12px; min-width: 26px;"></ion-icon>
+                            <ion-icon name="calendar"
+                                style="font-size: 26px; color: #e11d48; margin-right: 12px; min-width: 26px;"></ion-icon>
                             <div style="line-height: 1.2;">
-                                <div style="font-size: 0.7rem; font-weight: 700; color: #e11d48; text-transform: uppercase; letter-spacing: 0.5px;">HARI INI LIBUR</div>
-                                <div style="font-size: 0.88rem; font-weight: 600; color: #1e293b; margin-top: 2px;">{{ $dataliburhariini->keterangan }}</div>
+                                <div
+                                    style="font-size: 0.7rem; font-weight: 700; color: #e11d48; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    HARI INI LIBUR</div>
+                                <div style="font-size: 0.88rem; font-weight: 600; color: #1e293b; margin-top: 2px;">
+                                    {{ $dataliburhariini->keterangan }}</div>
                             </div>
                         </div>
                     </div>
@@ -302,7 +309,8 @@
                                         @php
                                             $path = Storage::url('uploads/absensi/' . $presensihariini->foto_in);
                                         @endphp
-                                        <img src="{{ url($path) }}?v={{ time() }}" alt="Foto Masuk" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <img src="{{ url($path) }}?v={{ time() }}" alt="Foto Masuk"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                         <ion-icon name="camera" style="display: none;"></ion-icon>
                                     @else
                                         <ion-icon name="camera"></ion-icon>
@@ -325,7 +333,8 @@
                                         @php
                                             $path = Storage::url('uploads/absensi/' . $presensihariini->foto_out);
                                         @endphp
-                                        <img src="{{ url($path) }}?v={{ time() }}" alt="Foto Pulang" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <img src="{{ url($path) }}?v={{ time() }}" alt="Foto Pulang"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                         <ion-icon name="camera" style="display: none;"></ion-icon>
                                     @else
                                         <ion-icon name="camera"></ion-icon>
@@ -422,7 +431,8 @@
                         <div class="card" style="border-radius: 12px; border: 1px dashed #cbd5e1;">
                             <div class="card-body text-center py-4">
                                 <ion-icon name="calendar-outline" style="font-size: 36px; color: #94a3b8;"></ion-icon>
-                                <p class="text-muted mt-2 mb-0" style="font-size: 13px;">Belum ada catatan aktivitas presensi pada minggu ini.</p>
+                                <p class="text-muted mt-2 mb-0" style="font-size: 13px;">Belum ada catatan aktivitas
+                                    presensi pada minggu ini.</p>
                             </div>
                         </div>
                     @endif
@@ -432,7 +442,9 @@
                             @php
                                 $has_jam_in = !empty($d->jam_in);
                                 $has_jam_out = !empty($d->jam_out);
-                                $jam_masuk_jadwal = !empty($d->jam_masuk) ? date('H:i', strtotime($d->jam_masuk)) : '08:00';
+                                $jam_masuk_jadwal = !empty($d->jam_masuk)
+                                    ? date('H:i', strtotime($d->jam_masuk))
+                                    : '08:00';
                                 $jam_in_formatted = $has_jam_in ? date('H:i', strtotime($d->jam_in)) : null;
 
                                 $jadwal_jam_masuk = $d->tgl_presensi . ' ' . $jam_masuk_jadwal;
@@ -448,9 +460,13 @@
                                     $is_terlambat = true;
                                 }
 
-                                $is_pulang_awal = $has_jam_out && (!empty($d->jam_pulang) && date('H:i', strtotime($d->jam_out)) < date('H:i', strtotime($d->jam_pulang)));
+                                $is_pulang_awal =
+                                    $has_jam_out &&
+                                    (!empty($d->jam_pulang) &&
+                                        date('H:i', strtotime($d->jam_out)) < date('H:i', strtotime($d->jam_pulang)));
                             @endphp
-                            <div class="card mb-2" style="border-radius: 12px; border: 1px solid {{ $is_tidak_absen_masuk ? '#fecaca' : ($is_terlambat ? '#fed7aa' : '#bbf7d0') }}; border-left: 5px solid {{ $is_tidak_absen_masuk ? '#ef4444' : ($is_terlambat ? '#f97316' : '#22c55e') }}; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid {{ $is_tidak_absen_masuk ? '#fecaca' : ($is_terlambat ? '#fed7aa' : '#bbf7d0') }}; border-left: 5px solid {{ $is_tidak_absen_masuk ? '#ef4444' : ($is_terlambat ? '#f97316' : '#22c55e') }}; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                                 <div class="card-body py-2 px-3">
                                     <div class="historicontent align-items-center">
                                         <div class="iconpresensi mr-2" style="min-width: 44px;">
@@ -459,43 +475,63 @@
                                         </div>
                                         <div class="datapresensi flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h4 style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
                                                     {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
                                                 </h4>
-                                                <span class="badge" style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; {{ $is_tidak_absen_masuk ? 'background:#fee2e2; color:#b91c1c;' : ($is_terlambat ? 'background:#ffedd5; color:#c2410c;' : 'background:#dcfce7; color:#15803d;') }}">
+                                                <span class="badge"
+                                                    style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; {{ $is_tidak_absen_masuk ? 'background:#fee2e2; color:#b91c1c;' : ($is_terlambat ? 'background:#ffedd5; color:#c2410c;' : 'background:#dcfce7; color:#15803d;') }}">
                                                     {{ $is_tidak_absen_masuk ? 'Tidak Absen Pagi' : ($is_terlambat ? 'Terlambat' : 'Hadir') }}
                                                 </span>
                                             </div>
                                             <div style="font-size: 12px; color: #64748b; margin-bottom: 3px;">
-                                                <span style="font-weight: 600; color: #2A8BF2;">{{ $d->nama_jam_kerja ?? 'Reguler' }}</span>
+                                                <span
+                                                    style="font-weight: 600; color: #2A8BF2;">{{ $d->nama_jam_kerja ?? 'Reguler' }}</span>
                                                 <span class="mx-1">•</span>
-                                                <span>Shift: {{ date('H:i', strtotime($d->jam_masuk ?? '08:00')) }} - {{ date('H:i', strtotime($d->jam_pulang ?? '16:00')) }}</span>
+                                                <span>Shift: {{ date('H:i', strtotime($d->jam_masuk ?? '08:00')) }} -
+                                                    {{ date('H:i', strtotime($d->jam_pulang ?? '16:00')) }}</span>
                                             </div>
                                             <div style="font-size: 13px; margin-bottom: 4px;">
                                                 <span>Scan: </span>
-                                                {!! $has_jam_in ? '<strong style="color:#0f172a;">' . date('H:i', strtotime($d->jam_in)) . '</strong>' : '<span class="text-danger font-weight-bold">Belum Scan</span>' !!}
+                                                {!! $has_jam_in
+                                                    ? '<strong style="color:#0f172a;">' . date('H:i', strtotime($d->jam_in)) . '</strong>'
+                                                    : '<span class="text-danger font-weight-bold">Belum Scan</span>' !!}
                                                 <span> - </span>
-                                                {!! $has_jam_out ? '<strong style="color:#0f172a;">' . date('H:i', strtotime($d->jam_out)) . '</strong>' : '<span class="text-danger font-weight-bold">Belum Scan</span>' !!}
+                                                {!! $has_jam_out
+                                                    ? '<strong style="color:#0f172a;">' . date('H:i', strtotime($d->jam_out)) . '</strong>'
+                                                    : '<span class="text-danger font-weight-bold">Belum Scan</span>' !!}
                                                 @if ($is_pulang_awal)
-                                                    <span class="text-warning ml-1" style="font-size: 11px; font-weight: 600;">(Pulang Awal)</span>
+                                                    <span class="text-warning ml-1"
+                                                        style="font-size: 11px; font-weight: 600;">(Pulang Awal)</span>
                                                 @endif
                                             </div>
                                             <div>
                                                 @if ($is_tidak_absen_masuk)
                                                     <span class="text-danger font-weight-bold" style="font-size: 12px;">
-                                                        <ion-icon name="alert-circle" style="vertical-align: -1px;"></ion-icon> Terlambat (Tidak Absen Pagi)
+                                                        <ion-icon name="alert-circle"
+                                                            style="vertical-align: -1px;"></ion-icon> Terlambat (Tidak
+                                                        Absen Pagi)
                                                     </span>
                                                 @elseif ($is_terlambat)
                                                     @php
-                                                        $jmlterlambat = hitungjamterlambat($jadwal_jam_masuk, $jam_presensi);
-                                                        $jmlterlambatdesimal = hitungjamterlambatdesimal($jadwal_jam_masuk, $jam_presensi);
+                                                        $jmlterlambat = hitungjamterlambat(
+                                                            $jadwal_jam_masuk,
+                                                            $jam_presensi,
+                                                        );
+                                                        $jmlterlambatdesimal = hitungjamterlambatdesimal(
+                                                            $jadwal_jam_masuk,
+                                                            $jam_presensi,
+                                                        );
                                                     @endphp
                                                     <span class="text-danger font-weight-bold" style="font-size: 12px;">
-                                                        <ion-icon name="alert-circle" style="vertical-align: -1px;"></ion-icon> Terlambat {{ $jmlterlambat }} ({{ $jmlterlambatdesimal }} Jam)
+                                                        <ion-icon name="alert-circle"
+                                                            style="vertical-align: -1px;"></ion-icon> Terlambat
+                                                        {{ $jmlterlambat }} ({{ $jmlterlambatdesimal }} Jam)
                                                     </span>
                                                 @else
                                                     <span class="text-success font-weight-bold" style="font-size: 12px;">
-                                                        <ion-icon name="checkmark-circle" style="vertical-align: -1px;"></ion-icon> Tepat Waktu
+                                                        <ion-icon name="checkmark-circle"
+                                                            style="vertical-align: -1px;"></ion-icon> Tepat Waktu
                                                     </span>
                                                 @endif
                                             </div>
@@ -504,22 +540,27 @@
                                 </div>
                             </div>
                         @elseif($d->status == 'tl')
-                            <div class="card mb-2" style="border-radius: 12px; border: 1px solid #cffafe; border-left: 5px solid #06b6d4; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid #cffafe; border-left: 5px solid #06b6d4; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                                 <div class="card-body py-2 px-3">
                                     <div class="historicontent align-items-center">
                                         <div class="iconpresensi mr-2" style="min-width: 44px;">
-                                            <ion-icon name="briefcase-outline" style="font-size: 42px;" class="text-info"></ion-icon>
+                                            <ion-icon name="briefcase-outline" style="font-size: 42px;"
+                                                class="text-info"></ion-icon>
                                         </div>
                                         <div class="datapresensi flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h4 style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
                                                     {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
                                                 </h4>
-                                                <span class="badge" style="background:#cffafe; color:#0e7490; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                                <span class="badge"
+                                                    style="background:#cffafe; color:#0e7490; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
                                                     Tugas Luar
                                                 </span>
                                             </div>
-                                            <h3 style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #0284c7; margin-bottom: 2px;">
+                                            <h3
+                                                style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #0284c7; margin-bottom: 2px;">
                                                 TUGAS LUAR {{ !empty($d->kode_izin) ? '- ' . $d->kode_izin : '' }}
                                             </h3>
                                             <span style="font-size: 12px; color: #475569;">
@@ -530,22 +571,27 @@
                                 </div>
                             </div>
                         @elseif($d->status == 'i')
-                            <div class="card mb-2" style="border-radius: 12px; border: 1px solid #fef3c7; border-left: 5px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid #fef3c7; border-left: 5px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                                 <div class="card-body py-2 px-3">
                                     <div class="historicontent align-items-center">
                                         <div class="iconpresensi mr-2" style="min-width: 44px;">
-                                            <ion-icon name="document-text-outline" style="font-size: 42px;" class="text-warning"></ion-icon>
+                                            <ion-icon name="document-text-outline" style="font-size: 42px;"
+                                                class="text-warning"></ion-icon>
                                         </div>
                                         <div class="datapresensi flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h4 style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
                                                     {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
                                                 </h4>
-                                                <span class="badge" style="background:#fef3c7; color:#b45309; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                                <span class="badge"
+                                                    style="background:#fef3c7; color:#b45309; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
                                                     Izin
                                                 </span>
                                             </div>
-                                            <h3 style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #d97706; margin-bottom: 2px;">
+                                            <h3
+                                                style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #d97706; margin-bottom: 2px;">
                                                 IZIN {{ !empty($d->kode_izin) ? '- ' . $d->kode_izin : '' }}
                                             </h3>
                                             <span style="font-size: 12px; color: #475569;">
@@ -556,22 +602,27 @@
                                 </div>
                             </div>
                         @elseif($d->status == 'l')
-                            <div class="card mb-2" style="border-radius: 12px; border: 1px solid #fee2e2; border-left: 5px solid #ef4444; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid #fee2e2; border-left: 5px solid #ef4444; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                                 <div class="card-body py-2 px-3">
                                     <div class="historicontent align-items-center">
                                         <div class="iconpresensi mr-2" style="min-width: 44px;">
-                                            <ion-icon name="calendar-outline" style="font-size: 42px;" class="text-danger"></ion-icon>
+                                            <ion-icon name="calendar-outline" style="font-size: 42px;"
+                                                class="text-danger"></ion-icon>
                                         </div>
                                         <div class="datapresensi flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h4 style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
                                                     {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
                                                 </h4>
-                                                <span class="badge" style="background:#fee2e2; color:#b91c1c; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                                <span class="badge"
+                                                    style="background:#fee2e2; color:#b91c1c; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
                                                     Libur
                                                 </span>
                                             </div>
-                                            <h3 style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #dc2626; margin-bottom: 2px;">
+                                            <h3
+                                                style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #dc2626; margin-bottom: 2px;">
                                                 LIBUR NASIONAL / BERSAMA
                                             </h3>
                                             <span class="text-danger font-weight-bold" style="font-size: 12px;">
@@ -582,22 +633,27 @@
                                 </div>
                             </div>
                         @elseif($d->status == 's')
-                            <div class="card mb-2" style="border-radius: 12px; border: 1px solid #bfdbfe; border-left: 5px solid #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid #bfdbfe; border-left: 5px solid #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                                 <div class="card-body py-2 px-3">
                                     <div class="historicontent align-items-center">
                                         <div class="iconpresensi mr-2" style="min-width: 44px;">
-                                            <ion-icon name="medkit-outline" style="font-size: 42px;" class="text-primary"></ion-icon>
+                                            <ion-icon name="medkit-outline" style="font-size: 42px;"
+                                                class="text-primary"></ion-icon>
                                         </div>
                                         <div class="datapresensi flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h4 style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
                                                     {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
                                                 </h4>
-                                                <span class="badge" style="background:#dbeafe; color:#1d4ed8; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                                <span class="badge"
+                                                    style="background:#dbeafe; color:#1d4ed8; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
                                                     Sakit
                                                 </span>
                                             </div>
-                                            <h3 style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #2563eb; margin-bottom: 2px;">
+                                            <h3
+                                                style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #2563eb; margin-bottom: 2px;">
                                                 SAKIT {{ !empty($d->kode_izin) ? '- ' . $d->kode_izin : '' }}
                                             </h3>
                                             <span style="font-size: 12px; color: #475569;">
@@ -605,8 +661,11 @@
                                             </span>
                                             @if (!empty($d->doc_sid))
                                                 <div class="mt-1">
-                                                    <a href="{{ asset('storage/uploads/sid/' . $d->doc_sid) }}" target="_blank" class="text-primary font-weight-bold" style="font-size: 12px;">
-                                                        <ion-icon name="document-attach-outline"></ion-icon> Lihat Surat Dokter (SID)
+                                                    <a href="{{ asset('storage/uploads/sid/' . $d->doc_sid) }}"
+                                                        target="_blank" class="text-primary font-weight-bold"
+                                                        style="font-size: 12px;">
+                                                        <ion-icon name="document-attach-outline"></ion-icon> Lihat Surat
+                                                        Dokter (SID)
                                                     </a>
                                                 </div>
                                             @endif
@@ -615,22 +674,27 @@
                                 </div>
                             </div>
                         @elseif($d->status == 'c')
-                            <div class="card mb-2" style="border-radius: 12px; border: 1px solid #ddd6fe; border-left: 5px solid #8b5cf6; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid #ddd6fe; border-left: 5px solid #8b5cf6; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                                 <div class="card-body py-2 px-3">
                                     <div class="historicontent align-items-center">
                                         <div class="iconpresensi mr-2" style="min-width: 44px;">
-                                            <ion-icon name="calendar-number-outline" style="font-size: 42px; color: #8b5cf6;"></ion-icon>
+                                            <ion-icon name="calendar-number-outline"
+                                                style="font-size: 42px; color: #8b5cf6;"></ion-icon>
                                         </div>
                                         <div class="datapresensi flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h4 style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
                                                     {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
                                                 </h4>
-                                                <span class="badge" style="background:#ede9fe; color:#6d28d9; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                                <span class="badge"
+                                                    style="background:#ede9fe; color:#6d28d9; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
                                                     Cuti
                                                 </span>
                                             </div>
-                                            <h3 style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #7c3aed; margin-bottom: 2px;">
+                                            <h3
+                                                style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #7c3aed; margin-bottom: 2px;">
                                                 CUTI : {{ $d->nama_cuti ?? $d->kode_izin }}
                                             </h3>
                                             <span style="font-size: 12px; color: #475569;">
@@ -668,12 +732,10 @@
             </div>
 
             <!-- Footer Copyright Balai Pelatihan Koperasi dan Usaha Kecil Prov. Kalsel -->
-            <div class="text-center pt-2 pb-4" style="color: #64748b; font-size: 11.5px; line-height: 1.5; margin-bottom: 75px;">
+            <div class="text-center pt-2 pb-4"
+                style="color: #64748b; font-size: 11.5px; line-height: 1.5; margin-bottom: 75px;">
                 <div style="font-weight: 600; color: #475569;">
-                    Copyright &copy; {{ date('Y') }} Balai Pelatihan Koperasi dan Usaha Kecil Prov. Kalsel
-                </div>
-                <div style="color: #94a3b8; font-size: 11px;">
-                    All Rights Reserved
+                    Copyright &copy; 2026 BPKUK Prov. Kalsel
                 </div>
             </div>
         </div>
