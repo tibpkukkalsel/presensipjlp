@@ -624,7 +624,7 @@
                             isScanningActive = false;
 
                             $("#pillSmile").removeClass('bg-light text-muted').addClass('bg-success text-white border-success');
-                            $("#badgeSmile").css('color', '#ffffff').text('Tahan Senyum: 2...');
+                            $("#badgeSmile").css('color', '#ffffff').text('Tahan Senyum (2)');
                             $("#faceOval").removeClass('detected').addClass('verified');
 
                             // Ding konfirmasi awal senyum terdeteksi
@@ -640,24 +640,23 @@
 
                             // Detik ke-1: Angka 1
                             setTimeout(function() {
-                                $("#badgeSmile").text('Tahan Senyum: 1...');
+                                $("#badgeSmile").text('Tahan Senyum (1)');
                                 playChime(950, 'sine', 0.15);
                                 $num.text('1').css('animation', 'none');
                                 if ($num[0]) void $num[0].offsetWidth;
                                 $num.css('animation', 'pulseScale 0.7s ease');
                             }, 850);
 
-                            // Jepret Foto (Cekrek!)
+                            // Ambil Foto Presensi Secara Halus & Elegan
                             setTimeout(function() {
-                                $("#badgeSmile").text('Cekrek! 📸');
-                                $num.html('📸');
+                                $overlay.hide();
+                                $("#badgeSmile").text('Foto Terambil ✓');
                                 triggerCameraFlash();
                                 playShutterSound();
 
                                 setTimeout(function() {
-                                    $overlay.hide();
                                     executeAttendance(selectedStatus);
-                                }, 350);
+                                }, 300);
                             }, 1750);
 
                             return;
