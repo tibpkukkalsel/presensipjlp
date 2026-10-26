@@ -100,6 +100,26 @@
             font-weight: 600;
         }
 
+        .btn-type-tab.is-completed {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            position: relative;
+        }
+
+        .btn-type-tab.is-completed .type-name {
+            color: #334155;
+        }
+
+        .btn-type-tab.is-completed .type-clock {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .btn-type-tab.is-completed-out .type-clock {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
         /* Camera Wrapper & Face Guide: 1:1 Bujur Sangkar Simetris */
         .camera-wrapper {
             position: relative;
@@ -194,9 +214,17 @@
                 $daftar_bulan = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
                 $nama_hari = $daftar_hari[date('D', strtotime($hariini))] ?? date('l', strtotime($hariini));
                 $tgl_indo = $nama_hari . ', ' . date('d', strtotime($hariini)) . ' ' . ($daftar_bulan[(int)date('m', strtotime($hariini))] ?? date('F', strtotime($hariini))) . ' ' . date('Y', strtotime($hariini));
+
+                $sudah_masuk = ($datapresensi != null && !empty($datapresensi->jam_in));
+                $jam_masuk_pegawai = $sudah_masuk ? date('H:i', strtotime($datapresensi->jam_in)) : null;
+
+                $sudah_pulang = ($datapresensi != null && !empty($datapresensi->jam_out));
+                $jam_pulang_pegawai = $sudah_pulang ? date('H:i', strtotime($datapresensi->jam_out)) : null;
+
+                $lengkap_hariini = ($sudah_masuk && $sudah_pulang);
             @endphp
 
-            <!-- Badge Ungu Sederhana: Data Tanggal & Jam Berlangsung -->
+            <!-- Badge Tanggal & Jam Berlangsung -->
             <div class="alert alert-info text-center py-2 mb-2 shadow-sm rounded-lg" style="border-radius: 12px;">
                 <div style="font-size: 13px; font-weight: 600;">
                     {{ $tgl_indo }}
@@ -206,28 +234,79 @@
                 </div>
             </div>
 
-            <!-- 1. Selection: Masuk Kerja / Pulang Kerja -->
-            <div class="presensi-type-group">
-                <button type="button" class="btn-type-tab" id="btnPilihMasuk" data-status="in">
-                    <span class="type-name">Masuk Kerja</span>
-                    <span class="type-clock">{{ date('H:i', strtotime($jamkerja->jam_masuk)) }} WITA</span>
-                </button>
-                <button type="button" class="btn-type-tab" id="btnPilihPulang" data-status="out">
-                    <span class="type-name">Pulang Kerja</span>
-                    <span class="type-clock">{{ date('H:i', strtotime($jamkerja->jam_pulang)) }} WITA</span>
-                </button>
-            </div>
+            @if ($lengkap_hariini)
+                <!-- Kartu Informasi: Presensi Hari Ini Sudah Lengkap -->
+                <div class="card shadow-sm border-0 mb-3" style="border-radius: 16px; background: #ffffff;">
+                    <div class="card-body text-center py-4 px-3">
+                        <div style="width: 58px; height: 58px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                            <ion-icon name="checkmark-done-circle" style="font-size: 34px;"></ion-icon>
+                        </div>
+                        <h4 class="font-weight-bold text-dark mb-1" style="font-size: 16px;">Presensi Hari Ini Selesai</h4>
+                        <p class="text-muted mb-3" style="font-size: 13px; line-height: 1.5;">
+                            Anda sudah melengkapi seluruh presensi hari ini.<br>
+                            Masuk: <strong class="text-success">{{ $jam_masuk_pegawai }} WITA</strong> &bull; Pulang: <strong class="text-danger">{{ $jam_pulang_pegawai }} WITA</strong>
+                        </p>
+                        <a href="/dashboard" class="btn btn-primary btn-block" style="border-radius: 12px; font-weight: 600; padding: 11px;">
+                            <ion-icon name="home-outline" class="mr-1" style="vertical-align: -2px;"></ion-icon> Kembali ke Dashboard
+                        </a>
+                    </div>
+                </div>
+            @else
+                <!-- 1. Selection: Masuk Kerja / Pulang Kerja -->
+                <div class="presensi-type-group">
+                    <button type="button" class="btn-type-tab {{ $sudah_masuk ? 'is-completed' : '' }}" id="btnPilihMasuk" data-status="in">
+                        <span class="type-name d-flex align-items-center justify-content-center" style="gap: 4px;">
+                            @if ($sudah_masuk)
+                                <ion-icon name="checkmark-circle" style="color: #16a34a; font-size: 15px;"></ion-icon>
+                            @endif
+                            Masuk Kerja
+                        </span>
+                        <span class="type-clock">
+                            @if ($sudah_masuk)
+                                <span class="text-success font-weight-bold">Selesai ({{ $jam_masuk_pegawai }} WITA)</span>
+                            @else
+                                {{ date('H:i', strtotime($jamkerja->jam_masuk)) }} WITA
+                            @endif
+                        </span>
+                    </button>
+                    <button type="button" class="btn-type-tab {{ $sudah_pulang ? 'is-completed is-completed-out' : '' }}" id="btnPilihPulang" data-status="out">
+                        <span class="type-name d-flex align-items-center justify-content-center" style="gap: 4px;">
+                            @if ($sudah_pulang)
+                                <ion-icon name="checkmark-circle" style="color: #dc2626; font-size: 15px;"></ion-icon>
+                            @endif
+                            Pulang Kerja
+                        </span>
+                        <span class="type-clock">
+                            @if ($sudah_pulang)
+                                <span class="text-danger font-weight-bold">Selesai ({{ $jam_pulang_pegawai }} WITA)</span>
+                            @else
+                                {{ date('H:i', strtotime($jamkerja->jam_pulang)) }} WITA
+                            @endif
+                        </span>
+                    </button>
+                </div>
 
-            <!-- Panduan Memilih Masuk / Pulang (Muncul sebelum memilih) -->
-            <div id="instructionChoose" class="text-center p-4 mb-3" style="background: #ffffff; border-radius: 14px; border: 1.5px dashed #cbd5e1; box-shadow: 0 1px 4px rgba(0,0,0,0.03);">
-                <div style="width: 48px; height: 48px; border-radius: 50%; background: #eff6ff; color: #2A8BF2; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto;">
-                    <ion-icon name="finger-print-outline" style="font-size: 26px;"></ion-icon>
+                <!-- Panduan Memilih Masuk / Pulang (Muncul sebelum memilih) -->
+                <div id="instructionChoose" class="text-center p-4 mb-3" style="background: #ffffff; border-radius: 14px; border: 1.5px dashed #cbd5e1; box-shadow: 0 1px 4px rgba(0,0,0,0.03);">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: #eff6ff; color: #2A8BF2; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto;">
+                        <ion-icon name="finger-print-outline" style="font-size: 26px;"></ion-icon>
+                    </div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: #1e293b;">
+                        @if ($sudah_masuk)
+                            Presensi Pulang Kerja
+                        @else
+                            Silakan Pilih Presensi
+                        @endif
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                        @if ($sudah_masuk)
+                            Anda sudah melakukan presensi masuk (<strong>{{ $jam_masuk_pegawai }} WITA</strong>). Ketuk tombol <strong>Pulang Kerja</strong> di atas untuk membuka kamera presensi pulang.
+                        @else
+                            Ketuk tombol <strong>Masuk Kerja</strong> atau <strong>Pulang Kerja</strong> di atas untuk membuka kamera &amp; lokasi presensi.
+                        @endif
+                    </div>
                 </div>
-                <div style="font-size: 13.5px; font-weight: 700; color: #1e293b;">Silakan Pilih Presensi</div>
-                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
-                    Ketuk tombol <strong>Masuk Kerja</strong> atau <strong>Pulang Kerja</strong> di atas untuk membuka kamera &amp; lokasi presensi.
-                </div>
-            </div>
+            @endif
 
             <!-- Area Kamera dan Map (Hanya Muncul Setelah Memilih Masuk / Pulang) -->
             <div id="presensiContentArea" style="display: none;">
@@ -419,40 +498,49 @@
             } catch (e) {}
         }
 
-        // Setup Webcam: Bujur Sangkar 1:1
-        Webcam.set({
-            width: 480,
-            height: 480,
-            dest_width: 480,
-            dest_height: 480,
-            image_format: 'jpeg',
-            jpeg_quality: 90,
-            flip_horiz: false, // Mirroring ditangani langsung oleh CSS video & canvas capture
-            constraints: {
-                video: {
-                    facingMode: 'user',
-                    width: { ideal: 720 },
-                    height: { ideal: 720 }
+        // State Presensi Hari Ini
+        var sudahMasuk = {{ $sudah_masuk ? 'true' : 'false' }};
+        var jamMasukPegawai = "{{ $jam_masuk_pegawai ?? '' }}";
+        var sudahPulang = {{ $sudah_pulang ? 'true' : 'false' }};
+        var jamPulangPegawai = "{{ $jam_pulang_pegawai ?? '' }}";
+        var lengkapHariIni = {{ $lengkap_hariini ? 'true' : 'false' }};
+
+        if (!lengkapHariIni) {
+            // Setup Webcam: Bujur Sangkar 1:1
+            Webcam.set({
+                width: 480,
+                height: 480,
+                dest_width: 480,
+                dest_height: 480,
+                image_format: 'jpeg',
+                jpeg_quality: 90,
+                flip_horiz: false, // Mirroring ditangani langsung oleh CSS video & canvas capture
+                constraints: {
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 720 },
+                        height: { ideal: 720 }
+                    }
                 }
+            });
+
+            Webcam.attach('.webcam-capture');
+
+            // Location / GPS
+            var lokasi = document.getElementById('lokasi');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                Swal.fire({
+                    title: 'GPS Tidak Didukung',
+                    text: 'Browser atau perangkat Anda tidak mendukung fitur lokasi GPS.',
+                    icon: 'error'
+                });
             }
-        });
-
-        Webcam.attach('.webcam-capture');
-
-        // Location / GPS
-        var lokasi = document.getElementById('lokasi');
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            });
-        } else {
-            Swal.fire({
-                title: 'GPS Tidak Didukung',
-                text: 'Browser atau perangkat Anda tidak mendukung fitur lokasi GPS.',
-                icon: 'error'
-            });
         }
 
         var mapInstance = null;
@@ -546,11 +634,43 @@
             }, 400);
         }
 
-        $("#btnPilihMasuk").click(function() {
+        $("#btnPilihMasuk").click(function(e) {
+            if (sudahMasuk) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Sudah Absen Masuk',
+                    html: 'Anda sudah berhasil melakukan presensi masuk hari ini pada pukul <b>' + jamMasukPegawai + ' WITA</b>.<br><br>Jika Anda bermaksud untuk presensi pulang, silakan pilih tombol <b>Pulang Kerja</b>.',
+                    icon: 'info',
+                    confirmButtonText: 'Pilih Pulang Kerja',
+                    showCancelButton: true,
+                    cancelButtonText: 'Tutup'
+                }).then((result) => {
+                    if (result.isConfirmed && !sudahPulang) {
+                        updateModeUI('out');
+                    }
+                });
+                return false;
+            }
             updateModeUI('in');
         });
 
-        $("#btnPilihPulang").click(function() {
+        $("#btnPilihPulang").click(function(e) {
+            if (sudahPulang) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Sudah Absen Pulang',
+                    html: 'Anda sudah berhasil melakukan presensi pulang hari ini pada pukul <b>' + jamPulangPegawai + ' WITA</b>.',
+                    icon: 'info',
+                    confirmButtonText: 'Kembali ke Dashboard',
+                    showCancelButton: true,
+                    cancelButtonText: 'Tutup'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.href = '/dashboard';
+                    }
+                });
+                return false;
+            }
             updateModeUI('out');
         });
 
@@ -728,6 +848,24 @@
                 return false;
             }
 
+            if (statusAbsen === 'in' && sudahMasuk) {
+                Swal.fire({
+                    title: 'Sudah Absen Masuk',
+                    text: 'Anda sudah tercatat melakukan presensi masuk hari ini pada pukul ' + jamMasukPegawai + ' WITA!',
+                    icon: 'warning'
+                });
+                return false;
+            }
+
+            if (statusAbsen === 'out' && sudahPulang) {
+                Swal.fire({
+                    title: 'Sudah Absen Pulang',
+                    text: 'Anda sudah tercatat melakukan presensi pulang hari ini pada pukul ' + jamPulangPegawai + ' WITA!',
+                    icon: 'warning'
+                });
+                return false;
+            }
+
             isSubmitting = true;
 
             var image = captureSymmetricPhoto();
@@ -839,7 +977,7 @@
 
         // Initialize on Document Ready
         $(document).ready(function() {
-            if (scanAktif) {
+            if (!lengkapHariIni && scanAktif) {
                 loadModels().then(function() {
                     startFaceScanningLoop();
                 });
