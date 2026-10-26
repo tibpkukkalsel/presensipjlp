@@ -638,16 +638,10 @@
             if (sudahMasuk) {
                 e.preventDefault();
                 Swal.fire({
-                    title: 'Sudah Absen Masuk',
-                    html: 'Anda sudah berhasil melakukan presensi masuk hari ini pada pukul <b>' + jamMasukPegawai + ' WITA</b>.<br><br>Jika Anda bermaksud untuk presensi pulang, silakan pilih tombol <b>Pulang Kerja</b>.',
+                    title: 'Perhatian',
+                    text: 'Anda sudah berhasil melakukan presensi masuk hari ini',
                     icon: 'info',
-                    confirmButtonText: 'Pilih Pulang Kerja',
-                    showCancelButton: true,
-                    cancelButtonText: 'Tutup'
-                }).then((result) => {
-                    if (result.isConfirmed && !sudahPulang) {
-                        updateModeUI('out');
-                    }
+                    confirmButtonText: 'Tutup'
                 });
                 return false;
             }
@@ -658,16 +652,10 @@
             if (sudahPulang) {
                 e.preventDefault();
                 Swal.fire({
-                    title: 'Sudah Absen Pulang',
-                    html: 'Anda sudah berhasil melakukan presensi pulang hari ini pada pukul <b>' + jamPulangPegawai + ' WITA</b>.',
+                    title: 'Perhatian',
+                    text: 'Anda sudah berhasil melakukan presensi pulang hari ini',
                     icon: 'info',
-                    confirmButtonText: 'Kembali ke Dashboard',
-                    showCancelButton: true,
-                    cancelButtonText: 'Tutup'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        location.href = '/dashboard';
-                    }
+                    confirmButtonText: 'Tutup'
                 });
                 return false;
             }
@@ -850,18 +838,20 @@
 
             if (statusAbsen === 'in' && sudahMasuk) {
                 Swal.fire({
-                    title: 'Sudah Absen Masuk',
-                    text: 'Anda sudah tercatat melakukan presensi masuk hari ini pada pukul ' + jamMasukPegawai + ' WITA!',
-                    icon: 'warning'
+                    title: 'Perhatian',
+                    text: 'Anda sudah berhasil melakukan presensi masuk hari ini',
+                    icon: 'warning',
+                    confirmButtonText: 'Tutup'
                 });
                 return false;
             }
 
             if (statusAbsen === 'out' && sudahPulang) {
                 Swal.fire({
-                    title: 'Sudah Absen Pulang',
-                    text: 'Anda sudah tercatat melakukan presensi pulang hari ini pada pukul ' + jamPulangPegawai + ' WITA!',
-                    icon: 'warning'
+                    title: 'Perhatian',
+                    text: 'Anda sudah berhasil melakukan presensi pulang hari ini',
+                    icon: 'warning',
+                    confirmButtonText: 'Tutup'
                 });
                 return false;
             }

@@ -309,14 +309,14 @@ class PresensiController extends Controller
         if ($status_absen_req == "in") {
             // Pegawai bermaksud Absen Masuk: Tolak jika sudah pernah absen masuk hari ini
             if ($datapresensi != null && !empty($datapresensi->jam_in)) {
-                echo "error|Anda Sudah Melakukan Presensi Masuk Hari Ini pada Jam " . $datapresensi->jam_in . "!|in";
+                echo "error|Anda sudah berhasil melakukan presensi masuk hari ini|in";
                 return;
             }
             $ket = "in";
         } else {
             // Pegawai bermaksud Absen Pulang: Tolak jika sudah pernah absen pulang hari ini
             if ($datapresensi != null && !empty($datapresensi->jam_out)) {
-                echo "error|Anda Sudah Melakukan Presensi Pulang Hari Ini pada Jam " . $datapresensi->jam_out . "!|out";
+                echo "error|Anda sudah berhasil melakukan presensi pulang hari ini|out";
                 return;
             }
             $ket = "out";
