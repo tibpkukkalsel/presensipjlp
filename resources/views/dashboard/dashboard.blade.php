@@ -94,6 +94,112 @@
             margin-top: 0 !important;
             margin-bottom: 16px !important;
         }
+
+        /* Card Presensi Masuk & Pulang Simetris */
+        .todaypresence .row {
+            display: flex !important;
+            align-items: stretch !important;
+        }
+
+        .todaypresence .col-6 {
+            display: flex !important;
+        }
+
+        .todaypresence .card {
+            width: 100% !important;
+            border-radius: 16px !important;
+            border: none !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+
+        .gradasigreen {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+            color: #ffffff !important;
+        }
+
+        .gradasired {
+            background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+            color: #ffffff !important;
+        }
+
+        .todaypresence .card-body {
+            padding: 12px 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+
+        .todaypresence .presencecontent {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+
+        .todaypresence .iconpresence {
+            width: 48px !important;
+            height: 48px !important;
+            min-width: 48px !important;
+            min-height: 48px !important;
+            border-radius: 12px !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            backdrop-filter: blur(4px);
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            flex-shrink: 0 !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+            padding: 0 !important;
+        }
+
+        .todaypresence .iconpresence img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 10px !important;
+            display: block !important;
+        }
+
+        .todaypresence .iconpresence ion-icon {
+            font-size: 26px !important;
+            color: #ffffff !important;
+            display: block !important;
+        }
+
+        .todaypresence .presencedetail {
+            flex: 1 !important;
+            min-width: 0 !important;
+            line-height: normal !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+
+        .todaypresence .presencetitle {
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            margin-bottom: 3px !important;
+            line-height: 1.2 !important;
+            text-transform: capitalize !important;
+        }
+
+        .todaypresence .presencedetail span {
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            color: rgba(255, 255, 255, 0.95) !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            display: block !important;
+        }
     </style>
     @csrf
 
@@ -185,21 +291,17 @@
                 </div>
             @endif
             <div class="row">
-
                 <div class="col-6">
                     <div class="card gradasigreen">
                         <div class="card-body">
                             <div class="presencecontent">
                                 <div class="iconpresence">
-                                    @if ($presensihariini != null)
-                                        @if ($presensihariini->foto_in != null)
-                                            @php
-                                                $path = Storage::url('uploads/absensi/' . $presensihariini->foto_in);
-                                            @endphp
-                                            <img src="{{ url($path) }}" alt="" class="imaged w48">
-                                        @else
-                                            <ion-icon name="camera"></ion-icon>
-                                        @endif
+                                    @if ($presensihariini != null && !empty($presensihariini->foto_in))
+                                        @php
+                                            $path = Storage::url('uploads/absensi/' . $presensihariini->foto_in);
+                                        @endphp
+                                        <img src="{{ url($path) }}" alt="Foto Masuk" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <ion-icon name="camera" style="display: none;"></ion-icon>
                                     @else
                                         <ion-icon name="camera"></ion-icon>
                                     @endif
@@ -217,15 +319,12 @@
                         <div class="card-body">
                             <div class="presencecontent">
                                 <div class="iconpresence">
-                                    @if ($presensihariini != null && $presensihariini->jam_out != null)
-                                        @if ($presensihariini->foto_out != null)
-                                            @php
-                                                $path = Storage::url('uploads/absensi/' . $presensihariini->foto_out);
-                                            @endphp
-                                            <img src="{{ url($path) }}" alt="" class="imaged w48">
-                                        @else
-                                            <ion-icon name="camera"></ion-icon>
-                                        @endif
+                                    @if ($presensihariini != null && !empty($presensihariini->foto_out))
+                                        @php
+                                            $path = Storage::url('uploads/absensi/' . $presensihariini->foto_out);
+                                        @endphp
+                                        <img src="{{ url($path) }}" alt="Foto Pulang" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <ion-icon name="camera" style="display: none;"></ion-icon>
                                     @else
                                         <ion-icon name="camera"></ion-icon>
                                     @endif
