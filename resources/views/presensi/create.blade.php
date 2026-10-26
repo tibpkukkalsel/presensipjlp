@@ -12,14 +12,12 @@
     </div>
     <!-- * App Header -->
     <style>
-        .webcam-capture,
         .webcam-capture video {
             display: block;
             width: 100% !important;
             margin: auto;
-            height: auto !important;
-            border-radius: 18px;
-            object-fit: cover;
+            height: 100% !important;
+            object-fit: cover !important;
             transform: scaleX(-1);
             -webkit-transform: scaleX(-1);
         }
@@ -102,13 +100,29 @@
             font-weight: 600;
         }
 
-        /* Camera Wrapper & Face Guide */
+        /* Camera Wrapper & Face Guide: 1:1 Bujur Sangkar Simetris */
         .camera-wrapper {
             position: relative;
-            border-radius: 18px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 20px;
             overflow: hidden;
-            background: #000;
+            background: #0f172a;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .webcam-capture {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .face-guide-overlay {
@@ -125,12 +139,13 @@
         }
 
         .face-oval {
-            width: 210px;
-            height: 270px;
+            width: 200px;
+            height: 250px;
             border-radius: 50% / 46%;
-            border: 2px dashed rgba(255, 255, 255, 0.7);
+            border: 2.5px dashed rgba(255, 255, 255, 0.75);
             position: relative;
             transition: all 0.3s ease;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.22);
         }
 
         .face-oval.detected {
@@ -324,17 +339,22 @@
             }
         }
 
-        // Setup Webcam: Mirror camera dan center-crop 1:1 agar foto simetris sempurna
+        // Setup Webcam: Bujur Sangkar 1:1
         Webcam.set({
+            width: 480,
             height: 480,
-            width: 640,
-            dest_width: 640,
+            dest_width: 480,
             dest_height: 480,
-            crop_width: 480,
-            crop_height: 480,
             image_format: 'jpeg',
-            jpeg_quality: 85,
-            flip_horiz: true
+            jpeg_quality: 90,
+            flip_horiz: false, // Mirroring ditangani langsung oleh CSS video & canvas capture
+            constraints: {
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 720 },
+                    height: { ideal: 720 }
+                }
+            }
         });
 
         Webcam.attach('.webcam-capture');
@@ -545,6 +565,48 @@
         }
 
         // Execute Attendance Submission
+        // Pengambilan Foto Presensi: 100% Simetris 1:1 Bujur Sangkar Bebas Distorsi (Anti-Gepeng)
+        function captureSymmetricPhoto() {
+            var video = document.querySelector('.webcam-capture video');
+            if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+                var vw = video.videoWidth;
+                var vh = video.videoHeight;
+
+                // Ambil ukuran sisi terkecil untuk bujur sangkar 1:1 murni
+                var side = Math.min(vw, vh);
+
+                // Potong tepat dari tengah (center-crop)
+                var sx = Math.floor((vw - side) / 2);
+                var sy = Math.floor((vh - side) / 2);
+
+                // Canvas bujur sangkar resolusi tajam 480x480
+                var canvas = document.createElement('canvas');
+                canvas.width = 480;
+                canvas.height = 480;
+                var ctx = canvas.getContext('2d');
+
+                // Mirror selfie horizontal agar hasil foto sesuai cermin kamera depan
+                ctx.translate(480, 0);
+                ctx.scale(-1, 1);
+
+                // Gambar 1:1 bujur sangkar langsung dari video mentah tanpa squashing
+                ctx.drawImage(video, sx, sy, side, side, 0, 0, 480, 480);
+
+                return canvas.toDataURL('image/jpeg', 0.90);
+            }
+
+            // Fallback jika elemen video belum siap
+            var fallback = "";
+            try {
+                Webcam.snap(function(uri) {
+                    fallback = uri;
+                });
+            } catch (err) {
+                console.error("Webcam.snap fallback error:", err);
+            }
+            return fallback;
+        }
+
         function executeAttendance(statusAbsen) {
             if (isSubmitting) return;
 
@@ -560,14 +622,7 @@
 
             isSubmitting = true;
 
-            var image = "";
-            try {
-                Webcam.snap(function(uri) {
-                    image = uri;
-                });
-            } catch (err) {
-                console.error(err);
-            }
+            var image = captureSymmetricPhoto();
 
             if (!image) {
                 Swal.fire({

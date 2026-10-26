@@ -533,20 +533,21 @@ class PresensiController extends Controller
             return false;
         }
 
-        // Auto Center-Crop ke 1:1 Bujur Sangkar (Square) jika hasil jepretan kamera berupa 4:3 / 16:9 landscape
-        // Memastikan wajah pengguna tepat berada di tengah foto secara simetris sempurna
+        // Auto Center-Crop ke 1:1 Bujur Sangkar (Square) dan normalisasi format PNG
+        // Memastikan wajah pengguna tepat berada di tengah foto secara simetris sempurna tanpa distorsi
         try {
             $srcImg = @imagecreatefromstring($image_base64);
             if ($srcImg) {
                 $origW = imagesx($srcImg);
                 $origH = imagesy($srcImg);
-                if ($origW > 0 && $origH > 0 && $origW !== $origH) {
+                if ($origW > 0 && $origH > 0) {
                     $cropSize = min($origW, $origH);
                     $cropX = (int)(($origW - $cropSize) / 2);
                     $cropY = (int)(($origH - $cropSize) / 2);
 
-                    $croppedImg = imagecreatetruecolor($cropSize, $cropSize);
-                    imagecopyresampled($croppedImg, $srcImg, 0, 0, $cropX, $cropY, $cropSize, $cropSize, $cropSize, $cropSize);
+                    $targetSize = min($cropSize, 480);
+                    $croppedImg = imagecreatetruecolor($targetSize, $targetSize);
+                    imagecopyresampled($croppedImg, $srcImg, 0, 0, $cropX, $cropY, $targetSize, $targetSize, $cropSize, $cropSize);
 
                     ob_start();
                     imagepng($croppedImg);
