@@ -533,6 +533,36 @@ class PresensiController extends Controller
             return false;
         }
 
+        // Auto Center-Crop ke 1:1 Bujur Sangkar (Square) jika hasil jepretan kamera berupa 4:3 / 16:9 landscape
+        // Memastikan wajah pengguna tepat berada di tengah foto secara simetris sempurna
+        try {
+            $srcImg = @imagecreatefromstring($image_base64);
+            if ($srcImg) {
+                $origW = imagesx($srcImg);
+                $origH = imagesy($srcImg);
+                if ($origW > 0 && $origH > 0 && $origW !== $origH) {
+                    $cropSize = min($origW, $origH);
+                    $cropX = (int)(($origW - $cropSize) / 2);
+                    $cropY = (int)(($origH - $cropSize) / 2);
+
+                    $croppedImg = imagecreatetruecolor($cropSize, $cropSize);
+                    imagecopyresampled($croppedImg, $srcImg, 0, 0, $cropX, $cropY, $cropSize, $cropSize, $cropSize, $cropSize);
+
+                    ob_start();
+                    imagepng($croppedImg);
+                    $image_base64 = ob_get_clean();
+                    if (function_exists('imagedestroy')) {
+                        @imagedestroy($croppedImg);
+                    }
+                }
+                if (function_exists('imagedestroy')) {
+                    @imagedestroy($srcImg);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning("Gagal auto-crop foto absensi: " . $e->getMessage());
+        }
+
         // 1. Target standar Laravel Storage: storage/app/public/uploads/absensi/
         try {
             $storageDir = storage_path('app/public/uploads/absensi');

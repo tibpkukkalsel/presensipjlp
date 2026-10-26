@@ -20,6 +20,8 @@
             height: auto !important;
             border-radius: 18px;
             object-fit: cover;
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
         }
 
         #map {
@@ -322,12 +324,17 @@
             }
         }
 
-        // Setup Webcam
+        // Setup Webcam: Mirror camera dan center-crop 1:1 agar foto simetris sempurna
         Webcam.set({
             height: 480,
             width: 640,
+            dest_width: 640,
+            dest_height: 480,
+            crop_width: 480,
+            crop_height: 480,
             image_format: 'jpeg',
-            jpeg_quality: 85
+            jpeg_quality: 85,
+            flip_horiz: true
         });
 
         Webcam.attach('.webcam-capture');

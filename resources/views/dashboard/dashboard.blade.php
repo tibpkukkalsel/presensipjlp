@@ -146,23 +146,25 @@
             height: 48px !important;
             min-width: 48px !important;
             min-height: 48px !important;
-            border-radius: 12px !important;
-            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.22) !important;
             backdrop-filter: blur(4px);
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             overflow: hidden !important;
             flex-shrink: 0 !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+            border: 2px solid rgba(255, 255, 255, 0.6) !important;
             padding: 0 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
         }
 
         .todaypresence .iconpresence img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
-            border-radius: 10px !important;
+            object-position: center !important;
+            border-radius: 50% !important;
             display: block !important;
         }
 
