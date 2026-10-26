@@ -155,6 +155,21 @@
         .face-oval.verified {
             border: 3px solid #22c55e !important;
         }
+
+        @keyframes pulseScale {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
@@ -226,7 +241,17 @@
                     <div class="face-guide-overlay">
                         <div class="face-oval" id="faceOval"></div>
                     </div>
+
+                    <!-- Visual Countdown Overlay (Jeda Waktu Berfoto) -->
+                    <div id="countdownOverlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 25; align-items: center; justify-content: center; pointer-events: none;">
+                        <div id="countdownBadge" style="width: 88px; height: 88px; border-radius: 50%; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(4px); border: 2.5px solid rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
+                            <span id="countdownNumber" style="font-size: 44px; font-weight: 900; color: #ffffff; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">2</span>
+                        </div>
+                    </div>
                     @endif
+
+                    <!-- Camera Flash Overlay Effect -->
+                    <div id="cameraFlash" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 35; pointer-events: none;"></div>
                 </div>
 
                 @if ($scan_aktif)
@@ -337,6 +362,61 @@
             } catch (err) {
                 // Ignore silent audio block
             }
+        }
+
+        // Efek Kilatan Blitz Kamera (Camera Flash)
+        function triggerCameraFlash() {
+            var flash = document.getElementById('cameraFlash');
+            if (flash) {
+                flash.style.display = 'block';
+                flash.style.opacity = '0.92';
+                setTimeout(function() {
+                    flash.style.transition = 'opacity 0.28s ease-out';
+                    flash.style.opacity = '0';
+                    setTimeout(function() {
+                        flash.style.display = 'none';
+                        flash.style.opacity = '0.92';
+                        flash.style.transition = '';
+                    }, 280);
+                }, 40);
+            }
+        }
+
+        // Suara Shutter Kamera "Cekrek!"
+        function playShutterSound() {
+            try {
+                var AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                var ctx = new AudioContext();
+
+                var osc1 = ctx.createOscillator();
+                var gain1 = ctx.createGain();
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(1400, ctx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.04);
+                gain1.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.04);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start();
+                osc1.stop(ctx.currentTime + 0.04);
+
+                setTimeout(function() {
+                    try {
+                        var osc2 = ctx.createOscillator();
+                        var gain2 = ctx.createGain();
+                        osc2.type = 'sine';
+                        osc2.frequency.setValueAtTime(900, ctx.currentTime);
+                        osc2.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.05);
+                        gain2.gain.setValueAtTime(0.25, ctx.currentTime);
+                        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+                        osc2.connect(gain2);
+                        gain2.connect(ctx.destination);
+                        osc2.start();
+                        osc2.stop(ctx.currentTime + 0.05);
+                    } catch (e2) {}
+                }, 55);
+            } catch (e) {}
         }
 
         // Setup Webcam: Bujur Sangkar 1:1
@@ -479,6 +559,7 @@
             if (!scanAktif) return;
 
             smileVerified = false;
+            $("#countdownOverlay").hide();
             $("#faceOval").removeClass('verified detected');
             $("#pillSmile").removeClass('bg-success text-white border-success').addClass('bg-light text-muted');
             $("#badgeSmile").css('color', '#64748b').text('Belum');
@@ -535,22 +616,50 @@
                 if (detection) {
                     $("#faceOval").addClass('detected');
 
-                    // Check Smile: Cukup Senyum Saja
+                    // Check Smile: Cukup Senyum Saja dengan Jeda Hitungan Mundur (2... 1... Cekrek!)
                     if (!smileVerified) {
                         var happyScore = (detection.expressions && detection.expressions.happy) ? detection.expressions.happy : 0;
                         if (happyScore > 0.45) {
                             smileVerified = true;
+                            isScanningActive = false;
+
                             $("#pillSmile").removeClass('bg-light text-muted').addClass('bg-success text-white border-success');
-                            $("#badgeSmile").css('color', '#ffffff').text('Terdeteksi ✓');
+                            $("#badgeSmile").css('color', '#ffffff').text('Tahan Senyum: 2...');
                             $("#faceOval").removeClass('detected').addClass('verified');
 
+                            // Ding konfirmasi awal senyum terdeteksi
                             playChime(850, 'sine', 0.20);
-                            playChime(1050, 'triangle', 0.3);
 
-                            isScanningActive = false;
+                            // Tampilkan Countdown Angka 2
+                            var $overlay = $("#countdownOverlay");
+                            var $num = $("#countdownNumber");
+                            $overlay.css('display', 'flex');
+                            $num.text('2').css('animation', 'none');
+                            if ($num[0]) void $num[0].offsetWidth;
+                            $num.css('animation', 'pulseScale 0.7s ease');
+
+                            // Detik ke-1: Angka 1
                             setTimeout(function() {
-                                executeAttendance(selectedStatus);
-                            }, 400);
+                                $("#badgeSmile").text('Tahan Senyum: 1...');
+                                playChime(950, 'sine', 0.15);
+                                $num.text('1').css('animation', 'none');
+                                if ($num[0]) void $num[0].offsetWidth;
+                                $num.css('animation', 'pulseScale 0.7s ease');
+                            }, 850);
+
+                            // Jepret Foto (Cekrek!)
+                            setTimeout(function() {
+                                $("#badgeSmile").text('Cekrek! 📸');
+                                $num.html('📸');
+                                triggerCameraFlash();
+                                playShutterSound();
+
+                                setTimeout(function() {
+                                    $overlay.hide();
+                                    executeAttendance(selectedStatus);
+                                }, 350);
+                            }, 1750);
+
                             return;
                         }
                     }
@@ -722,7 +831,11 @@
                 });
                 return;
             }
-            executeAttendance(selectedStatus);
+            triggerCameraFlash();
+            playShutterSound();
+            setTimeout(function() {
+                executeAttendance(selectedStatus);
+            }, 250);
         });
 
         // Initialize on Document Ready
