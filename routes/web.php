@@ -339,6 +339,66 @@ Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen
     Route::get('/konfigurasi/harilibur/{kode_libur}/getkaryawanlibur', [HariliburController::class, 'getkaryawanlibur']);
 });
 
+// Route helper & fallback untuk file storage pada shared hosting (cPanel / VPS)
+Route::get('/storage/uploads/{folder}/{filename}', function ($folder, $filename) {
+    $folder = basename($folder);
+    $filename = basename($filename);
+
+    $candidates = [
+        storage_path("app/public/uploads/{$folder}/{$filename}"),
+        public_path("storage/uploads/{$folder}/{$filename}"),
+        public_path("uploads/{$folder}/{$filename}"),
+    ];
+
+    foreach ($candidates as $filePath) {
+        if (file_exists($filePath)) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $filePath) ?: 'image/png';
+            finfo_close($finfo);
+            return response()->file($filePath, [
+                'Content-Type' => $mimeType,
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        }
+    }
+
+    abort(404);
+})->where('folder', '[a-zA-Z0-9_\-]+');
+
+Route::get('/storage-link', function () {
+    try {
+        $dirs = [
+            storage_path('app/public/uploads/absensi'),
+            storage_path('app/public/uploads/karyawan'),
+            storage_path('app/public/uploads/sid'),
+            public_path('storage/uploads/absensi'),
+            public_path('uploads/absensi'),
+        ];
+        foreach ($dirs as $dir) {
+            if (!file_exists($dir)) {
+                @mkdir($dir, 0777, true);
+            }
+        }
+
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return "<div style='font-family:sans-serif; padding:20px; text-align:center;'>
+            <h2 style='color:#16a34a;'>✓ Berhasil!</h2>
+            <p>Storage link berhasil dijalankan:</p>
+            <pre style='background:#f1f5f9; padding:10px; border-radius:6px; display:inline-block; text-align:left;'>{$output}</pre>
+            <p>Seluruh folder penyimpanan absensi sudah dipastikan siap.</p>
+            <a href='/' style='display:inline-block; margin-top:10px; background:#2563eb; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none;'>Kembali ke Beranda</a>
+        </div>";
+    } catch (\Throwable $e) {
+        return "<div style='font-family:sans-serif; padding:20px; text-align:center;'>
+            <h2 style='color:#2563eb;'>Info Konfigurasi Storage:</h2>
+            <p>" . $e->getMessage() . "</p>
+            <p>Folder fallback direktori publik telah disiapkan secara otomatis.</p>
+            <a href='/' style='display:inline-block; margin-top:10px; background:#2563eb; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none;'>Kembali ke Beranda</a>
+        </div>";
+    }
+});
+
 
 // Route uji coba & dev seeder dinonaktifkan demi keamanan produksi
 /*

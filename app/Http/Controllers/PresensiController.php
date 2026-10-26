@@ -368,8 +368,8 @@ class PresensiController extends Controller
                     ];
                     $update = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nik', $nik)->update($data_pulang);
                     if ($update) {
+                        $this->simpanFotoAbsensi($fileName, $image_base64);
                         echo "success|" . $pesan_out . "|out";
-                        Storage::put($file, $image_base64);
 
                         if (!empty($no_hp)) {
                             try {
@@ -432,8 +432,8 @@ class PresensiController extends Controller
                     ];
                     $simpan = DB::table('presensi')->insert($data_pulang);
                     if ($simpan) {
+                        $this->simpanFotoAbsensi($fileName, $image_base64);
                         echo "success|" . $pesan_out . "|out";
-                        Storage::put($file, $image_base64);
 
                         if (!empty($no_hp)) {
                             try {
@@ -489,11 +489,11 @@ class PresensiController extends Controller
                         ];
                         $simpan = DB::table('presensi')->insert($data);
                         if ($simpan) {
+                            $this->simpanFotoAbsensi($fileName, $image_base64);
                             $pesan_in = ($status_in == 'terlambat')
                                 ? "Terimakasih, Anda Tercatat Terlambat " . $selisih_in . " Menit"
                                 : "Terimakasih, Selamat Bekerja";
                             echo "success|" . $pesan_in . "|in";
-                            Storage::put($file, $image_base64);
 
                             if (!empty($no_hp)) {
                                 try {
@@ -521,6 +521,50 @@ class PresensiController extends Controller
                 }
             }
         }
+    }
+
+    /**
+     * Simpan file foto absensi ke berbagai target path penyimpanan
+     * agar kompatibel dengan shared hosting (cPanel), VPS, maupun local
+     */
+    private function simpanFotoAbsensi($fileName, $image_base64)
+    {
+        if (empty($fileName) || empty($image_base64)) {
+            return false;
+        }
+
+        // 1. Target standar Laravel Storage: storage/app/public/uploads/absensi/
+        try {
+            $storageDir = storage_path('app/public/uploads/absensi');
+            if (!file_exists($storageDir)) {
+                @mkdir($storageDir, 0777, true);
+            }
+            Storage::put('public/uploads/absensi/' . $fileName, $image_base64);
+            @file_put_contents($storageDir . '/' . $fileName, $image_base64);
+        } catch (\Throwable $e) {
+            \Log::warning("Gagal simpan ke storage/app/public/uploads/absensi: " . $e->getMessage());
+        }
+
+        // 2. Target public storage: public/storage/uploads/absensi/
+        // Berguna jika hosting tidak mendukung symlink atau storage:link belum dibuat
+        try {
+            $publicStorageDir = public_path('storage/uploads/absensi');
+            if (!file_exists($publicStorageDir)) {
+                @mkdir($publicStorageDir, 0777, true);
+            }
+            @file_put_contents($publicStorageDir . '/' . $fileName, $image_base64);
+        } catch (\Throwable $e) {}
+
+        // 3. Target public uploads: public/uploads/absensi/
+        try {
+            $publicUploadsDir = public_path('uploads/absensi');
+            if (!file_exists($publicUploadsDir)) {
+                @mkdir($publicUploadsDir, 0777, true);
+            }
+            @file_put_contents($publicUploadsDir . '/' . $fileName, $image_base64);
+        } catch (\Throwable $e) {}
+
+        return true;
     }
 
     //Menghitung Jarak

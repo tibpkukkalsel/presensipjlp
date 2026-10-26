@@ -213,13 +213,11 @@
                 </div>
 
                 @if ($scan_aktif)
-                <!-- Keterangan Selesai Kedip & Senyum (Sederhana) -->
-                <div class="d-flex justify-content-center gap-2 mt-2 mb-1">
-                    <span id="pillBlink" class="badge bg-light border text-muted px-3 py-2" style="font-size: 12px; font-weight: 600; border-radius: 8px;">
-                        Kedip Mata: <span id="badgeBlink">Belum</span>
-                    </span>
-                    <span id="pillSmile" class="badge bg-light border text-muted px-3 py-2" style="font-size: 12px; font-weight: 600; border-radius: 8px;">
-                        Senyum: <span id="badgeSmile">Belum</span>
+                <!-- Keterangan Status Senyum untuk Presensi Otomatis -->
+                <div class="d-flex justify-content-center mt-2 mb-1">
+                    <span id="pillSmile" class="badge bg-light border text-muted px-3 py-2" style="font-size: 13px; font-weight: 600; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px;">
+                        <ion-icon name="happy-outline" style="font-size: 18px; color: #f59e0b;"></ion-icon>
+                        <span>Silakan Tersenyum:</span> <strong id="badgeSmile" style="color: #64748b;">Belum</strong>
                     </span>
                 </div>
                 @else
@@ -300,11 +298,8 @@
         var isModelLoaded = false;
         var isScanningActive = true;
 
-        // Liveness State
-        var blinkVerified = false;
+        // Liveness State: Cukup senyum
         var smileVerified = false;
-        var hasEyeBeenOpen = false;
-        var hasEyeBeenClosed = false;
 
         // Web Audio Context for Instant Chimes
         function playChime(freq, type, duration) {
@@ -456,47 +451,28 @@
         function resetLiveness() {
             if (!scanAktif) return;
 
-            blinkVerified = false;
             smileVerified = false;
-            hasEyeBeenOpen = false;
-            hasEyeBeenClosed = false;
-
             $("#faceOval").removeClass('verified detected');
-            $("#pillBlink").removeClass('bg-success text-white border-success').addClass('bg-light text-muted');
-            $("#badgeBlink").text('Belum');
             $("#pillSmile").removeClass('bg-success text-white border-success').addClass('bg-light text-muted');
-            $("#badgeSmile").text('Belum');
+            $("#badgeSmile").css('color', '#64748b').text('Belum');
         }
 
         function setDirective(text, showSpinner) {
             // Sederhana tanpa badge melayang di atas kamera
         }
 
-        // Eye Aspect Ratio (EAR) Calculation for Blink Detection
-        function getEar(eye) {
-            if (!eye || eye.length < 6) return 0.3;
-            var d1 = Math.hypot(eye[1].x - eye[5].x, eye[1].y - eye[5].y);
-            var d2 = Math.hypot(eye[2].x - eye[4].x, eye[2].y - eye[4].y);
-            var dHoriz = Math.hypot(eye[0].x - eye[3].x, eye[0].y - eye[3].y);
-            if (dHoriz === 0) return 0.3;
-            return (d1 + d2) / (2.0 * dHoriz);
-        }
-
-        // Load Face API Models
+        // Load Face API Models (TinyFaceDetector + FaceExpressions)
         async function loadModels() {
             try {
                 var modelUrl = "{{ asset('assets/models') }}";
                 await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
-                await faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl);
                 await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
                 isModelLoaded = true;
             } catch (err) {
                 console.warn("Gagal memuat model lokal face-api:", err);
-                // Coba fallback CDN
                 try {
                     var cdnUrl = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model";
                     await faceapi.nets.tinyFaceDetector.loadFromUri(cdnUrl);
-                    await faceapi.nets.faceLandmark68Net.loadFromUri(cdnUrl);
                     await faceapi.nets.faceExpressionNet.loadFromUri(cdnUrl);
                     isModelLoaded = true;
                 } catch (cdnErr) {
@@ -505,7 +481,7 @@
             }
         }
 
-        // Start Detection Loop
+        // Start Detection Loop: Cukup Deteksi Senyum
         async function startFaceScanningLoop() {
             if (!isScanningActive || isSubmitting) {
                 setTimeout(startFaceScanningLoop, 200);
@@ -525,55 +501,31 @@
             }
 
             try {
-                var options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.45 });
+                var options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.40 });
                 var detection = await faceapi.detectSingleFace(videoEl, options)
-                    .withFaceLandmarks()
                     .withFaceExpressions();
 
                 if (detection) {
                     $("#faceOval").addClass('detected');
 
-                    // Check Blink
-                    if (!blinkVerified) {
-                        var leftEye = detection.landmarks.getLeftEye();
-                        var rightEye = detection.landmarks.getRightEye();
-                        var ear = (getEar(leftEye) + getEar(rightEye)) / 2.0;
-
-                        if (ear > 0.25) {
-                            hasEyeBeenOpen = true;
-                        } else if (hasEyeBeenOpen && ear < 0.21) {
-                            hasEyeBeenClosed = true;
-                        }
-
-                        if (hasEyeBeenClosed && ear > 0.24) {
-                            blinkVerified = true;
-                            $("#pillBlink").removeClass('bg-light text-muted').addClass('bg-success text-white border-success');
-                            $("#badgeBlink").text('Selesai ✓');
-                            playChime(620, 'sine', 0.15);
-                        }
-                    }
-
-                    // Check Smile
+                    // Check Smile: Cukup Senyum Saja
                     if (!smileVerified) {
                         var happyScore = (detection.expressions && detection.expressions.happy) ? detection.expressions.happy : 0;
-                        if (happyScore > 0.55) {
+                        if (happyScore > 0.45) {
                             smileVerified = true;
                             $("#pillSmile").removeClass('bg-light text-muted').addClass('bg-success text-white border-success');
-                            $("#badgeSmile").text('Selesai ✓');
+                            $("#badgeSmile").css('color', '#ffffff').text('Terdeteksi ✓');
+                            $("#faceOval").removeClass('detected').addClass('verified');
+
                             playChime(850, 'sine', 0.20);
+                            playChime(1050, 'triangle', 0.3);
+
+                            isScanningActive = false;
+                            setTimeout(function() {
+                                executeAttendance(selectedStatus);
+                            }, 400);
+                            return;
                         }
-                    }
-
-                    if (blinkVerified && smileVerified) {
-                        // All Verified!
-                        $("#faceOval").removeClass('detected').addClass('verified');
-                        playChime(1050, 'triangle', 0.3);
-
-                        isScanningActive = false;
-                        setTimeout(function() {
-                            executeAttendance(selectedStatus);
-                        }, 500);
-                        return;
                     }
                 } else {
                     $("#faceOval").removeClass('detected');

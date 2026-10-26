@@ -165,12 +165,34 @@
             @forelse ($presensi as $d)
                 @if ($d->status == 'h')
                     @php
-                        $file_in = public_path('storage/uploads/absensi/' . $d->foto_in);
-                        $has_in = !empty($d->foto_in) && file_exists($file_in);
+                        $file_in_candidates = [
+                            public_path('storage/uploads/absensi/' . $d->foto_in),
+                            storage_path('app/public/uploads/absensi/' . $d->foto_in),
+                            public_path('uploads/absensi/' . $d->foto_in),
+                        ];
+                        $file_in = null;
+                        foreach ($file_in_candidates as $c) {
+                            if (!empty($d->foto_in) && file_exists($c)) {
+                                $file_in = $c;
+                                break;
+                            }
+                        }
+                        $has_in = !empty($file_in);
                         $path_in = $has_in ? str_replace('\\', '/', $file_in) : null;
 
-                        $file_out = public_path('storage/uploads/absensi/' . $d->foto_out);
-                        $has_out = !empty($d->foto_out) && file_exists($file_out);
+                        $file_out_candidates = [
+                            public_path('storage/uploads/absensi/' . $d->foto_out),
+                            storage_path('app/public/uploads/absensi/' . $d->foto_out),
+                            public_path('uploads/absensi/' . $d->foto_out),
+                        ];
+                        $file_out = null;
+                        foreach ($file_out_candidates as $c) {
+                            if (!empty($d->foto_out) && file_exists($c)) {
+                                $file_out = $c;
+                                break;
+                            }
+                        }
+                        $has_out = !empty($file_out);
                         $path_out = $has_out ? str_replace('\\', '/', $file_out) : null;
 
                         $terlambat = hitungjamterlambat($d->jam_masuk, $d->jam_in);
