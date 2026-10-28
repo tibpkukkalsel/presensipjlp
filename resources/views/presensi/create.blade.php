@@ -145,6 +145,51 @@
             justify-content: center;
         }
 
+        /* Camera Live Date & Time Overlay */
+        .camera-datetime-badge {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: rgba(15, 23, 42, 0.48);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 30px;
+            padding: 5px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            max-width: 90%;
+            white-space: nowrap;
+        }
+
+        .camera-datetime-badge .cam-date {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.25;
+            letter-spacing: 0.2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .camera-datetime-badge .cam-time {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.25;
+            margin-top: 1px;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.3px;
+        }
+
         .face-guide-overlay {
             position: absolute;
             top: 0;
@@ -223,16 +268,6 @@
 
                 $lengkap_hariini = ($sudah_masuk && $sudah_pulang);
             @endphp
-
-            <!-- Badge Tanggal & Jam Berlangsung -->
-            <div class="alert alert-info text-center py-2 mb-2 shadow-sm rounded-lg" style="border-radius: 12px;">
-                <div style="font-size: 13px; font-weight: 600;">
-                    {{ $tgl_indo }}
-                </div>
-                <div id="jam" style="font-size: 17px; font-weight: 700; margin-top: 1px;">
-                    {{ date('H:i:s') }} WITA
-                </div>
-            </div>
 
             @if ($lengkap_hariini)
                 <!-- Kartu Informasi: Presensi Hari Ini Sudah Lengkap -->
@@ -314,6 +349,12 @@
                 <input type="hidden" id="lokasi">
                 <div class="camera-wrapper">
                     <div class="webcam-capture"></div>
+
+                    <!-- Overlay Tanggal & Jam Presensi Transparan -->
+                    <div class="camera-datetime-badge">
+                        <div class="cam-date">{{ $tgl_indo }}</div>
+                        <div class="cam-time" id="jam">{{ date('H:i:s') }} WITA</div>
+                    </div>
 
                     @if ($scan_aktif)
                     <!-- Face Oval Guide Overlay (Sederhana Tanpa Badge) -->
