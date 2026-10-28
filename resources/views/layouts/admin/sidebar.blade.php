@@ -109,13 +109,6 @@
                                     <p>Pejabat Laporan</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="/panel-adm14/konfigurasi/scan"
-                                    class="nav-link {{ request()->is('panel-adm14/konfigurasi/scan*') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-camera"></i>
-                                    <p>Scan Wajah</p>
-                                </a>
-                            </li>
                         </ul>
                     </li>
                 @endrole
