@@ -17,3 +17,5 @@ yarn-error.log
 /.idea
 /.vscode
 *.sql
+/public/uploads/absensi/*
+!/public/uploads/absensi/.gitkeep
