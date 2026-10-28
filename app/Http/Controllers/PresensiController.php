@@ -1828,28 +1828,52 @@ class PresensiController extends Controller
             $dataizin = DB::table('pengajuan_izin')->where('kode_izin', $kode_izin)->first();
             if ($dataizin) {
                 if ($dataizin->status == 'it') {
-                    $presensi = DB::table('presensi')->where('kode_izin', $kode_izin)->get();
+                    $presensi = DB::table('presensi')
+                        ->where('nik', $dataizin->nik)
+                        ->whereBetween('tgl_presensi', [$dataizin->tgl_izin_dari, $dataizin->tgl_izin_sampai])
+                        ->get();
                     foreach ($presensi as $p) {
-                        if (empty($p->jam_out)) {
+                        // Cek apakah ada izin lain (misal IPC) yang masih aktif di tanggal ini
+                        $otherIzin = DB::table('pengajuan_izin')
+                            ->where('nik', $dataizin->nik)
+                            ->where('tgl_izin_dari', $p->tgl_presensi)
+                            ->where('kode_izin', '!=', $kode_izin)
+                            ->where('status_approved', 1)
+                            ->first();
+
+                        $hasOutRecord = !empty($p->jam_out) || ($p->status_out == 'izin_pulang_cepat');
+                        if (!$hasOutRecord) {
                             DB::table('presensi')->where('id', $p->id)->delete();
                         } else {
                             DB::table('presensi')->where('id', $p->id)->update([
                                 'jam_in' => null,
                                 'status_in' => 'tepat_waktu',
-                                'kode_izin' => null
+                                'kode_izin' => $otherIzin ? $otherIzin->kode_izin : null
                             ]);
                         }
                     }
                 } else if ($dataizin->status == 'ipc') {
-                    $presensi = DB::table('presensi')->where('kode_izin', $kode_izin)->get();
+                    $presensi = DB::table('presensi')
+                        ->where('nik', $dataizin->nik)
+                        ->whereBetween('tgl_presensi', [$dataizin->tgl_izin_dari, $dataizin->tgl_izin_sampai])
+                        ->get();
                     foreach ($presensi as $p) {
-                        if (empty($p->jam_in)) {
+                        // Cek apakah ada izin lain (misal IT) yang masih aktif di tanggal ini
+                        $otherIzin = DB::table('pengajuan_izin')
+                            ->where('nik', $dataizin->nik)
+                            ->where('tgl_izin_dari', $p->tgl_presensi)
+                            ->where('kode_izin', '!=', $kode_izin)
+                            ->where('status_approved', 1)
+                            ->first();
+
+                        $hasInRecord = !empty($p->jam_in) || ($p->status_in == 'izin_terlambat');
+                        if (!$hasInRecord) {
                             DB::table('presensi')->where('id', $p->id)->delete();
                         } else {
                             DB::table('presensi')->where('id', $p->id)->update([
                                 'jam_out' => null,
                                 'status_out' => 'tepat_waktu',
-                                'kode_izin' => null
+                                'kode_izin' => $otherIzin ? $otherIzin->kode_izin : null
                             ]);
                         }
                     }

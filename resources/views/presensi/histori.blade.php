@@ -646,6 +646,7 @@
             const windowInStart = rec.awal_jam_masuk || (defaultSchedule && defaultSchedule.awal_jam_masuk) || '07:15:00';
             const windowInEnd = rec.akhir_jam_masuk || (rec.jam_masuk || (defaultSchedule && defaultSchedule.jam_masuk) || '08:00:00');
             const isLate = Boolean(hasIn && rec.jam_masuk && (rec.jam_in > rec.jam_masuk));
+            const isIzinTerlambat = (rec.status_in === 'izin_terlambat');
 
             html += `
                 <div class="detail-card">
@@ -655,8 +656,8 @@
                             <div class="detail-card-date">${formattedDate}</div>
                         </div>
                         <div>
-                            <span class="status-pill ${hasIn ? (isLate ? 'pill-warning' : 'pill-hadir') : 'pill-warning'}">
-                                ${hasIn ? (isLate ? 'Terlambat' : 'Hadir') : 'Terlambat'}
+                            <span class="status-pill ${isIzinTerlambat ? 'pill-blue' : (hasIn ? (isLate ? 'pill-warning' : 'pill-hadir') : 'pill-warning')}">
+                                ${isIzinTerlambat ? 'Izin Terlambat' : (hasIn ? (isLate ? 'Terlambat' : 'Hadir') : 'Terlambat')}
                             </span>
                         </div>
                     </div>
@@ -668,11 +669,13 @@
                         <div class="flex-grow-1">
                             <div class="time-display ${hasIn ? '' : 'text-muted'}" style="${hasIn ? '' : 'color: #94a3b8 !important; font-size: 20px;'}">${hasIn ? rec.jam_in : 'Tidak Absen Pagi'}</div>
                             <div class="time-subtitle">Masuk : ${windowInStart} - ${windowInEnd}</div>
-                            ${hasIn 
-                                ? (isLate 
-                                    ? `<span class="text-danger status-badge-inline">⚠️ Terlambat</span>` 
-                                    : `<span class="text-success status-badge-inline">✓ Tepat Waktu</span>`)
-                                : `<span class="text-danger status-badge-inline">⚠️ Terlambat (Tidak Absen Pagi)</span>`
+                            ${isIzinTerlambat
+                                ? `<span class="text-info status-badge-inline" style="color:#0284c7 !important;">ℹ️ Disetujui Izin Terlambat</span>`
+                                : (hasIn 
+                                    ? (isLate 
+                                        ? `<span class="text-danger status-badge-inline">⚠️ Terlambat</span>` 
+                                        : `<span class="text-success status-badge-inline">✓ Tepat Waktu</span>`)
+                                    : `<span class="text-danger status-badge-inline">⚠️ Terlambat (Tidak Absen Pagi)</span>`)
                             }
                         </div>
                     </div>
@@ -686,6 +689,7 @@
             const windowOutStart = rec.jam_pulang || (defaultSchedule && defaultSchedule.jam_pulang) || '16:00:00';
             const windowOutEnd = rec.akhir_jam_pulang || (defaultSchedule && defaultSchedule.akhir_jam_pulang) || '23:59:00';
             const isEarly = Boolean(hasOut && (rec.status_out === 'pulang_duluan' || (rec.jam_pulang && (rec.jam_out < rec.jam_pulang))));
+            const isIzinPulangCepat = (rec.status_out === 'izin_pulang_cepat');
 
             html += `
                 <div class="detail-card">
@@ -695,8 +699,8 @@
                             <div class="detail-card-date">${formattedDate}</div>
                         </div>
                         <div>
-                            <span class="status-pill ${hasOut ? 'pill-hadir' : 'pill-secondary'}">
-                                ${hasOut ? 'Hadir' : 'Belum Absen'}
+                            <span class="status-pill ${isIzinPulangCepat ? 'pill-blue' : (hasOut ? 'pill-hadir' : 'pill-secondary')}">
+                                ${isIzinPulangCepat ? 'Izin Pulang Cepat' : (hasOut ? 'Hadir' : 'Belum Absen')}
                             </span>
                         </div>
                     </div>
@@ -708,11 +712,13 @@
                         <div class="flex-grow-1">
                             <div class="time-display ${hasOut ? '' : 'text-muted'}" style="${hasOut ? '' : 'color: #94a3b8 !important; font-size: 22px;'}">${jamOut}</div>
                             <div class="time-subtitle">Pulang : ${windowOutStart} - ${windowOutEnd}</div>
-                            ${hasOut
-                                ? (isEarly
-                                    ? `<span class="text-warning status-badge-inline">⚠️ Pulang Lebih Awal</span>`
-                                    : `<span class="text-success status-badge-inline">✓ Sudah Absen Pulang</span>`)
-                                : `<span class="text-muted status-badge-inline">Belum melakukan absen pulang</span>`
+                            ${isIzinPulangCepat
+                                ? `<span class="text-primary status-badge-inline" style="color:#2563eb !important;">ℹ️ Disetujui Izin Pulang Cepat</span>`
+                                : (hasOut
+                                    ? (isEarly
+                                        ? `<span class="text-warning status-badge-inline">⚠️ Pulang Lebih Awal</span>`
+                                        : `<span class="text-success status-badge-inline">✓ Sudah Absen Pulang</span>`)
+                                    : `<span class="text-muted status-badge-inline">Belum melakukan absen pulang</span>`)
                             }
                         </div>
                     </div>

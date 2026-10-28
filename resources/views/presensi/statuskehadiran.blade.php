@@ -169,7 +169,10 @@
                                                         $statusLabel = strtoupper($d->status);
 
                                                         if ($d->status == 'h') {
-                                                            if ($d->status_in == 'izin_terlambat') {
+                                                            if ($d->status_in == 'izin_terlambat' && $d->status_out == 'izin_pulang_cepat') {
+                                                                $statusBadge = 'bg-primary text-white';
+                                                                $statusLabel = 'Izin Terlambat & Pulang Cepat';
+                                                            } elseif ($d->status_in == 'izin_terlambat') {
                                                                 $statusBadge = 'bg-info text-dark';
                                                                 $statusLabel = 'Izin Terlambat';
                                                             } elseif ($d->status_out == 'izin_pulang_cepat') {

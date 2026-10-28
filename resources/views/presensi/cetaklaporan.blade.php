@@ -235,22 +235,26 @@
                             @endif
                         </td>
                         <td class="text-center badge-status">
-                            @if ($d->status == 'i')
+                            @if ($d->status == 'h' && $d->status_in == 'izin_terlambat' && $d->status_out == 'izin_pulang_cepat')
+                                Izin Terlambat & Pulang Cepat
+                            @elseif ($d->status == 'it' || ($d->status == 'h' && $d->status_in == 'izin_terlambat'))
+                                Izin Terlambat
+                            @elseif ($d->status == 'ipc' || ($d->status == 'h' && $d->status_out == 'izin_pulang_cepat'))
+                                Izin Pulang Cepat
+                            @elseif ($d->status == 'i')
                                 Izin
                             @elseif ($d->status == 's')
                                 Sakit
                             @elseif ($d->status == 'c')
                                 Cuti
-                            @elseif ($d->status == 'it')
-                                Izin Terlambat
-                            @elseif ($d->status == 'ipc')
-                                Izin Pulang Cepat
                             @else
                                 Hadir
                             @endif
                         </td>
                         <td class="text-center">
-                            @if ($d->jam_in > $d->jam_masuk)
+                            @if ($d->status_in == 'izin_terlambat')
+                                <span style="color: #0284c7;">Disetujui Izin Terlambat</span>
+                            @elseif ($d->jam_in > $d->jam_masuk)
                                 <span style="color: #d9534f;">Terlambat {{ $terlambat_desimal }} Jam</span>
                             @else
                                 <span style="color: #5cb85c;">Tepat Waktu</span>
