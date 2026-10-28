@@ -19,3 +19,5 @@ yarn-error.log
 *.sql
 /public/uploads/absensi/*
 !/public/uploads/absensi/.gitkeep
+*laporan-prakom*
+*laporan_prakom*
