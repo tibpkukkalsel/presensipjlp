@@ -145,7 +145,7 @@
             justify-content: center;
         }
 
-        /* Camera Live Date & Time Overlay: Kotak Persegi di Pojok Kanan Atas */
+        /* Camera Live Date & Time Overlay: Kotak Persegi Transparan 80% di Pojok Kanan Atas */
         .camera-datetime-badge {
             position: absolute;
             top: 10px;
@@ -153,10 +153,10 @@
             left: auto;
             transform: none;
             z-index: 20;
-            background: rgba(15, 23, 42, 0.55);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(15, 23, 42, 0.2);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 0 !important;
             padding: 5px 10px;
             display: flex;
@@ -165,7 +165,7 @@
             justify-content: center;
             text-align: right;
             pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             white-space: nowrap;
         }
 
@@ -175,7 +175,7 @@
             color: rgba(255, 255, 255, 0.95);
             line-height: 1.25;
             letter-spacing: 0.2px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
         }
 
         .camera-datetime-badge .cam-time {
@@ -186,7 +186,7 @@
             margin-top: 1px;
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
             letter-spacing: 0.3px;
         }
 
