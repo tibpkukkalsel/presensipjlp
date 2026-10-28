@@ -2,13 +2,13 @@
 
 @section('header')
     <!-- App Header -->
-    <div class="appHeader" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+    <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="/dashboard" class="headerButton goBack" style="color: #1e293b;">
-                <ion-icon name="chevron-back-outline" style="font-size: 24px;"></ion-icon>
+            <a href="/dashboard" class="headerButton goBack">
+                <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
-        <div class="pageTitle" style="color: #0f172a; font-weight: 700; font-size: 18px;">Riwayat Presensi</div>
+        <div class="pageTitle">Riwayat Presensi</div>
         <div class="right"></div>
     </div>
     <!-- * App Header -->
@@ -18,7 +18,11 @@
     <style>
         body {
             background-color: #f8fafc !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Inter", sans-serif !important;
+        }
+
+        body, button, input, select, textarea, .pageTitle, .cal-month-title, .detail-card-title, .weekday-name, .day-circle {
+            font-family: "Inter", sans-serif !important;
         }
 
         #appCapsule {
