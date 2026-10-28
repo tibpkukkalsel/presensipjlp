@@ -7,7 +7,7 @@
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
-        <div class="pageTitle">E-Presensi</div>
+        <div class="pageTitle">Presis</div>
         <div class="right"></div>
     </div>
     <!-- * App Header -->
@@ -145,27 +145,27 @@
             justify-content: center;
         }
 
-        /* Camera Live Date & Time Overlay */
+        /* Camera Live Date & Time Overlay: Kotak Persegi di Pojok Kanan Atas */
         .camera-datetime-badge {
             position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 10px;
+            right: 10px;
+            left: auto;
+            transform: none;
             z-index: 20;
-            background: rgba(15, 23, 42, 0.48);
+            background: rgba(15, 23, 42, 0.55);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 30px;
-            padding: 5px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 0 !important;
+            padding: 5px 10px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            text-align: center;
+            text-align: right;
             pointer-events: none;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
             white-space: nowrap;
         }
 
@@ -179,7 +179,7 @@
         }
 
         .camera-datetime-badge .cam-time {
-            font-size: 14.5px;
+            font-size: 13.5px;
             font-weight: 700;
             color: #ffffff;
             line-height: 1.25;
@@ -1008,6 +1008,15 @@
 
         // Initialize on Document Ready
         $(document).ready(function() {
+            // Live clock ticker di kamera
+            setInterval(function() {
+                var now = new Date();
+                var h = String(now.getHours()).padStart(2, '0');
+                var m = String(now.getMinutes()).padStart(2, '0');
+                var s = String(now.getSeconds()).padStart(2, '0');
+                $('#jam').text(h + ':' + m + ':' + s + ' WITA');
+            }, 1000);
+
             if (!lengkapHariIni && scanAktif) {
                 loadModels().then(function() {
                     startFaceScanningLoop();
