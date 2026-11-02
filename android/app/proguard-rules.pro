@@ -8,3 +8,4 @@
 }
 
 -dontwarn com.google.android.material.**
+

@@ -8,3 +8,4 @@
     <string name="permission_camera_rationale">Izin kamera diperlukan untuk swafoto presensi.</string>
     <string name="permission_location_rationale">Izin lokasi diperlukan untuk memverifikasi radius presensi.</string>
 </resources>
+

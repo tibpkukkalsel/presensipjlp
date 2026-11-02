@@ -15,6 +15,50 @@
             color: white;
         }
 
+        .instansi-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-right: 45px;
+            text-align: left;
+        }
+
+        .instansi-logo {
+            height: 36px;
+            width: auto;
+            max-width: 30px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            flex-shrink: 0;
+        }
+
+        .instansi-text {
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: 0.2px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+            text-align: left;
+        }
+
+        @media (max-width: 375px) {
+            .instansi-header {
+                gap: 8px;
+                padding-right: 40px;
+            }
+
+            .instansi-logo {
+                height: 30px;
+            }
+
+            .instansi-text {
+                font-size: 10.5px;
+            }
+        }
+
         #user-section {
             min-height: 190px !important;
             height: auto !important;
@@ -117,12 +161,16 @@
         }
 
         .gradasigreen {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+            background-color: #16a34a !important;
+            background-image: none !important;
+            background: #16a34a !important;
             color: #ffffff !important;
         }
 
         .gradasired {
-            background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+            background-color: #dc2626 !important;
+            background-image: none !important;
+            background: #dc2626 !important;
             color: #ffffff !important;
         }
 
@@ -210,6 +258,15 @@
             <ion-icon name="exit-outline"></ion-icon>
         </a>
 
+
+        <!-- Header Instansi: Logo & Nama Instansi -->
+        <div class="instansi-header">
+            <img src="{{ asset('assets/img/Logo Provinsi Kalimantan Selatan.png') }}" alt="Logo Provinsi Kalimantan Selatan"
+                class="instansi-logo" onerror="this.src='{{ asset('Logo Presis.png') }}'">
+            <div class="instansi-text">
+                Balai Pelatihan Koperasi dan Usaha Kecil <br> Provinsi Kalimantan Selatan
+            </div>
+        </div>
         <div id="user-detail">
             <div class="avatar">
                 @if (!empty(Auth::guard('karyawan')->user()->foto))
