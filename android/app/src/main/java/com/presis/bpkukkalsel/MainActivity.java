@@ -196,6 +196,11 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 CookieManager.getInstance().flush();
+
+                // Bersihkan riwayat login agar tidak bisa mundur ke halaman login
+                if (url != null && (url.contains("/dashboard") || url.endsWith("/dashboard"))) {
+                    webView.clearHistory();
+                }
             }
 
             @Override
@@ -299,16 +304,22 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (webView.canGoBack()) {
-                    webView.goBack();
-                } else {
+                String currentUrl = webView.getUrl();
+                boolean isDashboard = currentUrl != null && (
+                        currentUrl.endsWith("/dashboard") ||
+                        currentUrl.contains("/dashboard")
+                );
+
+                // Jika di dashboard atau tidak ada riwayat mundur, tampilkan konfirmasi keluar
+                if (isDashboard || !webView.canGoBack()) {
                     if (backPressedTime + 2000 > System.currentTimeMillis()) {
-                        setEnabled(false);
-                        getOnBackPressedDispatcher().onBackPressed();
+                        finish();
                     } else {
                         Toast.makeText(MainActivity.this, getString(R.string.exit_prompt), Toast.LENGTH_SHORT).show();
                         backPressedTime = System.currentTimeMillis();
                     }
+                } else {
+                    webView.goBack();
                 }
             }
         });

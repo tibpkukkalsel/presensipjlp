@@ -217,6 +217,12 @@
                     console.error('Service Worker gagal:', err);
                 });
         }
+        // Jika kembali ke halaman login via tombol Back dari memori cache (bfcache)
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted || (window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation')[0] && window.performance.getEntriesByType('navigation')[0].type === 'back_forward')) {
+                window.location.replace('/dashboard');
+            }
+        });
     </script>
 </body>
 

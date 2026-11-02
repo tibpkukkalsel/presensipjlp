@@ -797,4 +797,13 @@
             </div>
         </div>
     </div>
+    <script>
+        // Mencegah kembali ke halaman login saat tombol Back ditekan di dashboard
+        if (window.history && window.history.pushState) {
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function () {
+                window.history.pushState(null, null, window.location.href);
+            };
+        }
+    </script>
 @endsection
