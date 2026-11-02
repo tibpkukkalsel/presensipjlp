@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Presis BPKUK</string>
+    <string name="error_offline_title">Koneksi Terputus</string>
+    <string name="error_offline_desc">Pastikan perangkat Anda terhubung ke internet untuk menggunakan aplikasi Presis.</string>
+    <string name="btn_retry">Coba Lagi</string>
+    <string name="exit_prompt">Tekan sekali lagi untuk keluar</string>
+    <string name="permission_camera_rationale">Izin kamera diperlukan untuk swafoto presensi.</string>
+    <string name="permission_location_rationale">Izin lokasi diperlukan untuk memverifikasi radius presensi.</string>
+</resources>

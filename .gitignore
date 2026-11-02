@@ -21,3 +21,13 @@ yarn-error.log
 !/public/uploads/absensi/.gitkeep
 *laporan-prakom*
 *laporan_prakom*
+
+# Android Build & Cache
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+*.aab
+output-apk/
