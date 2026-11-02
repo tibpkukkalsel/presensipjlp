@@ -242,6 +242,15 @@ class PresensiController extends Controller
             echo "error|Format koordinat lokasi tidak valid.|radius";
             return;
         }
+        // Proteksi Anti-Fake GPS (Mock Location)
+        $is_mock = $request->input('is_mock', 0);
+        $accuracy = $request->input('accuracy', null);
+
+        if ($is_mock == 1 || ($accuracy !== null && floatval($accuracy) <= 0)) {
+            echo "error|Terdeteksi penggunaan aplikasi Fake GPS (Lokasi Tiruan). Harap matikan Fake GPS untuk melakukan presensi!|radius";
+            return;
+        }
+
         $latitudeuser = $lokasiuser[0];
         $longitudeuser = $lokasiuser[1];
 

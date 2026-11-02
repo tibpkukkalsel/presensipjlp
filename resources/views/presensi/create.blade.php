@@ -586,6 +586,25 @@
 
         var mapInstance = null;
         function successCallback(position) {
+            var accuracy = position.coords.accuracy || 0;
+            window.currentGpsAccuracy = accuracy;
+
+            // Deteksi kejanggalan sinyal GPS pada level browser
+            if (position.coords.isMock === true || (position.mock === true) || accuracy <= 0) {
+                window.currentGpsIsMock = true;
+                window.currentGpsMockReason = "Sinyal GPS mencurigakan (Akurasi 0 atau Mock Provider terdeteksi).";
+            } else {
+                window.currentGpsIsMock = false;
+                window.currentGpsMockReason = "";
+            }
+
+            // Cek bridge APK Android
+            if (window.PresisAndroid && typeof window.PresisAndroid.isFakeGps === 'function') {
+                if (window.PresisAndroid.isFakeGps()) {
+                    window.currentGpsIsMock = true;
+                    window.currentGpsMockReason = window.PresisAndroid.getFakeGpsReason();
+                }
+            }
             lokasi.value = position.coords.latitude + "," + position.coords.longitude;
             if (!mapInstance) {
                 mapInstance = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
@@ -912,6 +931,35 @@
                 return false;
             }
 
+                        // Pemeriksaan Keamanan Anti-Fake GPS
+            var isFakeGpsDetected = false;
+            var fakeGpsMsg = "";
+
+            if (window.PresisAndroid && typeof window.PresisAndroid.isFakeGps === 'function') {
+                if (window.PresisAndroid.isFakeGps()) {
+                    isFakeGpsDetected = true;
+                    fakeGpsMsg = window.PresisAndroid.getFakeGpsReason() || "Aplikasi Fake GPS (Lokasi Tiruan) aktif pada perangkat Anda.";
+                }
+            }
+
+            if (!isFakeGpsDetected && window.currentGpsIsMock === true) {
+                isFakeGpsDetected = true;
+                fakeGpsMsg = window.currentGpsMockReason || "Lokasi tiruan (Fake GPS) terdeteksi!";
+            }
+
+            if (isFakeGpsDetected) {
+                Swal.fire({
+                    title: 'Fake GPS Terdeteksi!',
+                    text: fakeGpsMsg + ' Harap matikan aplikasi lokasi palsu dan gunakan GPS asli untuk presensi.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626',
+                    confirmButtonText: 'Tutup'
+                });
+                isSubmitting = false;
+                isScanningActive = true;
+                return false;
+            }
+
             var lokasiVal = $("#lokasi").val();
             if (!lokasiVal) {
                 Swal.fire({
@@ -942,7 +990,9 @@
                     image: image,
                     lokasi: lokasiVal,
                     kode_jam_kerja: "{{ $kode_jam_kerja }}",
-                    status_absen: statusAbsen
+                    status_absen: statusAbsen,
+                    is_mock: (isFakeGpsDetected || window.currentGpsIsMock) ? 1 : 0,
+                    accuracy: window.currentGpsAccuracy || 0
                 },
                 cache: false,
                 success: function(respond) {

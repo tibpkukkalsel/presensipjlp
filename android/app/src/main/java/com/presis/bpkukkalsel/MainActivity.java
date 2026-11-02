@@ -13,6 +13,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.provider.Settings;
+import android.webkit.JavascriptInterface;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
@@ -52,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private ValueCallback<Uri[]> uploadMessage;
     private ActivityResultLauncher<Intent> fileChooserLauncher;
     private long backPressedTime = 0;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private boolean isFakeGpsDetected = false;
+    private String fakeGpsReason = "";
 
     private final String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.CAMERA,
@@ -70,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         setupSwipeRefresh();
         setupBackNavigation();
         checkAndRequestPermissions();
+        initLocationSecurity();
 
         if (savedInstanceState == null) {
             loadApp();
@@ -381,7 +391,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
             }
-            if (!allGranted) {
+            if (allGranted) {
+                requestLocationUpdatesSafely();
+            } else {
                 Toast.makeText(this, "Izin kamera dan lokasi diperlukan agar presensi berfungsi optimal.", Toast.LENGTH_LONG).show();
             }
         }
@@ -391,6 +403,109 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         webView.saveState(outState);
+    }
+
+    private void initLocationSecurity() {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                checkLocationMock(location);
+            }
+
+            @Override
+            public void onProviderEnabled(@NonNull String provider) {}
+
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {}
+
+            @Deprecated
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+        };
+
+        requestLocationUpdatesSafely();
+    }
+
+    private void requestLocationUpdatesSafely() {
+        if (locationManager == null) return;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                // Periksa lokasi terakhir yang terekam
+                Location lastGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (lastGps != null) checkLocationMock(lastGps);
+
+                Location lastNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (lastNet != null) checkLocationMock(lastNet);
+
+                // Pantau pembaruan GPS secara aktif
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, locationListener);
+                }
+                if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 0, locationListener);
+                }
+            } catch (SecurityException ignored) {
+            }
+        }
+    }
+
+    private void checkLocationMock(Location location) {
+        if (location == null) return;
+
+        boolean isMock = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            isMock = location.isMock();
+        } else {
+            isMock = location.isFromMockProvider();
+        }
+
+        if (isMock) {
+            isFakeGpsDetected = true;
+            fakeGpsReason = "Aplikasi Lokasi Tiruan (Fake GPS) aktif di perangkat ini.";
+        } else {
+            // Deteksi anomali akurasi 0
+            if (location.hasAccuracy() && location.getAccuracy() <= 0.0f) {
+                isFakeGpsDetected = true;
+                fakeGpsReason = "Sinyal GPS mencurigakan (Akurasi 0). Harap gunakan GPS asli.";
+            } else {
+                isFakeGpsDetected = false;
+                fakeGpsReason = "";
+            }
+        }
+    }
+
+    public class AntiFakeGpsBridge {
+        @JavascriptInterface
+        public boolean isFakeGps() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                try {
+                    boolean mockSettings = !Settings.Secure.getString(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION).equals("0");
+                    if (mockSettings) return true;
+                } catch (Exception ignored) {}
+            }
+            return isFakeGpsDetected;
+        }
+
+        @JavascriptInterface
+        public String getFakeGpsReason() {
+            return fakeGpsReason.isEmpty() ? "Aplikasi Fake GPS (Lokasi Tiruan) terdeteksi!" : fakeGpsReason;
+        }
+
+        @JavascriptInterface
+        public boolean isApp() {
+            return true;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (locationManager != null && locationListener != null) {
+            try {
+                locationManager.removeUpdates(locationListener);
+            } catch (Exception ignored) {}
+        }
     }
 }
 
