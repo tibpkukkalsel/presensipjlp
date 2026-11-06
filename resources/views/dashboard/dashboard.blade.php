@@ -765,7 +765,7 @@
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="profile" role="tabpanel">
-                    <ul class="listview">
+                    <ul class="listview" style="border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
                         @foreach ($leaderboard as $d)
                             @php
                                 $status = !empty($d->status_presensi) ? $d->status_presensi : (!empty($d->status_izin) ? $d->status_izin : null);
@@ -781,52 +781,52 @@
                                     ($jam_in_formatted > $jam_masuk_jadwal)
                                 );
                             @endphp
-                            <li>
-                                <div class="item">
-                                    <div class="in">
-                                        <div>
-                                            <b>{{ $d->nama_lengkap }}</b>
-                                        </div>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            @if ($has_jam_in)
-                                                @if ($is_terlambat)
-                                                    <span class="badge bg-danger" style="font-size: 11.5px; font-weight: 600;">
-                                                        {{ $d->jam_in }}
-                                                    </span>
-                                                    <span style="font-size: 20px; line-height: 1;" title="Terlambat">😐</span>
-                                                @else
-                                                    <span class="badge bg-success" style="font-size: 11.5px; font-weight: 600;">
-                                                        {{ $d->jam_in }}
-                                                    </span>
-                                                    <span style="font-size: 20px; line-height: 1;" title="Tepat Waktu">😉</span>
-                                                @endif
-                                            @elseif ($status == 's')
-                                                <span class="badge bg-warning text-dark" style="font-size: 11.5px; font-weight: 600;">
-                                                    Sakit
+                            <li style="padding: 14px 16px; min-height: 56px; display: flex; align-items: center;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px;">
+                                    <div style="flex: 1; min-width: 0;">
+                                        <span style="font-weight: 600; font-size: 13.5px; color: #1e293b; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $d->nama_lengkap }}">
+                                            {{ $d->nama_lengkap }}
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                        @if ($has_jam_in)
+                                            @if ($is_terlambat)
+                                                <span class="badge bg-danger" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                    {{ $d->jam_in }}
                                                 </span>
-                                                <span style="font-size: 20px; line-height: 1;" title="Sakit">😊</span>
-                                            @elseif ($status == 'i')
-                                                <span class="badge bg-info" style="font-size: 11.5px; font-weight: 600;">
-                                                    Izin
-                                                </span>
-                                                <span style="font-size: 20px; line-height: 1;" title="Izin">😊</span>
-                                            @elseif ($status == 'c')
-                                                <span class="badge bg-primary" style="font-size: 11.5px; font-weight: 600;">
-                                                    Cuti
-                                                </span>
-                                                <span style="font-size: 20px; line-height: 1;" title="Cuti">😊</span>
-                                            @elseif ($status == 'tl')
-                                                <span class="badge bg-info" style="font-size: 11.5px; font-weight: 600;">
-                                                    Tugas Luar
-                                                </span>
-                                                <span style="font-size: 20px; line-height: 1;" title="Tugas Luar">😊</span>
+                                                <span style="font-size: 20px; line-height: 1;" title="Terlambat">😐</span>
                                             @else
-                                                <span class="badge bg-secondary" style="font-size: 11.5px; font-weight: 600;">
-                                                    Belum Ada Keterangan
+                                                <span class="badge bg-success" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                    {{ $d->jam_in }}
                                                 </span>
-                                                <span style="font-size: 20px; line-height: 1;" title="Belum Ada Keterangan">🙁</span>
+                                                <span style="font-size: 20px; line-height: 1;" title="Tepat Waktu">😉</span>
                                             @endif
-                                        </div>
+                                        @elseif ($status == 's')
+                                            <span class="badge bg-warning text-dark" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Sakit
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Sakit">😊</span>
+                                        @elseif ($status == 'i')
+                                            <span class="badge bg-info" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Izin
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Izin">😊</span>
+                                        @elseif ($status == 'c')
+                                            <span class="badge bg-primary" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Cuti
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Cuti">😊</span>
+                                        @elseif ($status == 'tl')
+                                            <span class="badge bg-info" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Tugas Luar
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Tugas Luar">😊</span>
+                                        @else
+                                            <span class="badge bg-secondary" style="font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Belum Ada Keterangan
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Belum Ada Keterangan">🙁</span>
+                                        @endif
                                     </div>
                                 </div>
                             </li>
