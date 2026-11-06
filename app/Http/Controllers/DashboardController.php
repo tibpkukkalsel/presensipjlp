@@ -130,10 +130,43 @@ class DashboardController extends Controller
 
         $totalLiburBulanIni = count($hariliburmingguini);
 
-        $leaderboard = DB::table('presensi')
-            ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
-            ->where('tgl_presensi', $hariini)
-            ->orderBy('jam_in')
+        $leaderboard = DB::table('pegawai')
+            ->select(
+                'pegawai.nik',
+                'pegawai.nama_lengkap',
+                'presensi.id as presensi_id',
+                'presensi.jam_in',
+                'presensi.jam_out',
+                'presensi.status as status_presensi',
+                'presensi.status_in',
+                'izin_today.status as status_izin',
+                DB::raw('COALESCE(jam_kerja.jam_masuk, "08:00:00") as jam_masuk')
+            )
+            ->leftJoin('presensi', function ($join) use ($hariini) {
+                $join->on('pegawai.nik', '=', 'presensi.nik')
+                    ->where('presensi.tgl_presensi', '=', $hariini);
+            })
+            ->leftJoinSub(
+                DB::table('pengajuan_izin')
+                    ->select('nik', 'status')
+                    ->where('tgl_izin_dari', '<=', $hariini)
+                    ->where('tgl_izin_sampai', '>=', $hariini)
+                    ->whereIn('status', ['i', 's', 'c'])
+                    ->where('status_approved', '!=', '2')
+                    ->groupBy('nik', 'status'),
+                'izin_today',
+                'pegawai.nik',
+                '=',
+                'izin_today.nik'
+            )
+            ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+            ->orderByRaw('CASE 
+                WHEN presensi.jam_in IS NOT NULL AND presensi.jam_in != "" THEN 0 
+                WHEN presensi.status IN ("i", "s", "c", "tl") OR izin_today.status IN ("i", "s", "c") THEN 1 
+                ELSE 2 
+            END')
+            ->orderBy('presensi.jam_in', 'asc')
+            ->orderBy('pegawai.nama_lengkap', 'asc')
             ->get();
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
