@@ -267,6 +267,8 @@
                 $jam_pulang_pegawai = $sudah_pulang ? date('H:i', strtotime($datapresensi->jam_out)) : null;
 
                 $lengkap_hariini = ($sudah_masuk && $sudah_pulang);
+                $lewat_akhir_masuk = (!empty($jamkerja->akhir_jam_masuk) && date('H:i:s') > $jamkerja->akhir_jam_masuk);
+                $batas_akhir_masuk = !empty($jamkerja->akhir_jam_masuk) ? date('H:i', strtotime($jamkerja->akhir_jam_masuk)) : '';
             @endphp
 
             @if ($lengkap_hariini)
@@ -289,16 +291,20 @@
             @else
                 <!-- 1. Selection: Masuk Kerja / Pulang Kerja -->
                 <div class="presensi-type-group">
-                    <button type="button" class="btn-type-tab {{ $sudah_masuk ? 'is-completed' : '' }}" id="btnPilihMasuk" data-status="in">
+                    <button type="button" class="btn-type-tab {{ $sudah_masuk ? 'is-completed' : ($lewat_akhir_masuk ? 'is-completed' : '') }}" id="btnPilihMasuk" data-status="in">
                         <span class="type-name d-flex align-items-center justify-content-center" style="gap: 4px;">
                             @if ($sudah_masuk)
                                 <ion-icon name="checkmark-circle" style="color: #16a34a; font-size: 15px;"></ion-icon>
+                            @elseif ($lewat_akhir_masuk)
+                                <ion-icon name="close-circle" style="color: #dc2626; font-size: 15px;"></ion-icon>
                             @endif
                             Masuk Kerja
                         </span>
                         <span class="type-clock">
                             @if ($sudah_masuk)
                                 <span class="text-success font-weight-bold">Selesai ({{ $jam_masuk_pegawai }} WITA)</span>
+                            @elseif ($lewat_akhir_masuk)
+                                <span class="text-danger font-weight-bold">Waktu Habis ({{ $batas_akhir_masuk }} WITA)</span>
                             @else
                                 {{ date('H:i', strtotime($jamkerja->jam_masuk)) }} WITA
                             @endif
@@ -329,6 +335,8 @@
                     <div style="font-size: 13.5px; font-weight: 700; color: #1e293b;">
                         @if ($sudah_masuk)
                             Presensi Pulang Kerja
+                        @elseif ($lewat_akhir_masuk)
+                            Waktu Masuk Berakhir
                         @else
                             Silakan Pilih Presensi
                         @endif
@@ -336,6 +344,8 @@
                     <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
                         @if ($sudah_masuk)
                             Anda sudah melakukan presensi masuk (<strong>{{ $jam_masuk_pegawai }} WITA</strong>). Ketuk tombol <strong>Pulang Kerja</strong> di atas untuk membuka kamera presensi pulang.
+                        @elseif ($lewat_akhir_masuk)
+                            Batas waktu presensi masuk telah berakhir (<strong>{{ $batas_akhir_masuk }} WITA</strong>). Silakan ketuk tombol <strong>Pulang Kerja</strong> di atas saat jam kepulangan untuk melakukan presensi pulang.
                         @else
                             Ketuk tombol <strong>Masuk Kerja</strong> atau <strong>Pulang Kerja</strong> di atas untuk membuka kamera &amp; lokasi presensi.
                         @endif
@@ -541,6 +551,8 @@
 
         // State Presensi Hari Ini
         var sudahMasuk = {{ $sudah_masuk ? 'true' : 'false' }};
+        var lewatAkhirMasuk = {{ $lewat_akhir_masuk ? 'true' : 'false' }};
+        var batasAkhirMasuk = "{{ $batas_akhir_masuk }}";
         var jamMasukPegawai = "{{ $jam_masuk_pegawai ?? '' }}";
         var sudahPulang = {{ $sudah_pulang ? 'true' : 'false' }};
         var jamPulangPegawai = "{{ $jam_pulang_pegawai ?? '' }}";
@@ -701,6 +713,16 @@
                     title: 'Perhatian',
                     text: 'Anda sudah berhasil melakukan presensi masuk hari ini',
                     icon: 'info',
+                    confirmButtonText: 'Tutup'
+                });
+                return false;
+            }
+            if (lewatAkhirMasuk) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Batas Waktu Masuk Habis',
+                    text: 'Waktu presensi masuk telah berakhir pada jam ' + batasAkhirMasuk + ' WITA. Silakan lakukan presensi Pulang Kerja saat jadwal kepulangan.',
+                    icon: 'warning',
                     confirmButtonText: 'Tutup'
                 });
                 return false;

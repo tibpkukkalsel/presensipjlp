@@ -135,9 +135,9 @@
                 <li class="nav-header">Output</li>
                 <!-- 6. Laporan (Dropdown) -->
                 <li
-                    class="nav-item {{ request()->is(['panel-adm14/presensi/laporan', 'panel-adm14/presensi/rekap']) ? 'menu-open' : '' }}">
+                    class="nav-item {{ request()->is(['panel-adm14/presensi/laporan', 'panel-adm14/presensi/rekap', 'panel-adm14/presensi/keteranganlaporan']) ? 'menu-open' : '' }}">
                     <a href="#"
-                        class="nav-link {{ request()->is(['panel-adm14/presensi/laporan', 'panel-adm14/presensi/rekap']) ? 'active' : '' }}">
+                        class="nav-link {{ request()->is(['panel-adm14/presensi/laporan', 'panel-adm14/presensi/rekap', 'panel-adm14/presensi/keteranganlaporan']) ? 'active' : '' }}">
                         <i class="nav-icon bi bi-file-earmark-text"></i>
                         <p>
                             Laporan
@@ -157,6 +157,13 @@
                                 class="nav-link {{ request()->is('panel-adm14/presensi/rekap') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Rekap Presensi</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/panel-adm14/presensi/keteranganlaporan"
+                                class="nav-link {{ request()->is('panel-adm14/presensi/keteranganlaporan') ? 'active' : '' }}">
+                                <i class="nav-icon bi bi-circle"></i>
+                                <p>Keterangan Laporan</p>
                             </a>
                         </li>
                     </ul>

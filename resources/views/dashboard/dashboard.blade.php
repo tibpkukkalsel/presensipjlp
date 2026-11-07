@@ -821,6 +821,11 @@
                                                 Tugas Luar
                                             </span>
                                             <span style="font-size: 20px; line-height: 1;" title="Tugas Luar">😊</span>
+                                        @elseif (!empty($d->is_libur) || $status == 'l')
+                                            <span class="badge bg-secondary" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Libur
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Libur">😊</span>
                                         @else
                                             <span class="badge bg-secondary" style="font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
                                                 Belum Ada Keterangan

@@ -382,15 +382,41 @@ class PresensiController extends Controller
                     }
                 }
 
+                // Hitung jam_in default dan selisih keterlambatan jika pegawai tidak pernah absen masuk
+                $jam_in_default = !empty($jamkerja->akhir_jam_masuk) ? $jamkerja->akhir_jam_masuk : $jamkerja->jam_masuk;
+                $selisih_in_default = 0;
+                if (!empty($jamkerja->akhir_jam_masuk) && !empty($jamkerja->jam_masuk) && $jamkerja->akhir_jam_masuk > $jamkerja->jam_masuk) {
+                    $pJadwal = explode(':', $jamkerja->jam_masuk);
+                    $pAkhir = explode(':', $jamkerja->akhir_jam_masuk);
+                    $tJadwal = mktime((int)$pJadwal[0], (int)$pJadwal[1], (int)($pJadwal[2] ?? 0), 1, 1, 1);
+                    $tAkhir = mktime((int)$pAkhir[0], (int)$pAkhir[1], (int)($pAkhir[2] ?? 0), 1, 1, 1);
+                    $diffSec = $tAkhir - $tJadwal;
+                    $selisih_in_default = $diffSec > 0 ? (int)floor($diffSec / 60) : 0;
+                }
+
                 if ($datapresensi != null) {
-                    // Pegawai sudah pernah absen masuk sebelumnya -> Update jam_out
-                    $data_pulang = [
-                        'jam_out' => $jam,
-                        'foto_out' => $fileName,
-                        'lokasi_out' => $lokasi,
-                        'status_out' => $status_out,
-                        'selisih_out' => $selisih_out
-                    ];
+                    if (empty($datapresensi->jam_in)) {
+                        // Absen masuk kosong, otomatis set jam masuk dengan batas akhir jam masuk & status terlambat
+                        $data_pulang = [
+                            'jam_in' => $jam_in_default,
+                            'status_in' => 'terlambat',
+                            'selisih_in' => $selisih_in_default,
+                            'jam_out' => $jam,
+                            'foto_out' => $fileName,
+                            'lokasi_out' => $lokasi,
+                            'status_out' => $status_out,
+                            'selisih_out' => $selisih_out
+                        ];
+                    } else {
+                        // Pegawai sudah pernah absen masuk sebelumnya -> Update jam_out
+                        $data_pulang = [
+                            'jam_out' => $jam,
+                            'foto_out' => $fileName,
+                            'lokasi_out' => $lokasi,
+                            'status_out' => $status_out,
+                            'selisih_out' => $selisih_out
+                        ];
+                    }
                     $update = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nik', $nik)->update($data_pulang);
                     if ($update) {
                         $this->simpanFotoAbsensi($fileName, $image_base64);
@@ -419,11 +445,11 @@ class PresensiController extends Controller
                         echo "error|Maaf Gagal absen, Hubungi Tim It|out";
                     }
                 } else {
-                    // Pegawai tidak absen masuk, lalu langsung absen pulang -> Insert record baru
+                    // Pegawai tidak absen masuk, lalu langsung absen pulang -> Insert record baru dengan jam_in = akhir jam masuk & status_in = terlambat
                     $data_pulang = [
                         'nik' => $nik,
                         'tgl_presensi' => $tgl_presensi,
-                        'jam_in' => null,
+                        'jam_in' => $jam_in_default,
                         'foto_in' => null,
                         'lokasi_in' => null,
                         'jam_out' => $jam,
@@ -431,9 +457,9 @@ class PresensiController extends Controller
                         'lokasi_out' => $lokasi,
                         'kode_jam_kerja' => $jamkerja->kode_jam_kerja,
                         'status' => 'h',
-                        'status_in' => null,
+                        'status_in' => 'terlambat',
                         'status_out' => $status_out,
-                        'selisih_in' => 0,
+                        'selisih_in' => $selisih_in_default,
                         'selisih_out' => $selisih_out
                     ];
                     $simpan = DB::table('presensi')->insert($data_pulang);
@@ -468,6 +494,8 @@ class PresensiController extends Controller
                 // PROSES PRESENSI MASUK
                 if ($jam < $jamkerja->awal_jam_masuk) {
                     echo "error|Maaf Belum Waktunya Melakukan Presensi Masuk|in";
+                } else if (!empty($jamkerja->akhir_jam_masuk) && $jam > $jamkerja->akhir_jam_masuk) {
+                    echo "error|Maaf Waktu Untuk Presensi Masuk Sudah Habis (Batas Akhir: " . date('H:i', strtotime($jamkerja->akhir_jam_masuk)) . " WITA)|in";
                 } else {
                     $status_in = 'tepat_waktu';
                     $selisih_in = 0;
@@ -1369,6 +1397,217 @@ class PresensiController extends Controller
         $departemen = DB::table('departemen')->get();
         $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
         return view('presensi.rekap', compact('namabulan', 'departemen', 'cabang'));
+    }
+
+    public function keteranganlaporan()
+    {
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        $departemen = DB::table('departemen')->get();
+        $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
+        return view('presensi.keteranganlaporan', compact('namabulan', 'departemen', 'cabang'));
+    }
+
+    public function cetakketeranganlaporan(Request $request)
+    {
+        $bulan = (int)$request->bulan;
+        $tahun = (int)$request->tahun;
+        $kode_dept = $request->kode_dept;
+        $kode_cabang = $request->kode_cabang;
+        $dari = $tahun . "-" . sprintf('%02d', $bulan) . "-01";
+        $sampai = date("Y-m-t", strtotime($dari));
+
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        $query = DB::table('pegawai');
+        if (!empty($kode_dept)) {
+            $query->where('pegawai.kode_dept', $kode_dept);
+        }
+        if (!empty($kode_cabang)) {
+            $query->where('pegawai.kode_cabang', $kode_cabang);
+        }
+        $pegawai = $query->orderBy('nama_lengkap', 'asc')->get();
+
+        $presensi = DB::table('presensi')
+            ->whereBetween('tgl_presensi', [$dari, $sampai])
+            ->get()
+            ->groupBy('nik');
+
+        $pengajuan_izin = DB::table('pengajuan_izin')
+            ->where('tgl_izin_dari', '<=', $sampai)
+            ->where('tgl_izin_sampai', '>=', $dari)
+            ->where('status_approved', 1)
+            ->get()
+            ->groupBy('nik');
+
+        $harilibur = DB::table('harilibur')
+            ->leftJoin('harilibur_detail', 'harilibur.kode_libur', '=', 'harilibur_detail.kode_libur')
+            ->whereBetween('harilibur.tanggal_libur', [$dari, $sampai])
+            ->select('harilibur.kode_libur', 'harilibur.tanggal_libur', 'harilibur.keterangan', 'harilibur.kode_cabang', 'harilibur_detail.nik')
+            ->get();
+
+        $jadwal_by_date = DB::table('konfigurasi_jamkerja_by_date')
+            ->whereBetween('tanggal', [$dari, $sampai])
+            ->get()
+            ->groupBy('nik');
+
+        $jadwal_pegawai = DB::table('konfigurasi_jamkerja')
+            ->get()
+            ->groupBy('nik');
+
+        $jadwal_dept = DB::table('konfigurasi_jk_dept_detail')
+            ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->kode_cabang . '_' . $item->kode_dept;
+            });
+
+        $rangetanggal = [];
+        $cur = $dari;
+        while (strtotime($cur) <= strtotime($sampai)) {
+            $rangetanggal[] = $cur;
+            $cur = date("Y-m-d", strtotime("+1 day", strtotime($cur)));
+        }
+
+        $laporan = [];
+        foreach ($pegawai as $p) {
+            $h_kerja = 0;
+            $jml_hadir = 0;
+            $jml_izin_terlambat = 0;
+            $jml_terlambat = 0;
+            $jml_izin_pulang_cepat = 0;
+            $jml_pulang_cepat = 0;
+            $jml_tugas_luar = 0;
+            $jml_cuti = 0;
+            $jml_sakit = 0;
+            $jml_izin = 0;
+            $jml_tanpa_keterangan = 0;
+
+            $presensi_pegawai = isset($presensi[$p->nik]) ? $presensi[$p->nik]->keyBy('tgl_presensi') : collect();
+            $izin_pegawai = isset($pengajuan_izin[$p->nik]) ? $pengajuan_izin[$p->nik] : collect();
+
+            foreach ($rangetanggal as $tgl) {
+                $namahari = gethari(date('D', strtotime($tgl)));
+                $is_libur_nasional = $harilibur->contains(function ($hl) use ($p, $tgl) {
+                    return $hl->tanggal_libur == $tgl && ($hl->kode_cabang == 'ALL' || $hl->kode_cabang == $p->kode_cabang || $hl->nik == $p->nik);
+                });
+
+                $has_jadwal = cekJadwalKerja($p->nik, $p->kode_cabang, $p->kode_dept, $tgl, $namahari, $jadwal_by_date, $jadwal_pegawai, $jadwal_dept);
+                $is_hari_kerja = !$is_libur_nasional && $has_jadwal;
+
+                if ($is_hari_kerja) {
+                    $h_kerja++;
+                }
+
+                if ($presensi_pegawai->has($tgl)) {
+                    $row = $presensi_pegawai->get($tgl);
+                    if ($row->status == 'h') {
+                        if ($row->status_in == 'izin_terlambat') {
+                            $jml_izin_terlambat++;
+                        } elseif ($row->status_in == 'terlambat' || (!empty($row->jam_masuk) && !empty($row->jam_in) && $row->jam_in > $row->jam_masuk)) {
+                            $jml_terlambat++;
+                        } else {
+                            $jml_hadir++;
+                        }
+
+                        if ($row->status_out == 'izin_pulang_cepat') {
+                            $jml_izin_pulang_cepat++;
+                        } elseif ($row->status_out == 'pulang_duluan') {
+                            $jml_pulang_cepat++;
+                        }
+                    } elseif ($row->status == 'tl') {
+                        $jml_tugas_luar++;
+                    } elseif ($row->status == 'c') {
+                        $jml_cuti++;
+                    } elseif ($row->status == 's') {
+                        $jml_sakit++;
+                    } elseif ($row->status == 'i') {
+                        $jml_izin++;
+                    }
+                } else {
+                    if ($is_hari_kerja) {
+                        $izin = $izin_pegawai->first(function ($item) use ($tgl) {
+                            return $item->tgl_izin_dari <= $tgl && $item->tgl_izin_sampai >= $tgl;
+                        });
+
+                        if ($izin) {
+                            if ($izin->status == 'c') $jml_cuti++;
+                            elseif ($izin->status == 's') $jml_sakit++;
+                            elseif ($izin->status == 'i') $jml_izin++;
+                            elseif ($izin->status == 'tl') $jml_tugas_luar++;
+                            else $jml_tanpa_keterangan++;
+                        } else {
+                            $jml_tanpa_keterangan++;
+                        }
+                    }
+                }
+            }
+
+            $total_kehadiran = $jml_hadir + $jml_izin_terlambat + $jml_terlambat + $jml_tugas_luar;
+            $persentase = $h_kerja > 0 ? round(($total_kehadiran / $h_kerja) * 100, 1) : 0;
+
+            $laporan[] = (object)[
+                'nik' => $p->nik,
+                'nama_lengkap' => $p->nama_lengkap,
+                'jabatan' => $p->jabatan,
+                'h_kerja' => $h_kerja,
+                'hadir' => $jml_hadir,
+                'izin_terlambat' => $jml_izin_terlambat,
+                'terlambat' => $jml_terlambat,
+                'izin_pulang_cepat' => $jml_izin_pulang_cepat,
+                'pulang_cepat' => $jml_pulang_cepat,
+                'tugas_luar' => $jml_tugas_luar,
+                'cuti' => $jml_cuti,
+                'sakit' => $jml_sakit,
+                'izin' => $jml_izin,
+                'tanpa_keterangan' => $jml_tanpa_keterangan,
+                'persentase' => $persentase
+            ];
+        }
+
+        $konfigurasi_laporan = DB::table('konfigurasi_laporan')->where('id', 1)->first();
+
+        $data = compact('bulan', 'tahun', 'namabulan', 'laporan', 'konfigurasi_laporan');
+
+        if ($request->has('exportexcel') || isset($_POST['exportexcel'])) {
+            $time = date("d-M-Y H:i:s");
+            return response(view('presensi.cetakketeranganlaporanexcel', $data), 200, [
+                'Content-Type' => 'application/vnd-ms-excel',
+                'Content-Disposition' => 'attachment; filename="Cetak Keterangan Laporan Presensi ' . ($namabulan[$bulan] ?? $bulan) . ' ' . $tahun . '.xls"',
+            ]);
+        }
+
+        if ($request->has('html')) {
+            return view('presensi.cetakketeranganlaporan', $data);
+        }
+
+        $tempDir = storage_path('app/mpdf');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'orientation' => 'L',
+            'margin_left' => 8,
+            'margin_right' => 8,
+            'margin_top' => 8,
+            'margin_bottom' => 8,
+            'margin_header' => 4,
+            'margin_footer' => 4,
+            'tempDir' => $tempDir,
+            'autoPageBreak' => true,
+            'shrink_tables_to_fit' => 1,
+        ]);
+
+        $html = view('presensi.cetakketeranganlaporan', $data)->render();
+        $mpdf->WriteHTML($html);
+        $namaFile = 'Keterangan_Laporan_Presensi_' . ($namabulan[(int)$bulan] ?? $bulan) . '_' . $tahun . '.pdf';
+
+        return response($mpdf->Output($namaFile, 'S'), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $namaFile . '"',
+        ]);
     }
 
     public function cetakrekap(Request $request)

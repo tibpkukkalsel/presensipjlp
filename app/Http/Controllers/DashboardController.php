@@ -46,6 +46,19 @@ class DashboardController extends Controller
             ];
         }
 
+        // Cek apakah hari ini libur berdasarkan jadwal kerja pegawai (misal Sabtu / Minggu)
+        if (!$dataliburhariini) {
+            $namahari_user = gethari(date('D', strtotime($hariini)));
+            $has_jadwal_user = cekJadwalKerja($nik, $kode_cabang, $kode_dept, $hariini, $namahari_user);
+            if (!$has_jadwal_user) {
+                $dataliburhariini = (object)[
+                    'kode_libur' => 'LIBUR',
+                    'tanggal_libur' => $hariini,
+                    'keterangan' => ($namahari_user == 'Sabtu' || $namahari_user == 'Minggu') ? 'Libur Akhir Pekan (' . $namahari_user . ')' : 'Hari Libur Jadwal Kerja'
+                ];
+            }
+        }
+
         // Rentang tanggal minggu yang berjalan (Senin sampai Minggu)
         $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
         $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
@@ -130,10 +143,39 @@ class DashboardController extends Controller
 
         $totalLiburBulanIni = count($hariliburmingguini);
 
+        $namahari_hariini = gethari(date('D', strtotime($hariini)));
+
+        // Preload jadwal kerja untuk cek libur/kerja setiap pegawai
+        $jadwal_by_date = DB::table('konfigurasi_jamkerja_by_date')
+            ->where('tanggal', $hariini)
+            ->get()
+            ->groupBy('nik');
+
+        $jadwal_pegawai = DB::table('konfigurasi_jamkerja')
+            ->where('hari', $namahari_hariini)
+            ->get()
+            ->groupBy('nik');
+
+        $jadwal_dept = DB::table('konfigurasi_jk_dept_detail')
+            ->join('konfigurasi_jk_dept', 'konfigurasi_jk_dept_detail.kode_jk_dept', '=', 'konfigurasi_jk_dept.kode_jk_dept')
+            ->where('hari', $namahari_hariini)
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->kode_cabang . '_' . $item->kode_dept;
+            });
+
+        $harilibur_today = DB::table('harilibur')
+            ->leftJoin('harilibur_detail', 'harilibur.kode_libur', '=', 'harilibur_detail.kode_libur')
+            ->where('harilibur.tanggal_libur', $hariini)
+            ->select('harilibur.kode_libur', 'harilibur.keterangan', 'harilibur.kode_cabang', 'harilibur_detail.nik')
+            ->get();
+
         $leaderboard = DB::table('pegawai')
             ->select(
                 'pegawai.nik',
                 'pegawai.nama_lengkap',
+                'pegawai.kode_cabang',
+                'pegawai.kode_dept',
                 'presensi.id as presensi_id',
                 'presensi.jam_in',
                 'presensi.jam_out',
@@ -168,6 +210,30 @@ class DashboardController extends Controller
             ->orderBy('presensi.jam_in', 'asc')
             ->orderBy('pegawai.nama_lengkap', 'asc')
             ->get();
+
+        $leaderboard = $leaderboard->map(function ($item) use ($hariini, $namahari_hariini, $jadwal_by_date, $jadwal_pegawai, $jadwal_dept, $harilibur_today) {
+            $is_libur_nasional = $harilibur_today->contains(function ($hl) use ($item) {
+                return $hl->kode_cabang == 'ALL' ||
+                       $hl->kode_cabang == $item->kode_cabang ||
+                       $hl->nik == $item->nik;
+            });
+
+            $has_jadwal = cekJadwalKerja(
+                $item->nik,
+                $item->kode_cabang,
+                $item->kode_dept,
+                $hariini,
+                $namahari_hariini,
+                $jadwal_by_date,
+                $jadwal_pegawai,
+                $jadwal_dept
+            );
+
+            $item->is_libur = $is_libur_nasional || !$has_jadwal || ($item->status_presensi == 'l');
+
+            return $item;
+        });
+
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         $cabang = DB::table('cabang')->where('kode_cabang', $kode_cabang)->first();

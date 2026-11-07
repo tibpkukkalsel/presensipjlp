@@ -142,6 +142,8 @@ Route::group(['prefix' => 'panel-adm14', 'middleware' => ['auth:user', 'role:adm
     Route::post('/presensi/cetaklaporan', [PresensiController::class, 'cetaklaporan']);
     Route::get('/presensi/rekap', [PresensiController::class, 'rekap']);
     Route::post('/presensi/cetakrekap', [PresensiController::class, 'cetakrekap']);
+    Route::get('/presensi/keteranganlaporan', [PresensiController::class, 'keteranganlaporan']);
+    Route::post('/presensi/cetakketeranganlaporan', [PresensiController::class, 'cetakketeranganlaporan']);
 
 
     Route::get('/presensi/izinsakit', [PresensiController::class, 'izinsakit']);
@@ -283,6 +285,7 @@ Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen
     Route::get('/presensi/monitoring', fn() => redirect('/panel-adm14/presensi/monitoring'));
     Route::get('/presensi/laporan', fn() => redirect('/panel-adm14/presensi/laporan'));
     Route::get('/presensi/rekap', fn() => redirect('/panel-adm14/presensi/rekap'));
+    Route::get('/presensi/keteranganlaporan', fn() => redirect('/panel-adm14/presensi/keteranganlaporan'));
     Route::get('/presensi/izinsakit', fn() => redirect('/panel-adm14/presensi/izinsakit'));
     Route::get('/presensi/statuskehadiran', fn() => redirect('/panel-adm14/presensi/izinsakit'));
     Route::get('/cuti', fn() => redirect('/panel-adm14/cuti'));
@@ -305,6 +308,7 @@ Route::group(['middleware' => ['auth:user', 'role:administrator|admin departemen
     Route::get('/presensi/{kode_izin}/batalkanizinsakit', [PresensiController::class, 'batalkanizinsakit']);
     Route::post('/presensi/cetaklaporan', [PresensiController::class, 'cetaklaporan']);
     Route::post('/presensi/cetakrekap', [PresensiController::class, 'cetakrekap']);
+    Route::post('/presensi/cetakketeranganlaporan', [PresensiController::class, 'cetakketeranganlaporan']);
 
     // Alias Jam Kerja tanpa prefix
     Route::post('/konfigurasi/storejamkerja', [KonfigurasiController::class, 'storejamkerja']);
