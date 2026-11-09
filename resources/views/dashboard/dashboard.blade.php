@@ -596,6 +596,36 @@
                                     </div>
                                 </div>
                             </div>
+                        @elseif($d->status == 'as')
+                            <div class="card mb-2"
+                                style="border-radius: 12px; border: 1px solid #ccfbf1; border-left: 5px solid #0d9488; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                                <div class="card-body py-2 px-3">
+                                    <div class="historicontent align-items-center">
+                                        <div class="iconpresensi mr-2" style="min-width: 44px;">
+                                            <ion-icon name="people-outline" style="font-size: 42px; color: #0d9488;"></ion-icon>
+                                        </div>
+                                        <div class="datapresensi flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h4
+                                                    style="margin:0px !important; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                                    {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
+                                                </h4>
+                                                <span class="badge"
+                                                    style="background:#ccfbf1; color:#0f766e; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                                    Apel Senin Diskop & UKM
+                                                </span>
+                                            </div>
+                                            <h3
+                                                style="line-height: 1.2; font-size: 13px; font-weight: 600; color: #0d9488; margin-bottom: 2px;">
+                                                APEL SENIN {{ !empty($d->kode_izin) ? '- ' . $d->kode_izin : '' }}
+                                            </h3>
+                                            <span style="font-size: 12px; color: #475569;">
+                                                {{ $d->keterangan ?? 'Apel Senin Diskop & UKM' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @elseif($d->status == 'tl')
                             <div class="card mb-2"
                                 style="border-radius: 12px; border: 1px solid #cffafe; border-left: 5px solid #06b6d4; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
@@ -821,6 +851,11 @@
                                                 Tugas Luar
                                             </span>
                                             <span style="font-size: 20px; line-height: 1;" title="Tugas Luar">😊</span>
+                                        @elseif ($status == 'as')
+                                            <span class="badge" style="background:#0d9488; color:#fff; font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
+                                                Apel Senin
+                                            </span>
+                                            <span style="font-size: 20px; line-height: 1;" title="Apel Senin">😉</span>
                                         @elseif (!empty($d->is_libur) || $status == 'l')
                                             <span class="badge bg-secondary" style="font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px;">
                                                 Libur

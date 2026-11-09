@@ -208,9 +208,9 @@
                                 if ($status == 'h') {
                                     $jml_hadir += 1;
                                     $color = '#ffffff';
-                                } elseif ($status == 'tl') {
+                                } elseif ($status == 'tl' || $status == 'as') {
                                     $jml_hadir += 1;
-                                    $color = '#20c997';
+                                    $color = $status == 'as' ? '#0d9488' : '#20c997';
                                 } elseif ($status == 'i') {
                                     $jml_izin += 1;
                                     $color = '#ffbb00';

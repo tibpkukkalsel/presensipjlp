@@ -1534,6 +1534,7 @@ class PresensiController extends Controller
                             elseif ($izin->status == 's') $jml_sakit++;
                             elseif ($izin->status == 'i') $jml_izin++;
                             elseif ($izin->status == 'tl') $jml_tugas_luar++;
+                            elseif ($izin->status == 'as') $jml_hadir++;
                             else $jml_tanpa_keterangan++;
                         } else {
                             $jml_tanpa_keterangan++;
@@ -2042,6 +2043,38 @@ class PresensiController extends Controller
                                 'lokasi_out' => 'Disetujui Izin Pulang Cepat'
                             ]);
                         }
+                    } else if ($status == 'as' || ($status == 'i' && stripos($dataizin->keterangan ?? '', 'apel senin') !== false)) {
+                        // Apel Senin Diskop & UKM: Dianggap hadir dan tepat waktu, jam masuk otomatis menjadi 07:59
+                        $jam_in_auto = '07:59:00';
+
+                        $cekPresensi = DB::table('presensi')->where('tgl_presensi', $tgl_dari)->where('nik', $nik)->first();
+                        if ($cekPresensi) {
+                            DB::table('presensi')->where('id', $cekPresensi->id)->update([
+                                'jam_in' => $jam_in_auto,
+                                'kode_jam_kerja' => $kode_jk,
+                                'status' => 'h',
+                                'status_in' => 'tepat_waktu',
+                                'selisih_in' => 0,
+                                'kode_izin' => $kode_izin,
+                                'foto_in' => $cekPresensi->foto_in ?? 'apel_senin.png',
+                                'lokasi_in' => 'Apel Senin Diskop & UKM'
+                            ]);
+                        } else {
+                            DB::table('presensi')->insert([
+                                'nik' => $nik,
+                                'tgl_presensi' => $tgl_dari,
+                                'jam_in' => $jam_in_auto,
+                                'kode_jam_kerja' => $kode_jk,
+                                'status' => 'h',
+                                'status_in' => 'tepat_waktu',
+                                'status_out' => null,
+                                'selisih_in' => 0,
+                                'selisih_out' => 0,
+                                'kode_izin' => $kode_izin,
+                                'foto_in' => 'apel_senin.png',
+                                'lokasi_in' => 'Apel Senin Diskop & UKM'
+                            ]);
+                        }
                     } else {
                         // Izin Tidak Hadir (i), Sakit (s), Cuti (c)
                         DB::table('presensi')->insert([
@@ -2083,7 +2116,7 @@ class PresensiController extends Controller
             ->get();
 
         foreach ($presensi as $p) {
-            if ($status == 'it') {
+            if ($status == 'it' || $status == 'as') {
                 // Cek apakah ada izin IPC lain yang masih aktif pada tanggal ini
                 $otherIzin = DB::table('pengajuan_izin')
                     ->where('nik', $nik)
@@ -2522,6 +2555,7 @@ class PresensiController extends Controller
                 'jam_kerja.nama_jam_kerja',
                 'jam_kerja.jam_masuk as jam_masuk_jadwal',
                 'jam_kerja.jam_pulang as jam_pulang_jadwal',
+                'pengajuan_izin.status as status_izin',
                 'pengajuan_izin.keterangan as keterangan_izin'
             )
             ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
@@ -2564,6 +2598,12 @@ class PresensiController extends Controller
                 $query->where('presensi.status_in', 'izin_terlambat');
             } elseif ($sf == 'ipc') {
                 $query->where('presensi.status_out', 'izin_pulang_cepat');
+            } elseif ($sf == 'as') {
+                $query->where(function ($q) {
+                    $q->where('pengajuan_izin.status', 'as')
+                      ->orWhere('pengajuan_izin.keterangan', 'like', '%apel senin%')
+                      ->orWhere('presensi.lokasi_in', 'like', '%apel senin%');
+                });
             } else {
                 $query->where('presensi.status', $sf);
             }
@@ -2666,6 +2706,14 @@ class PresensiController extends Controller
                     $status_out = 'izin_pulang_cepat';
                     $jam_in = !empty($request->jam_in) ? $request->jam_in : $jam_masuk_jadwal;
                     $jam_out = $jam_pulang_jadwal;
+                } elseif ($status_pilihan == 'as') {
+                    $status = 'h';
+                    $status_in = 'tepat_waktu';
+                    $status_out = 'tepat_waktu';
+                    $jam_in = '07:59:00';
+                    $jam_out = !empty($request->jam_out) ? $request->jam_out : $jam_pulang_jadwal;
+                    $selisih_in = 0;
+                    $selisih_out = 0;
                 } else {
                     $status = $status_pilihan;
                     $status_in = null;
@@ -2674,7 +2722,7 @@ class PresensiController extends Controller
                     $jam_out = null;
                 }
 
-                if (in_array($status_pilihan, ['i', 's', 'c', 'it', 'ipc', 'tl', 'l'])) {
+                if (in_array($status_pilihan, ['i', 's', 'c', 'it', 'ipc', 'tl', 'l', 'as'])) {
                     $bulan = date("m", strtotime($cur_tgl));
                     $tahun = date("Y", strtotime($cur_tgl));
                     $thn = substr($tahun, 2, 2);
@@ -2693,7 +2741,7 @@ class PresensiController extends Controller
                         'tgl_izin_dari' => $cur_tgl,
                         'tgl_izin_sampai' => $cur_tgl,
                         'status' => $status_pilihan,
-                        'keterangan' => !empty($keterangan) ? $keterangan : ($status_pilihan == 'tl' ? 'Tugas Luar' : ($status_pilihan == 'l' ? 'Libur Nasional' : 'Ditetapkan oleh Admin')),
+                        'keterangan' => !empty($keterangan) ? $keterangan : ($status_pilihan == 'as' ? 'Apel Senin Diskop & UKM' : ($status_pilihan == 'tl' ? 'Tugas Luar' : ($status_pilihan == 'l' ? 'Libur Nasional' : 'Ditetapkan oleh Admin'))),
                         'status_approved' => '1'
                     ]);
                 }
@@ -2751,7 +2799,7 @@ class PresensiController extends Controller
     {
         $id = $request->id;
         $presensi = DB::table('presensi')
-            ->select('presensi.*', 'pegawai.nama_lengkap', 'pengajuan_izin.keterangan as keterangan_izin')
+            ->select('presensi.*', 'pegawai.nama_lengkap', 'pengajuan_izin.keterangan as keterangan_izin', 'pengajuan_izin.status as status_izin')
             ->join('pegawai', 'presensi.nik', '=', 'pegawai.nik')
             ->leftJoin('pengajuan_izin', 'presensi.kode_izin', '=', 'pengajuan_izin.kode_izin')
             ->where('presensi.id', $id)
@@ -2827,6 +2875,12 @@ class PresensiController extends Controller
             $status_out = 'izin_pulang_cepat';
             $jam_in = !empty($request->jam_in) ? $request->jam_in : ($presensi->status_in == 'izin_terlambat' ? null : ($presensi->foto_in == 'izin_terlambat.png' ? null : $presensi->jam_in));
             $jam_out = $jam_pulang_jadwal;
+        } elseif ($status_pilihan == 'as') {
+            $status = 'h';
+            $status_in = 'tepat_waktu';
+            $jam_in = '07:59:00';
+            $jam_out = !empty($request->jam_out) ? $request->jam_out : ($presensi->status_out == 'izin_pulang_cepat' ? $presensi->jam_out : ($presensi->foto_out == 'izin_pulang_cepat.png' ? null : $presensi->jam_out));
+            $selisih_in = 0;
         } else {
             $status = $status_pilihan;
             $status_in = null;
@@ -2843,11 +2897,13 @@ class PresensiController extends Controller
             'jam_out' => $jam_out
         ];
 
-        if (in_array($status_pilihan, ['i', 's', 'c', 'it', 'ipc', 'tl', 'l'])) {
+        if (in_array($status_pilihan, ['i', 's', 'c', 'it', 'ipc', 'tl', 'l', 'as'])) {
             if (!empty($presensi->kode_izin)) {
                 $updIzin = ['status' => $status_pilihan];
                 if (!empty($keterangan)) {
                     $updIzin['keterangan'] = $keterangan;
+                } elseif ($status_pilihan == 'as') {
+                    $updIzin['keterangan'] = 'Apel Senin Diskop & UKM';
                 } elseif ($status_pilihan == 'tl') {
                     $updIzin['keterangan'] = 'Tugas Luar';
                 } elseif ($status_pilihan == 'l') {
@@ -2873,7 +2929,7 @@ class PresensiController extends Controller
                     'tgl_izin_dari' => $cur_tgl,
                     'tgl_izin_sampai' => $cur_tgl,
                     'status' => $status_pilihan,
-                    'keterangan' => !empty($keterangan) ? $keterangan : ($status_pilihan == 'tl' ? 'Tugas Luar' : ($status_pilihan == 'l' ? 'Libur Nasional' : 'Ditetapkan oleh Admin')),
+                    'keterangan' => !empty($keterangan) ? $keterangan : ($status_pilihan == 'as' ? 'Apel Senin Diskop & UKM' : ($status_pilihan == 'tl' ? 'Tugas Luar' : ($status_pilihan == 'l' ? 'Libur Nasional' : 'Ditetapkan oleh Admin'))),
                     'status_approved' => '1'
                 ]);
 

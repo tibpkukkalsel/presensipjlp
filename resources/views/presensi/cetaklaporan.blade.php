@@ -237,6 +237,8 @@
                         <td class="text-center badge-status">
                             @if ($d->status == 'h' && $d->status_in == 'izin_terlambat' && $d->status_out == 'izin_pulang_cepat')
                                 Izin Terlambat & Pulang Cepat
+                            @elseif ($d->status == 'as' || $d->foto_in == 'apel_senin.png' || (!empty($d->lokasi_in) && stripos($d->lokasi_in, 'apel') !== false))
+                                Hadir (Apel Senin)
                             @elseif ($d->status == 'it' || ($d->status == 'h' && $d->status_in == 'izin_terlambat'))
                                 Izin Terlambat
                             @elseif ($d->status == 'ipc' || ($d->status == 'h' && $d->status_out == 'izin_pulang_cepat'))
@@ -254,6 +256,8 @@
                         <td class="text-center">
                             @if ($d->status_in == 'izin_terlambat')
                                 <span style="color: #0284c7;">Disetujui Izin Terlambat</span>
+                            @elseif ($d->status == 'as' || $d->foto_in == 'apel_senin.png' || (!empty($d->lokasi_in) && stripos($d->lokasi_in, 'apel') !== false))
+                                <span style="color: #0d9488;">Apel Senin Diskop & UKM</span><br><span style="color: #5cb85c; font-size: 7.5pt;">(Tepat Waktu)</span>
                             @elseif ($d->jam_in > $d->jam_masuk)
                                 <span style="color: #d9534f;">Terlambat {{ $terlambat_desimal }} Jam</span>
                             @else
@@ -275,6 +279,8 @@
                         <td class="text-center badge-status">
                             @if ($d->status == 'tl')
                                 Tugas Luar
+                            @elseif ($d->status == 'as')
+                                Apel Senin Diskop & UKM
                             @elseif ($d->status == 'i')
                                 Izin
                             @elseif ($d->status == 's')

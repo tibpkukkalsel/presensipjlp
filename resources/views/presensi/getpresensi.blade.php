@@ -47,6 +47,8 @@ if (!function_exists('hitungSelisihAdmin')) {
                 <span class="badge bg-success">{{ substr($d->jam_in, 0, 5) }}</span>
                 @if ($d->status_in == 'izin_terlambat')
                     <br><span class="badge bg-warning text-dark mt-1">Izin Terlambat</span>
+                @elseif ($d->foto_in == 'apel_senin.png' || (!empty($d->lokasi_in) && stripos($d->lokasi_in, 'apel') !== false))
+                    <br><span class="badge text-white mt-1" style="background-color: #0d9488;">Apel Senin</span>
                 @elseif ($d->status_in == 'terlambat' || (!empty($d->jam_masuk) && $d->jam_in > $d->jam_masuk))
                     <br><span class="badge bg-danger mt-1">Terlambat {{ hitungSelisihAdmin($d->jam_masuk, $d->jam_in) }}</span>
                 @endif
@@ -109,6 +111,8 @@ if (!function_exists('hitungSelisihAdmin')) {
                 <span class="badge bg-success">Hadir</span>
                 @if ($d->status_in == 'izin_terlambat')
                     <br><span class="badge bg-warning text-dark mt-1">Izin Terlambat</span>
+                @elseif ($d->foto_in == 'apel_senin.png' || (!empty($d->lokasi_in) && stripos($d->lokasi_in, 'apel') !== false))
+                    <br><span class="badge text-white mt-1" style="background-color: #0d9488;">Apel Senin Diskop & UKM</span>
                 @elseif ($d->status_in == 'terlambat')
                     <br><span class="badge bg-danger mt-1">Terlambat</span>
                 @endif

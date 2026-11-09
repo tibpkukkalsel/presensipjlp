@@ -193,7 +193,7 @@ class DashboardController extends Controller
                     ->select('nik', 'status')
                     ->where('tgl_izin_dari', '<=', $hariini)
                     ->where('tgl_izin_sampai', '>=', $hariini)
-                    ->whereIn('status', ['i', 's', 'c'])
+                    ->whereIn('status', ['i', 's', 'c', 'tl', 'as'])
                     ->where('status_approved', '!=', '2')
                     ->groupBy('nik', 'status'),
                 'izin_today',
@@ -204,7 +204,7 @@ class DashboardController extends Controller
             ->leftJoin('jam_kerja', 'presensi.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
             ->orderByRaw('CASE 
                 WHEN presensi.jam_in IS NOT NULL AND presensi.jam_in != "" THEN 0 
-                WHEN presensi.status IN ("i", "s", "c", "tl") OR izin_today.status IN ("i", "s", "c") THEN 1 
+                WHEN presensi.status IN ("i", "s", "c", "tl", "as") OR izin_today.status IN ("i", "s", "c", "tl", "as") THEN 1 
                 ELSE 2 
             END')
             ->orderBy('presensi.jam_in', 'asc')

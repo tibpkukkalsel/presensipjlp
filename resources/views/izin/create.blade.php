@@ -79,6 +79,7 @@
                         <option value="i">Izin Absen (Tidak Masuk Kerja)</option>
                         <option value="it">Izin Terlambat (Masuk Kerja)</option>
                         <option value="ipc">Izin Pulang Cepat (Pulang Awal)</option>
+                        <option value="as">Apel Senin Diskop & UKM</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -134,12 +135,15 @@
 
         $("#status").change(function() {
             var val = $(this).val();
-            if (val == 'it' || val == 'ipc') {
+            if (val == 'it' || val == 'ipc' || val == 'as') {
                 $("#group_sampai").hide();
                 if ($("#tgl_izin_dari").val() != "") {
                     $("#tgl_izin_sampai").val($("#tgl_izin_dari").val());
                 }
                 $("#jml_hari").val("1 Hari");
+                if (val == 'as' && $("#keterangan").val() == "") {
+                    $("#keterangan").val("Apel Senin Diskop & UKM");
+                }
             } else {
                 $("#group_sampai").show();
                 loadjumlahhari();
@@ -148,7 +152,7 @@
 
         $("#tgl_izin_dari,#tgl_izin_sampai").change(function(e) {
             var val = $("#status").val();
-            if (val == 'it' || val == 'ipc') {
+            if (val == 'it' || val == 'ipc' || val == 'as') {
                 $("#tgl_izin_sampai").val($("#tgl_izin_dari").val());
                 $("#jml_hari").val("1 Hari");
             } else {
@@ -162,10 +166,13 @@
             var tgl_izin_sampai = $("#tgl_izin_sampai").val();
             var keterangan = $("#keterangan").val();
 
-            if (val == 'it' || val == 'ipc') {
+            if (val == 'it' || val == 'ipc' || val == 'as') {
                 if (tgl_izin_sampai == "") {
                     $("#tgl_izin_sampai").val(tgl_izin_dari);
                     tgl_izin_sampai = tgl_izin_dari;
+                }
+                if (val == 'as' && $("#keterangan").val() == "") {
+                    $("#keterangan").val("Apel Senin Diskop & UKM");
                 }
             }
 

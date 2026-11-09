@@ -647,6 +647,7 @@
             const windowInEnd = rec.akhir_jam_masuk || (rec.jam_masuk || (defaultSchedule && defaultSchedule.jam_masuk) || '08:00:00');
             const isLate = Boolean(hasIn && rec.jam_masuk && (rec.jam_in > rec.jam_masuk));
             const isIzinTerlambat = (rec.status_in === 'izin_terlambat');
+            const isApel = (rec.status_in === 'tepat_waktu' && ((rec.keterangan_izin && rec.keterangan_izin.toLowerCase().indexOf('apel') !== -1) || (rec.lokasi_in && rec.lokasi_in.toLowerCase().indexOf('apel') !== -1)));
 
             html += `
                 <div class="detail-card">
@@ -656,8 +657,8 @@
                             <div class="detail-card-date">${formattedDate}</div>
                         </div>
                         <div>
-                            <span class="status-pill ${isIzinTerlambat ? 'pill-blue' : (hasIn ? (isLate ? 'pill-warning' : 'pill-hadir') : 'pill-warning')}">
-                                ${isIzinTerlambat ? 'Izin Terlambat' : (hasIn ? (isLate ? 'Terlambat' : 'Hadir') : 'Terlambat')}
+                            <span class="status-pill ${isApel ? 'pill-hadir' : (isIzinTerlambat ? 'pill-blue' : (hasIn ? (isLate ? 'pill-warning' : 'pill-hadir') : 'pill-warning'))}">
+                                ${isApel ? 'Apel Senin' : (isIzinTerlambat ? 'Izin Terlambat' : (hasIn ? (isLate ? 'Terlambat' : 'Hadir') : 'Terlambat'))}
                             </span>
                         </div>
                     </div>
@@ -669,13 +670,15 @@
                         <div class="flex-grow-1">
                             <div class="time-display ${hasIn ? '' : 'text-muted'}" style="${hasIn ? '' : 'color: #94a3b8 !important; font-size: 20px;'}">${hasIn ? rec.jam_in : 'Tidak Absen Pagi'}</div>
                             <div class="time-subtitle">Masuk : ${windowInStart} - ${windowInEnd}</div>
-                            ${isIzinTerlambat
-                                ? `<span class="text-info status-badge-inline" style="color:#0284c7 !important;">ℹ️ Disetujui Izin Terlambat</span>`
-                                : (hasIn 
-                                    ? (isLate 
-                                        ? `<span class="text-danger status-badge-inline">⚠️ Terlambat</span>` 
-                                        : `<span class="text-success status-badge-inline">✓ Tepat Waktu</span>`)
-                                    : `<span class="text-danger status-badge-inline">⚠️ Terlambat (Tidak Absen Pagi)</span>`)
+                            ${isApel
+                                ? `<span class="text-success status-badge-inline" style="color:#0d9488 !important;">✓ Apel Senin Diskop & UKM (Tepat Waktu)</span>`
+                                : (isIzinTerlambat
+                                    ? `<span class="text-info status-badge-inline" style="color:#0284c7 !important;">ℹ️ Disetujui Izin Terlambat</span>`
+                                    : (hasIn 
+                                        ? (isLate 
+                                            ? `<span class="text-danger status-badge-inline">⚠️ Terlambat</span>` 
+                                            : `<span class="text-success status-badge-inline">✓ Tepat Waktu</span>`)
+                                        : `<span class="text-danger status-badge-inline">⚠️ Terlambat (Tidak Absen Pagi)</span>`))
                             }
                         </div>
                     </div>

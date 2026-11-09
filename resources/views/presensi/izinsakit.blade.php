@@ -177,6 +177,8 @@
                                                 <span class="badge bg-warning text-dark">Izin Terlambat</span>
                                             @elseif ($d->status == 'ipc')
                                                 <span class="badge bg-primary text-white">Izin Pulang Cepat</span>
+                                            @elseif ($d->status == 'as')
+                                                <span class="badge text-white" style="background-color: #0d9488;">Apel Senin Diskop & UKM</span>
                                             @endif
                                         </td>
                                         <td>{{ $d->keterangan }}</td>

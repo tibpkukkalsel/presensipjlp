@@ -103,6 +103,9 @@
                                                     <option value="tl"
                                                         {{ Request('status_filter') == 'tl' ? 'selected' : '' }}>Tugas Luar
                                                     </option>
+                                                    <option value="as"
+                                                        {{ Request('status_filter') == 'as' ? 'selected' : '' }}>Apel Senin Diskop & UKM
+                                                    </option>
                                                     <option value="it"
                                                         {{ Request('status_filter') == 'it' ? 'selected' : '' }}>Izin
                                                         Terlambat</option>
@@ -168,8 +171,15 @@
                                                         $statusBadge = 'bg-secondary';
                                                         $statusLabel = strtoupper($d->status);
 
+                                                        $isApel = (isset($d->status_izin) && $d->status_izin == 'as') ||
+                                                                  (!empty($d->keterangan_izin) && stripos($d->keterangan_izin, 'apel') !== false) ||
+                                                                  (!empty($d->lokasi_in) && stripos($d->lokasi_in, 'apel') !== false);
+
                                                         if ($d->status == 'h') {
-                                                            if ($d->status_in == 'izin_terlambat' && $d->status_out == 'izin_pulang_cepat') {
+                                                            if ($isApel) {
+                                                                $statusBadge = 'text-white" style="background-color: #0d9488;';
+                                                                $statusLabel = 'Apel Senin Diskop & UKM';
+                                                            } elseif ($d->status_in == 'izin_terlambat' && $d->status_out == 'izin_pulang_cepat') {
                                                                 $statusBadge = 'bg-primary text-white';
                                                                 $statusLabel = 'Izin Terlambat & Pulang Cepat';
                                                             } elseif ($d->status_in == 'izin_terlambat') {
@@ -203,6 +213,9 @@
                                                         } elseif ($d->status == 'l') {
                                                             $statusBadge = 'bg-dark';
                                                             $statusLabel = 'Libur Nasional';
+                                                        } elseif ($d->status == 'as') {
+                                                            $statusBadge = 'text-white" style="background-color: #0d9488;';
+                                                            $statusLabel = 'Apel Senin Diskop & UKM';
                                                         }
                                                     @endphp
                                                     <tr>
@@ -421,6 +434,7 @@
                             <label class="form-label required">Status Kehadiran</label>
                             <select name="status_pilihan" id="status_pilihan" class="form-select" required>
                                 <option value="tl">Tugas Luar</option>
+                                <option value="as">Apel Senin Diskop & UKM</option>
                                 <option value="it">Izin Terlambat</option>
                                 <option value="ipc">Izin Pulang Cepat</option>
                                 <option value="i">Izin</option>
@@ -484,6 +498,7 @@
                             <label class="form-label required">Status Kehadiran</label>
                             <select name="status_pilihan" id="edit_status_pilihan" class="form-select" required>
                                 <option value="tl">Tugas Luar</option>
+                                <option value="as">Apel Senin Diskop & UKM</option>
                                 <option value="it">Izin Terlambat</option>
                                 <option value="ipc">Izin Pulang Cepat</option>
                                 <option value="i">Izin</option>
@@ -557,7 +572,9 @@
 
                             var stVal = res.status;
                             if (res.status === 'h') {
-                                if (res.status_in === 'izin_terlambat') {
+                                if (res.status_izin === 'as' || (res.keterangan_izin && res.keterangan_izin.toLowerCase().indexOf('apel') !== -1) || (res.lokasi_in && res.lokasi_in.toLowerCase().indexOf('apel') !== -1)) {
+                                    stVal = 'as';
+                                } else if (res.status_in === 'izin_terlambat') {
                                     stVal = 'it';
                                 } else if (res.status_out === 'izin_pulang_cepat') {
                                     stVal = 'ipc';

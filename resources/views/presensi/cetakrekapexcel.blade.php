@@ -179,11 +179,11 @@
                                     $color = '#ffffff';
                                     $text_color = '#000000';
                                     $text_display = 'H';
-                                } elseif ($status == 'tl') {
+                                } elseif ($status == 'tl' || $status == 'as') {
                                     $jml_hadir += 1;
-                                    $color = '#20c997';
+                                    $color = $status == 'as' ? '#0d9488' : '#20c997';
                                     $text_color = '#ffffff';
-                                    $text_display = 'TL';
+                                    $text_display = $status == 'as' ? 'AS' : 'TL';
                                 } elseif ($status == 'i') {
                                     $jml_izin += 1;
                                     $color = '#ffc107';

@@ -108,6 +108,8 @@
                 @php
                     if ($d->status == 'tl') {
                         $status = 'Tugas Luar';
+                    } elseif ($d->status == 'as') {
+                        $status = 'Apel Senin Diskop & UKM';
                     } elseif ($d->status == 'i') {
                         $status = 'Izin Absen';
                     } elseif ($d->status == 's') {
@@ -129,6 +131,9 @@
                             <div class="iconpresensi">
                                 @if ($d->status == 'tl')
                                     <ion-icon name="briefcase-outline"
+                                        style="font-size: 48px; color:rgb(13, 148, 136)"></ion-icon>
+                                @elseif($d->status == 'as')
+                                    <ion-icon name="people-outline"
                                         style="font-size: 48px; color:rgb(13, 148, 136)"></ion-icon>
                                 @elseif ($d->status == 'i')
                                     <ion-icon name="document-text-outline"

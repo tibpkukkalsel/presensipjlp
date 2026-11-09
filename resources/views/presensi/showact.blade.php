@@ -32,6 +32,8 @@
     // Format Jenis Izin
     if ($dataizin->status == 'tl') {
         $jenisIzin = 'tugas luar kantor';
+    } elseif ($dataizin->status == 'as') {
+        $jenisIzin = 'Apel Senin Diskop & UKM';
     } elseif ($dataizin->status == 'i') {
         $jenisIzin = 'tidak masuk kerja';
     } elseif ($dataizin->status == 's') {
@@ -75,7 +77,7 @@
     @if ($dataizin->status_approved == 0)
         <!-- Tombol Edit (Hanya jika belum disetujui) -->
         <li>
-            @if ($dataizin->status == "i" || $dataizin->status == "it" || $dataizin->status == "ipc")
+            @if ($dataizin->status == "i" || $dataizin->status == "it" || $dataizin->status == "ipc" || $dataizin->status == "as")
                 <a href="/izinabsen/{{ $dataizin->kode_izin }}/edit" class="btn btn-list text-primary">
                     <span>
                         <ion-icon name="create-outline" style="font-size: 22px;"></ion-icon>

@@ -23,8 +23,12 @@ class IzinabsenController extends Controller
         $status = $request->status ?? "i";
         $keterangan = $request->keterangan;
 
-        if (in_array($status, ['it', 'ipc']) && empty($tgl_izin_sampai)) {
+        if (in_array($status, ['it', 'ipc', 'as']) && empty($tgl_izin_sampai)) {
             $tgl_izin_sampai = $tgl_izin_dari;
+        }
+
+        if ($status == 'as' && empty($keterangan)) {
+            $keterangan = 'Apel Senin Diskop & UKM';
         }
 
         $bulan = date("m", strtotime($tgl_izin_dari));
@@ -67,6 +71,9 @@ class IzinabsenController extends Controller
                 $q->where('status_out', 'izin_pulang_cepat')
                     ->orWhereNotIn('status', ['h']);
             });
+        } elseif ($status == 'as') {
+            // Apel Senin: hanya bentrok jika status kehadiran hari itu bukan hari kerja 'h' (misal cuti/sakit/libur)
+            $cekpresensi = $cekpresensi->whereNotIn('status', ['h']);
         }
 
         // 2. Cek bentrok dengan pengajuan izin yang sudah ada
@@ -79,9 +86,12 @@ class IzinabsenController extends Controller
             // Hanya bentrok jika sudah ada izin selain IPC (yaitu: IT ganda, atau izin seharian i/s/c)
             $cekpengajuan = $cekpengajuan->where('status', '!=', 'ipc');
         } elseif ($status == 'ipc') {
-            // Izin Pulang Cepat (sore) BISA berdampingan dengan Izin Terlambat (pagi)!
-            // Hanya bentrok jika sudah ada izin selain IT (yaitu: IPC ganda, atau izin seharian i/s/c)
-            $cekpengajuan = $cekpengajuan->where('status', '!=', 'it');
+            // Izin Pulang Cepat (sore) BISA berdampingan dengan Izin Terlambat / Apel Senin (pagi)!
+            // Hanya bentrok jika sudah ada izin selain IT / AS (yaitu: IPC ganda, atau izin seharian i/s/c)
+            $cekpengajuan = $cekpengajuan->whereNotIn('status', ['it', 'as']);
+        } elseif ($status == 'as') {
+            // Apel Senin (pagi) BISA berdampingan dengan Izin Pulang Cepat (sore)!
+            $cekpengajuan = $cekpengajuan->where('status', '!=', 'ipc');
         }
 
         $datapresensi = $cekpresensi->get();
@@ -92,6 +102,8 @@ class IzinabsenController extends Controller
                 $msgPresensi = "Anda sudah memiliki Izin Terlambat atau izin seharian aktif pada tanggal tersebut!";
             } elseif ($status == 'ipc') {
                 $msgPresensi = "Anda sudah memiliki Izin Pulang Cepat atau izin seharian aktif pada tanggal tersebut!";
+            } elseif ($status == 'as') {
+                $msgPresensi = "Anda sudah memiliki status izin seharian aktif pada tanggal tersebut!";
             } else {
                 $blacklistdate = "";
                 foreach ($datapresensi as $d) {
@@ -106,6 +118,8 @@ class IzinabsenController extends Controller
                 $msgPengajuan = "Anda sudah pernah mengajukan Izin Terlambat atau izin seharian pada tanggal tersebut!";
             } elseif ($status == 'ipc') {
                 $msgPengajuan = "Anda sudah pernah mengajukan Izin Pulang Cepat atau izin seharian pada tanggal tersebut!";
+            } elseif ($status == 'as') {
+                $msgPengajuan = "Anda sudah pernah mengajukan Izin Apel Senin atau izin seharian pada tanggal tersebut!";
             }
             return redirect('/presensi/izin')->with(['error' => $msgPengajuan]);
         } else {
